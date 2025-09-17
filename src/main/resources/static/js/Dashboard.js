@@ -545,13 +545,18 @@ function showResourceForm(action) {
   }
 }
 
-const cancelButton = document.getElementsByClassName("cancel-btn");
-cancelButton.addEventListener("click", hideResourceFormNew(cancelButton.value));
+
 
 // Ocultar formulario en caso de cancelar
-function hideResourceFormNew(idForm){
+function hideResourceForm(idForm){
+  console.log("Entro a al funcion .", idForm)
   document.getElementById(idForm).classList.add("hidden");
 }
+
+
+
+
+
 
 document.querySelectorAll(".btn-cancel")
 
