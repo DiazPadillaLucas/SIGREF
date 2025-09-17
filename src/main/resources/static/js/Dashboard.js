@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
   agregarAlertaStockMinimo();
   listarRecursos();
   cargarRecursos();
+  obtenerInsumosSelect();
 });
 
 document.addEventListener("click", function (event) {
@@ -437,6 +438,7 @@ function cargarRecursos(){
 }
 
 function registrarMovimiento() {
+  console.log("valor cantidad", document.getElementById("cantidadMovimiento"))
   const movimiento = {
     tipo: document.querySelector('input[name="tipo_movimiento"]:checked').value,
     cantidad: parseInt(document.getElementById("cantidadMovimiento").value),
@@ -444,6 +446,7 @@ function registrarMovimiento() {
     recursoId: parseInt(document.getElementById("recursoMovimiento").value),
     usuarioId: JSON.parse(localStorage.getItem("usuarioLogueado")).id,
   };
+  console.log(movimiento);
 
   fetch("http://localhost:8080/api/movimientos", {
     method: "POST",
@@ -454,6 +457,7 @@ function registrarMovimiento() {
     .then((data) => alert("Movimiento registrado"))
     .catch((error) => console.error("Error en movimiento:", error));
 }
+
 
 function registrarSolicitud() {
   const solicitud = {
@@ -553,12 +557,28 @@ function hideResourceForm(idForm){
   document.getElementById(idForm).classList.add("hidden");
 }
 
+// Obtener insumos para listarlos en select
+function obtenerInsumosSelect(){
+  fetch("http://localhost:8080/api/recursos/activos")
+      .then((response) => response.json())
+      .then((data) => {
+        const select = document.getElementById("select-list-insumo");
+        console.log(data);
 
 
+        data.sort((a,b) => a.nombre.localeCompare(b.nombre));
 
+        console.log("Data organizado",data);
 
+        data.forEach((insumo) => {
+          let option = document.createElement("option");
+          option.textContent = insumo.nombre;
+          select.appendChild(option);
+        });
 
-document.querySelectorAll(".btn-cancel")
+      });
+}
+
 
 
 // Mostrar/ocultar formularios en préstamos
