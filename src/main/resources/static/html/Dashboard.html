@@ -54,7 +54,7 @@
                 onclick="showSection('gestion-recursos')"
                 class="flex items-center p-2 rounded hover:bg-blue-700"
               >
-                <i class="fas fa-boxes mr-3"></i> Gestión Recursos
+                <i class="fas fa-boxes mr-3"></i> Gestión Insumo
               </a>
             </li>
             <li class="mb-2">
@@ -141,7 +141,7 @@
                 <i class="fas fa-box-open text-xl"></i>
               </div>
               <div>
-                <p class="text-gray-500">Total Recursos</p>
+                <p class="text-gray-500">Total Insumo</p>
                 <h3 class="text-2xl font-bold" id="totalRecursos"></h3>
               </div>
             </div>
@@ -285,19 +285,13 @@
       <!-- Gestión de Recursos -->
       <section id="gestion-recursos" class="section-content hidden">
         <div class="flex justify-between items-center mb-8">
-          <h2 class="text-2xl font-bold text-gray-800">Gestión de Recursos</h2>
+          <h2 class="text-2xl font-bold text-gray-800">Gestión de Insumo</h2>
           <div class="flex space-x-3">
             <button
               onclick="showResourceForm('nuevo')"
               class="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             >
-              <i class="fas fa-plus mr-2"></i> Nuevo Recurso
-            </button>
-            <button
-              onclick="showResourceForm('consultar')"
-              class="flex items-center px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
-            >
-              <i class="fas fa-search mr-2"></i> Consultar
+              <i class="fas fa-plus mr-2"></i> Nuevo Insumo
             </button>
           </div>
         </div>
@@ -306,7 +300,7 @@
         <div id="form-nuevo-recurso" class="form-container p-6 mb-8 hidden">
           <h3 class="text-xl font-semibold mb-4 flex items-center">
             <i class="fas fa-plus-circle mr-2 text-blue-600"></i> Registrar
-            Nuevo Recurso
+            Nuevo Insumo
           </h3>
           <form>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -326,11 +320,9 @@
                 >
                   <option>Seleccione...</option>
                   <option>Oficina</option>
-                  <option>Informatico</option>
-                  <option>Mobiliario</option>
-                  <option>Utilitario</option>
-                  <option>Tecnico</option>
-                  <option>Aula</option>
+                  <option>Limpieza</option>
+                  <option>Insumos Electricos</option>
+
                 </select>
               </div>
               <div>
@@ -379,10 +371,10 @@
             <div class="flex justify-end mt-6 space-x-3">
               <button
                 type="button"
-                onclick="hideResourceForm('nuevo')"
-                class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100"
+                class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 cancel-btn"
+                value="form-nuevo-recurso"
               >
-                Cancelar
+                <i class="fas fa-cancel mr-2"></i> Cancelar
               </button>
               <button
                 type="button"
@@ -399,7 +391,7 @@
         <div id="form-modificar-recurso" class="form-container p-6 mb-8 hidden">
           <h3 class="text-xl font-semibold mb-4 flex items-center">
             <i class="fas fa-plus-circle mr-2 text-blue-600"></i> Modificar
-            recurso
+            Insumo
           </h3>
           <form>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -482,8 +474,8 @@
             <div class="flex justify-end mt-6 space-x-3">
               <button
                 type="button"
-                onclick="hideResourceForm('modificar')"
-                class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100"
+                value="form-modificar-recurso"
+                class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 cancel-btn"
               >
                 Cancelar
               </button>
@@ -509,7 +501,7 @@
                 ></i>
                 <input
                   type="text"
-                  placeholder="Buscar recurso..."
+                  placeholder="Buscar Insumo..."
                   class="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>

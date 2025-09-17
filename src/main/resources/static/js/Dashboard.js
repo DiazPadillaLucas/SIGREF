@@ -97,6 +97,7 @@ function contarPrestamosPendientes() {
     );
 }
 
+
 function agregarAlertaStockMinimo() {
   fetch("http://localhost:8080/api/recursos/listarStockMinimo")
     .then((response) => response.json())
@@ -418,7 +419,7 @@ function cargarRecursos(){
     .then((response) => response.json())
     .then((data) => {
       console.log(data);
-      
+
       const selectRecurso = document.getElementById("select-recurso");
       selectRecurso.innerHTML = ""; // Limpiar opciones previas
       const optionDefault = document.createElement("option");
@@ -543,6 +544,17 @@ function showResourceForm(action) {
       .classList.remove("hidden");
   }
 }
+
+const cancelButton = document.getElementsByClassName("cancel-btn");
+cancelButton.addEventListener("click", hideResourceFormNew(cancelButton.value));
+
+// Ocultar formulario en caso de cancelar
+function hideResourceFormNew(idForm){
+  document.getElementById(idForm).classList.add("hidden");
+}
+
+document.querySelectorAll(".btn-cancel")
+
 
 // Mostrar/ocultar formularios en préstamos
 function showLoanForm(action) {
