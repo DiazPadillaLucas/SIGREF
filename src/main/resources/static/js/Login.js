@@ -41,9 +41,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Aqui guardamos el usuario en el localStorage para validarlo en cada operacion
             localStorage.setItem('usuarioLogueado', JSON.stringify(data));
-
+       // Redirigir según el rol
+           if (data.rol === "ADMINISTRADOR") {
+               window.location.href = "/html/Dashboard.html";
+           } else if (data.rol === "OPERADOR") {
+               window.location.href = "/html/DashboardOperario.html";
+           } else {
+               // En caso de que venga un rol inesperado
+               alert("Rol de usuario no reconocido");
+           }
             // Aqui redirigimos al usuario al Dashboard
-            window.location.href = "/html/Dashboard.html";
+           // window.location.href = "/html/Dashboard.html";
         })
         .catch(error => {
             console.error('Error:', error);
