@@ -63,10 +63,11 @@
                 onclick="showSection('control-stock')"
                 class="flex items-center p-2 rounded hover:bg-blue-700"
               >
-                <i class="fas fa-exchange-alt mr-3"></i> Control Stock
+                <i class="fas fa-exchange-alt mr-3"></i> Movimientos
               </a>
             </li>
-            <li class="mb-2">
+
+            <!-- <li class="mb-2">
               <a
                 href="#"
                 onclick="showSection('prestamos')"
@@ -75,6 +76,7 @@
                 <i class="fas fa-hand-holding mr-3"></i> Préstamos
               </a>
             </li>
+            -->
             <li class="mb-2">
               <a
                 href="#"
@@ -155,18 +157,6 @@
               <div>
                 <p class="text-gray-500">Alertas Stock</p>
                 <h3 class="text-2xl font-bold" id="alertasStock"></h3>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-white p-6 rounded-lg shadow">
-            <div class="flex items-center">
-              <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
-                <i class="fas fa-hand-holding text-xl"></i>
-              </div>
-              <div>
-                <p class="text-gray-500">Préstamos Activos</p>
-                <h3 class="text-2xl font-bold" id="prestamosPendientes">0</h3>
               </div>
             </div>
           </div>
@@ -601,27 +591,17 @@
                 <label class="block text-gray-700 mb-2"
                   >Tipo de Movimiento</label
                 >
-                <div class="flex space-x-4">
-                  <label class="inline-flex items-center">
-                    <input
-                      type="radio"
-                      name="tipo_movimiento"
-                      value="alta"
-                      class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                      required
-                    />
-                    <span class="ml-2">Ingreso</span>
-                  </label>
-                  <label class="inline-flex items-center">
-                    <input required
-                      type="radio"
-                      name="tipo_movimiento"
-                      value="baja"
-                      class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                    />
-                    <span class="ml-2">Egreso</span>
-                  </label>
-                </div>
+                <button
+                        type="button"
+                        class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 cancel-btn"
+                >
+                  Egreso
+                </button>
+                <button
+                        type="button"
+                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >Ingreso
+                </button>
               </div>
 
               <div class="mb-4">
@@ -865,7 +845,7 @@
         </div>
       </section>
 
-      <!-- Préstamos -->
+      <!-- Préstamos
       <section id="prestamos" class="section-content hidden">
         <div class="flex justify-between items-center mb-8">
           <h2 class="text-2xl font-bold text-gray-800">
@@ -881,7 +861,9 @@
           </div>
         </div>
 
-        <!-- Formulario Préstamo -->
+
+        Formulario Préstamo
+
         <div id="form-prestamo" class="form-container p-6 mb-6 hidden">
           <h3 class="text-xl font-semibold mb-4 flex items-center">
             <i class="fas fa-hand-holding mr-2 text-blue-600"></i> Registrar
@@ -949,7 +931,8 @@
         </div>
 
 
-        <!-- Préstamos Activos -->
+        Préstamos Activos
+
         <div class="bg-white p-6 rounded-lg shadow mb-6">
           <h3 class="text-xl font-semibold mb-4 flex items-center">
             <i class="fas fa-clipboard-list mr-2 text-blue-600"></i> Solicitudes de Prestamo
@@ -1042,7 +1025,8 @@
           </div>
         </div>
 
-        <!-- Historial de Préstamos -->
+        Historial de Préstamos
+
         <div class="bg-white p-6 rounded-lg shadow">
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-xl font-semibold flex items-center">
@@ -1155,6 +1139,7 @@
           </div>
         </div>
       </section>
+      -->
 
       <!-- Reportes -->
       <section id="reportes" class="section-content hidden">
