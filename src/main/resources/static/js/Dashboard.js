@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
   listarRecursos();
   obtenerInsumosSelect();
   mostrarFormulario();
+  listarUsuarios();
 });
 
 document.addEventListener("click", function (event) {
@@ -621,4 +622,104 @@ function showUserForm(action) {
   if (action === "nuevo") {
     document.getElementById("form-nuevo-usuario").classList.remove("hidden");
   }
+}
+function listarUsuarios() {
+
+  fetch("http://localhost:8080/api/usuarios")
+      .then((response) => response.json())
+      .then((data) => {
+        const tabla = document.getElementById("tabla-usuarios");
+
+        console.log("Lista de usuarios: ",data);
+
+
+
+        data.forEach((usuario) => {
+
+          const columna = document.createElement("tr");
+
+          const nombreUsuario = document.createElement("td");
+          nombreUsuario.textContent = usuario.nombreUsuario;
+          nombreUsuario.className = "px-6 py-4 whitespace-nowrap text-sm font-medium";
+
+          const nombre = document.createElement("td");
+          nombre.textContent = usuario.nombre;
+          nombre.className = "px-6 py-4 whitespace-nowrap text-sm";
+
+          const rol = document.createElement("td");
+          rol.textContent = usuario.rol;
+          rol.className = "px-6 py-4 whitespace-nowrap text-sm";
+
+          const estado = document.createElement("span");
+          estado.className = "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800";
+
+          const acciones = document.createElement("td");
+          acciones.className = "px-6 py-4 whitespace-nowrap text-sm font-medium";
+
+
+
+
+
+          columna.appendChild(nombreUsuario);
+          columna.appendChild(nombre);
+          columna.appendChild(rol);
+
+
+          /*
+          acciones.appendChild(ver);
+          acciones.appendChild(editar);
+          acciones.appendChild(eliminar);
+          */
+
+          tabla.appendChild(columna);
+        });
+      });
+
+  /*
+  const editar = document.createElement("button");
+          editar.addEventListener("click", function () {
+            showResourceForm("modificar");
+            document.getElementById("modificar-rec-id").value = recurso.id;
+            document.getElementById("modificar-rec-nombre").value =
+                recurso.nombre;
+            document.getElementById("modificar-rec-cat").value =
+                recurso.categoria.toLowerCase();
+            document.getElementById("modificar-rec-cod").value = recurso.codigo;
+            document.getElementById("modificar-rec-cant").value =
+                recurso.cantidad;
+            document.getElementById("modificar-rec-min").value = recurso.minimo;
+            document.getElementById("modificar-rec-ubicacion").value =
+                recurso.ubicacion;
+            document.getElementById("modificar-rec-desc").value =
+                recurso.descripcion;
+          });
+
+          editar.className = "text-yellow-600 hover:text-yellow-900 mr-3";
+          const editarIcon = document.createElement("i");
+          editarIcon.className = "fas fa-edit";
+          editar.appendChild(editarIcon);
+
+          const eliminar = document.createElement("button");
+          eliminar.className = "text-red-600 hover:text-red-900";
+          eliminar.addEventListener("click", function () {
+            if (confirm("¿Estás seguro de dar de baja este recurso?")) {
+              fetch(
+                  "http://localhost:8080/api/recursos/" + recurso.id + "/darDeBaja",
+                  {
+                    method: "PATCH",
+                  }
+              )
+                  .then((response) => response.json())
+                  .then((data) => reloadPage())
+                  .catch((error) =>
+                      console.error("Error al dar de baja el recurso:", error));
+              reloadPage();
+            }
+          });
+          const eliminarIcon = document.createElement("i");
+          eliminarIcon.className = "fas fa-trash";
+
+   */
+
+
 }
