@@ -15,7 +15,8 @@ public class Movimiento {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    private String nombre_solicitante;
+    private String destino;
     private Date fecha;
     private String tipo;
     private int cantidad;

@@ -20,38 +20,36 @@ CREATE TABLE recurso (
     categoria VARCHAR(50)
 );
 
+--CREATE TABLE movimiento (
+  --  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+   -- fecha DATE,
+    --tipo VARCHAR(50),
+    --cantidad INT,
+   -- motivo VARCHAR(255),
+    --usuario_id BIGINT,
+   -- recurso_id BIGINT,
+   -- CONSTRAINT fk_mov_usuario FOREIGN KEY (usuario_id) REFERENCES usuario(id),
+    --CONSTRAINT fk_mov_recurso FOREIGN KEY (recurso_id) REFERENCES recurso(id)
+--);
+
 CREATE TABLE movimiento (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    fecha DATE,
-    tipo VARCHAR(50),
-    cantidad INT,
-    motivo VARCHAR(255),
-    usuario_id BIGINT,
-    recurso_id BIGINT,
-    CONSTRAINT fk_mov_usuario FOREIGN KEY (usuario_id) REFERENCES usuario(id),
-    CONSTRAINT fk_mov_recurso FOREIGN KEY (recurso_id) REFERENCES recurso(id)
-);
-
-CREATE TABLE solicitud (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    codigo_solicitud VARCHAR(50) UNIQUE,
     fecha DATE,
     nombre_solicitante VARCHAR(255),
     destino VARCHAR(255),
     cantidad INT,
-    activo BOOLEAN,
     tipo VARCHAR(50),
     usuario_id BIGINT,
-    recurso_id BIGINT,
+    insumo_id BIGINT,
     CONSTRAINT fk_sol_usuario FOREIGN KEY (usuario_id) REFERENCES usuario(id),
-    CONSTRAINT fk_sol_recurso FOREIGN KEY (recurso_id) REFERENCES recurso(id)
+    CONSTRAINT fk_sol_insumo FOREIGN KEY (insumo_id) REFERENCES insumo(id)
 );
 
-CREATE TABLE reporte (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    tipo VARCHAR(50),
-    fecha_generacion DATE,
-    usuario_id BIGINT,
-    CONSTRAINT fk_rep_usuario FOREIGN KEY (usuario_id) REFERENCES usuario(id)
-);
+ --CREATE TABLE reporte (
+   -- id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    --tipo VARCHAR(50),
+    --fecha_generacion DATE,
+    --usuario_id BIGINT,
+    --CONSTRAINT fk_rep_usuario FOREIGN KEY (usuario_id) REFERENCES usuario(id)
+--);
 
