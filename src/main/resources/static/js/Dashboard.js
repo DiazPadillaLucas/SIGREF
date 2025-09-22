@@ -201,11 +201,11 @@ function listarRecursos() {
         const acciones = document.createElement("td");
         acciones.className = "px-6 py-4 whitespace-nowrap text-sm font-medium";
 
-        const ver = document.createElement("button");
+       /* const ver = document.createElement("button");
         ver.className = "text-blue-600 hover:text-blue-900 mr-3";
         const verIcon = document.createElement("i");
         verIcon.className = "fas fa-eye";
-        ver.appendChild(verIcon);
+        ver.appendChild(verIcon);*/
 
         const editar = document.createElement("button");
         editar.addEventListener("click", function () {
@@ -258,7 +258,7 @@ function listarRecursos() {
         columna.appendChild(stock);
         columna.appendChild(ubicacion);
 
-        acciones.appendChild(ver);
+        /*acciones.appendChild(ver);*/
         acciones.appendChild(editar);
         acciones.appendChild(eliminar);
 
