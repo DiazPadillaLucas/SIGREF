@@ -40,6 +40,8 @@ public class MovimientoServicio {
     public Movimiento actualizarMovimiento(Long id, Movimiento movimientoActualizado) {
         Movimiento movimientoExistente = obtenerMovimientoPorId(id);
 
+        movimientoExistente.setDestino(movimientoActualizado.getDestino());
+        movimientoExistente.setNombre_solicitante(movimientoActualizado.getNombre_solicitante());
         movimientoExistente.setFecha(movimientoActualizado.getFecha());
         movimientoExistente.setTipo(movimientoActualizado.getTipo());
         movimientoExistente.setCantidad(movimientoActualizado.getCantidad());
