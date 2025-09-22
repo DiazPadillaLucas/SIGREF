@@ -209,7 +209,7 @@ function listarRecursos() {
 
         const editar = document.createElement("button");
         editar.addEventListener("click", function () {
-          showResourceForm("modificar");
+          showResourceForm("form-modificar-recurso");
           document.getElementById("modificar-rec-id").value = recurso.id;
           document.getElementById("modificar-rec-nombre").value =
             recurso.nombre;
@@ -224,7 +224,7 @@ function listarRecursos() {
           document.getElementById("modificar-rec-desc").value =
             recurso.descripcion;
         });
-        editar.className = "text-yellow-600 hover:text-yellow-900 mr-3";
+        editar.className = "text-blue-600 hover:text-blue-900 mr-3";
         const editarIcon = document.createElement("i");
         editarIcon.className = "fas fa-edit";
         editar.appendChild(editarIcon);
@@ -552,17 +552,10 @@ function generarReporte(tipo) {
     .catch((error) => console.error("Error al generar reporte:", error));
 }
 
-// Mostrar/ocultar formularios en gestión de recursos
-function showResourceForm(action) {
-  document.getElementById("form-nuevo-recurso").classList.add("hidden");
-  if (action === "nuevo") {
-    document.getElementById("form-nuevo-recurso").classList.remove("hidden");
-  }
-  if (action === "modificar") {
-    document
-      .getElementById("form-modificar-recurso")
-      .classList.remove("hidden");
-  }
+// Mostrar/ocultar formularios en gestión de recursos (modificada)
+
+function showResourceForm(idForm) {
+  document.getElementById(idForm).classList.remove("hidden");
 }
 
 
@@ -633,7 +626,6 @@ function listarUsuarios() {
         console.log("Lista de usuarios: ",data);
 
 
-
         data.forEach((usuario) => {
 
           const columna = document.createElement("tr");
@@ -650,21 +642,70 @@ function listarUsuarios() {
           rol.textContent = usuario.rol;
           rol.className = "px-6 py-4 whitespace-nowrap text-sm";
 
-          const estado = document.createElement("span");
-          estado.className = "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800";
+
 
           const acciones = document.createElement("td");
           acciones.className = "px-6 py-4 whitespace-nowrap text-sm font-medium";
 
+          const estado = document.createElement("span");
+          estado.className = "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800";
 
 
+          //Boton editar usuario
+          const editar = document.createElement("button");
+          editar.addEventListener("click", function () {
+            showResourceForm("form-modificar-usuario");
+            document.getElementById("nombre-completo-modificar").value = usuario.nombre;
+            document.getElementById("nombre-usuario-modificar").value =
+                usuario.nombreUsuario;
+
+            document.getElementById("contraseña-modificar").value =
+                usuario.contrasenia;
+
+            const confirmarContraseña = document.getElementById("contraseña-confirmar-modificar").value;
+
+            document.getElementById("rol-modificar").value =
+                usuario.rol;
+
+            document.getElementById("estado-modificar").value = usuario.estado;
+
+          });
+          editar.className = "text-blue-600 hover:text-blue-900 mr-3";
+          const editarIcon = document.createElement("i");
+          editarIcon.className = "fas fa-edit";
+          editar.appendChild(editarIcon);
+
+
+          //Boton eliminar usuario
+          const eliminar = document.createElement("button");
+          eliminar.className = "text-red-600 hover:text-red-900";
+          eliminar.addEventListener("click", function () {
+            if (confirm("¿Estás seguro de dar de baja este recurso?")) {
+              fetch(
+                  "http://localhost:8080/api/usuarios/" + usuario.id,
+                  {
+                    method: "PATCH",
+                  }
+              )
+                  .then((response) => response.json())
+                  .then((data) => reloadPage())
+                  .catch((error) =>
+                      console.error("Error al dar de baja el usuario:", error));
+              reloadPage();
+            }
+
+          });
+          const eliminarIcon = document.createElement("i");
+          eliminarIcon.className = "fas fa-trash";
+          eliminar.appendChild(eliminarIcon);
 
 
           columna.appendChild(nombreUsuario);
           columna.appendChild(nombre);
           columna.appendChild(rol);
-
-
+          columna.appendChild(estado);
+          columna.appendChild(editar);
+          columna.appendChild(eliminar);
           /*
           acciones.appendChild(ver);
           acciones.appendChild(editar);
@@ -676,23 +717,7 @@ function listarUsuarios() {
       });
 
   /*
-  const editar = document.createElement("button");
-          editar.addEventListener("click", function () {
-            showResourceForm("modificar");
-            document.getElementById("modificar-rec-id").value = recurso.id;
-            document.getElementById("modificar-rec-nombre").value =
-                recurso.nombre;
-            document.getElementById("modificar-rec-cat").value =
-                recurso.categoria.toLowerCase();
-            document.getElementById("modificar-rec-cod").value = recurso.codigo;
-            document.getElementById("modificar-rec-cant").value =
-                recurso.cantidad;
-            document.getElementById("modificar-rec-min").value = recurso.minimo;
-            document.getElementById("modificar-rec-ubicacion").value =
-                recurso.ubicacion;
-            document.getElementById("modificar-rec-desc").value =
-                recurso.descripcion;
-          });
+
 
           editar.className = "text-yellow-600 hover:text-yellow-900 mr-3";
           const editarIcon = document.createElement("i");
