@@ -4,11 +4,10 @@ document.addEventListener("DOMContentLoaded", function () {
   actualizarFecha();
   contarRecursos();
   contarAlertasDeStockMinimo();
-  contarPrestamosPendientes();
   agregarAlertaStockMinimo();
   listarRecursos();
-  cargarRecursos();
   obtenerInsumosSelect();
+  mostrarFormulario();
 });
 
 document.addEventListener("click", function (event) {
@@ -41,6 +40,18 @@ function showSection(sectionId) {
   }
   document.getElementById(sectionId).classList.remove("hidden");
   localStorage.setItem("ultimaSeccion", sectionId);
+}
+
+// Muestra los formularios correspondiente a ingreso o egreso
+function mostrarFormulario(tipo) {
+  document.getElementById("form-ingreso").classList.add("hidden");
+  document.getElementById("form-egreso").classList.add("hidden");
+
+  if (tipo === "ingreso") {
+    document.getElementById("form-ingreso").classList.remove("hidden");
+  } else if (tipo === "egreso") {
+    document.getElementById("form-egreso").classList.remove("hidden");
+  }
 }
 
 function cerrarSesion() {
@@ -86,6 +97,7 @@ function contarAlertasDeStockMinimo() {
       console.error("Error al contar alertas de stock mínimo:", error)
     );
 }
+/*
 
 function contarPrestamosPendientes() {
   fetch("http://localhost:8080/api/solicitudes/pendientes")
@@ -98,6 +110,7 @@ function contarPrestamosPendientes() {
     );
 }
 
+*/
 
 function agregarAlertaStockMinimo() {
   fetch("http://localhost:8080/api/recursos/listarStockMinimo")
@@ -228,8 +241,7 @@ function listarRecursos() {
               .then((response) => response.json())
               .then((data) => reloadPage())
               .catch((error) =>
-                console.error("Error al dar de baja el recurso:", error)
-              );
+                console.error("Error al dar de baja el recurso:", error));
             reloadPage();
           }
         });
@@ -414,7 +426,7 @@ async function generarReporteInventarioPDF(recursos) {
   }
 }
 
-
+/*
 function cargarRecursos(){
   fetch("http://localhost:8080/api/recursos/activos")
     .then((response) => response.json())
@@ -436,7 +448,8 @@ function cargarRecursos(){
     })
     .catch((error) => console.error("Error al cargar recursos:", error));
 }
-
+*/
+/*
 function registrarMovimiento() {
   console.log("valor cantidad", document.getElementById("cantidadMovimiento"))
   const movimiento = {
@@ -457,8 +470,8 @@ function registrarMovimiento() {
     .then((data) => alert("Movimiento registrado"))
     .catch((error) => console.error("Error en movimiento:", error));
 }
-
-
+*/
+/*
 function registrarSolicitud() {
   const solicitud = {
     recursoId: parseInt(document.getElementById("select-recurso").value),
@@ -488,7 +501,8 @@ function registrarSolicitud() {
 
     reloadPage();
 }
-
+*/
+/*
 function registrarDevolucion() {
   const codigo = document.getElementById("codigoDevolucion").value;
   const usuarioId = JSON.parse(localStorage.getItem("usuarioLogueado")).id;
@@ -506,6 +520,7 @@ function registrarDevolucion() {
     .then((data) => alert("Devolución registrada"))
     .catch((error) => console.error("Error en devolución:", error));
 }
+*/
 
 function generarReporte(tipo) {
   const usuarioId = JSON.parse(localStorage.getItem("usuarioLogueado")).id;
@@ -562,10 +577,10 @@ function obtenerInsumosSelect(){
   fetch("http://localhost:8080/api/recursos/activos")
       .then((response) => response.json())
       .then((data) => {
-        const select = document.getElementById("select-list-insumo");
+        const selects = document.getElementsByClassName("insumo-selec-movimiento");
         console.log(data);
 
-
+        console.log(selects);
         data.sort((a,b) => a.nombre.localeCompare(b.nombre));
 
         console.log("Data organizado",data);
@@ -573,14 +588,16 @@ function obtenerInsumosSelect(){
         data.forEach((insumo) => {
           let option = document.createElement("option");
           option.textContent = insumo.nombre;
-          select.appendChild(option);
+          for (let select of selects) {
+            select.appendChild(option.cloneNode(true));
+          }
         });
 
       });
 }
 
 
-
+/*
 // Mostrar/ocultar formularios en préstamos
 function showLoanForm(action) {
   
@@ -596,8 +613,11 @@ function showLoanForm(action) {
   }
 }
 
+ */
+
 // Mostrar/ocultar formularios en usuarios
 function showUserForm(action) {
+  document.getElementById("form-nuevo-usuario").classList.add("hidden");
   if (action === "nuevo") {
     document.getElementById("form-nuevo-usuario").classList.remove("hidden");
   }
