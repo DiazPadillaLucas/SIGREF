@@ -48,7 +48,9 @@ public class UsuarioControlador {
         }
     }
 
-    @DeleteMapping("/{id}")
+
+
+    @PatchMapping("/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
         try {
             usuarioServicio.eliminarUsuario(id);
@@ -67,7 +69,7 @@ public class UsuarioControlador {
         }
     }
 
-    @PostMapping("/{id}/registrarPrestamo")
+    /*@PostMapping("/{id}/registrarPrestamo")
     public ResponseEntity<?> registrarPrestamo(@PathVariable Long id, @RequestBody Solicitud solicitud) {
         try {
             return ResponseEntity.ok(usuarioServicio.registrarPrestamo(id, solicitud));
@@ -92,5 +94,5 @@ public class UsuarioControlador {
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-    }
+    }*/
 }

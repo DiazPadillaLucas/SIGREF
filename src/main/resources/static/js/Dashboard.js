@@ -747,4 +747,111 @@ function listarUsuarios() {
    */
 
 
+
+
+   // ======================= ABM USUARIOS =======================
+
+   /* Crear usuario
+   function crearUsuario(){
+     const usuario = {
+       nombre: document.querySelector("#form-nuevo-usuario input[type='text']").value,
+       nombreUsuario: document.querySelectorAll("#form-nuevo-usuario input[type='text']")[1].value,
+       contrasenia: document.querySelector("#form-nuevo-usuario input[type='password']").value,
+       rol: document.querySelector("#form-nuevo-usuario select")[0].value,
+       //estado: document.querySelector("#form-nuevo-usuario select")[1].value
+     };
+     console.log(">>> crearUsuario antes del fecth");
+
+     // Validación básica
+     const confirmar = document.querySelectorAll("#form-nuevo-usuario input[type='password']")[1].value;
+     if (usuario.contrasenia !== confirmar) {
+       alert("Las contraseñas no coinciden");
+       return;
+     }
+
+     fetch("http://localhost:8080/api/usuarios", {
+       method: "POST",
+       headers: { "Content-Type": "application/json" },
+       body: JSON.stringify(usuario),
+     })
+       .then((res) => res.json())
+       .then(() => reloadPage())
+       .catch((err) => console.error("Error al crear usuario:", err));
+       console.log("despues ddel fetch");
+   }*/
+
+   window.crearUsuario = function() {
+     const usuario = {
+       nombre: document.querySelector("#form-nuevo-usuario input[type='text']").value,
+       nombreUsuario: document.querySelectorAll("#form-nuevo-usuario input[type='text']")[1].value,
+       contrasenia: document.querySelector("#form-nuevo-usuario input[type='password']").value,
+       rol: document.querySelector("#form-nuevo-usuario select").value,
+     };
+
+     const confirmar = document.querySelectorAll("#form-nuevo-usuario input[type='password']")[1].value;
+     if (usuario.contrasenia !== confirmar) {
+       alert("Las contraseñas no coinciden");
+       return;
+     }
+
+     fetch("http://localhost:8080/api/usuarios", {
+       method: "POST",
+       headers: { "Content-Type": "application/json" },
+       body: JSON.stringify(usuario),
+     })
+       .then((res) => res.json())
+       .then(() => reloadPage())
+       .catch((err) => console.error("Error al crear usuario:", err));
+   };
+//modificar usuario
+  // Función para modificar usuario
+function modificarUsuario() {
+  const usuario = {
+    nombre: document.getElementById("nombre-completo-modificar").value,
+    nombreUsuario: document.getElementById("nombre-usuario-modificar").value,
+    contrasenia: document.getElementById("contraseña-modificar").value,
+    rol: document.getElementById("rol-modificar").value,
+    estado: document.getElementById("estado-modificar").value === "Activo"
+  };
+
+  const idUsuario = document.getElementById("modificar-usuario-id").value; // input oculto con el id
+  const confirmar = document.getElementById("contraseña-confirmar-modificar").value;
+
+  if (usuario.contrasenia !== confirmar) {
+    alert("Las contraseñas no coinciden");
+    return;
+  }
+
+  fetch(`http://localhost:8080/api/usuarios/${idUsuario}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(usuario)
+  })
+    .then(response => {
+      if (!response.ok) throw new Error("Error en la modificación");
+      return response.json();
+    })
+    .then(() => reloadPage())
+    .catch(error => console.error("Error al modificar usuario:", error));
+}
+
+// Asignar evento al botón Guardar
+document.getElementById("guardar-modificar-usuario").addEventListener("click", modificarUsuario);
+
+
+   // Eliminar usuario (dar de baja)
+   function eliminarUsuario(idUsuario) {
+     if (confirm("¿Estás seguro de dar de baja este usuario?")) {
+       fetch("http://localhost:8080/api/usuarios/" + idUsuario, {
+         method: "PATCH", // o PATCH si tu backend hace baja lógica
+       })
+         .then(() => reloadPage())
+         .catch((err) => console.error("Error al dar de baja usuario:", err));
+     }
+   }
+
+
+
+
+
 }

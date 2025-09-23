@@ -30,7 +30,7 @@ public class UsuarioServicio {
         return usuarioRepositorio.save(usuario);
     }
 
-    public Usuario actualizarUsuario(Long id, Usuario usuarioActualizado) {
+   public Usuario actualizarUsuario(Long id, Usuario usuarioActualizado) {
         Usuario usuarioExistente = obtenerUsuarioPorId(id);
 
         usuarioExistente.setNombre(usuarioActualizado.getNombre());
@@ -49,7 +49,7 @@ public class UsuarioServicio {
         return usuarioRepositorio.findByNombreUsuarioAndContrasenia(nombreUsuario, contrasenia)
                 .orElseThrow(() -> new EntityNotFoundException("Credenciales inválidas"));
     }
-
+/*
     public String registrarPrestamo(Long idUsuario, Solicitud solicitud) {
         Usuario usuario = obtenerUsuarioPorId(idUsuario);
         solicitud.setGeneradoPor(usuario);
@@ -72,5 +72,5 @@ public class UsuarioServicio {
         usuario.getReportes().add(reporte);
         usuarioRepositorio.save(usuario);
         return "Reporte generado correctamente.";
-    }
+    }*/
 }
