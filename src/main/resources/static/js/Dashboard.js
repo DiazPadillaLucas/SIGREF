@@ -658,15 +658,12 @@ function listarUsuarios() {
             document.getElementById("nombre-completo-modificar").value = usuario.nombre;
             document.getElementById("nombre-usuario-modificar").value =
                 usuario.nombreUsuario;
-
+            document.getElementById("modificar-usuario-id").value = usuario.id;
             document.getElementById("contraseña-modificar").value =
                 usuario.contrasenia;
 
-            const confirmarContraseña = document.getElementById("contraseña-confirmar-modificar").value;
-
             document.getElementById("rol-modificar").value =
                 usuario.rol;
-
             document.getElementById("estado-modificar").value = usuario.estado;
 
           });
@@ -780,7 +777,7 @@ function listarUsuarios() {
        console.log("despues ddel fetch");
    }*/
 
-   window.crearUsuario = function() {
+  window.crearUsuario = function() {
      const usuario = {
        nombre: document.querySelector("#form-nuevo-usuario input[type='text']").value,
        nombreUsuario: document.querySelectorAll("#form-nuevo-usuario input[type='text']")[1].value,
@@ -800,9 +797,15 @@ function listarUsuarios() {
        body: JSON.stringify(usuario),
      })
        .then((res) => res.json())
-       .then(() => reloadPage())
+       .then(() => {
+         reloadPage()
+       })
        .catch((err) => console.error("Error al crear usuario:", err));
+
+
    };
+
+
 //modificar usuario
   // Función para modificar usuario
 function modificarUsuario() {
@@ -833,25 +836,23 @@ function modificarUsuario() {
     })
     .then(() => reloadPage())
     .catch(error => console.error("Error al modificar usuario:", error));
-}
+  }
 
 // Asignar evento al botón Guardar
-document.getElementById("guardar-modificar-usuario").addEventListener("click", modificarUsuario);
+  document.getElementById("guardar-modificar-usuario").addEventListener("click", modificarUsuario);
 
 
-   // Eliminar usuario (dar de baja)
-   function eliminarUsuario(idUsuario) {
-     if (confirm("¿Estás seguro de dar de baja este usuario?")) {
-       fetch("http://localhost:8080/api/usuarios/" + idUsuario, {
-         method: "PATCH", // o PATCH si tu backend hace baja lógica
-       })
-         .then(() => reloadPage())
-         .catch((err) => console.error("Error al dar de baja usuario:", err));
-     }
-   }
+  // Eliminar usuario (dar de baja)
 
-
-
+  function eliminarUsuario(idUsuario) {
+    if (confirm("¿Estás seguro de dar de baja este usuario?")) {
+      fetch("http://localhost:8080/api/usuarios/" + idUsuario, {
+        method: "PATCH", // o PATCH si tu backend hace baja lógica
+      })
+          .then(() => reloadPage())
+          .catch((err) => console.error("Error al dar de baja usuario:", err));
+    }
+  }
 
 
 }
