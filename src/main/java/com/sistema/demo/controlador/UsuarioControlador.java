@@ -48,8 +48,6 @@ public class UsuarioControlador {
         }
     }
 
-
-
     @PatchMapping("/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
         try {
@@ -69,30 +67,36 @@ public class UsuarioControlador {
         }
     }
 
-    /*@PostMapping("/{id}/registrarPrestamo")
-    public ResponseEntity<?> registrarPrestamo(@PathVariable Long id, @RequestBody Solicitud solicitud) {
-        try {
-            return ResponseEntity.ok(usuarioServicio.registrarPrestamo(id, solicitud));
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
-
-    @PostMapping("/{id}/registrarMovimiento")
-    public ResponseEntity<?> registrarMovimiento(@PathVariable Long id, @RequestBody Movimiento movimiento) {
-        try {
-            return ResponseEntity.ok(usuarioServicio.registrarMovimiento(id, movimiento));
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
-
-    @PostMapping("/{id}/generarReporte")
-    public ResponseEntity<?> generarReporte(@PathVariable Long id, @RequestBody Reporte reporte) {
-        try {
-            return ResponseEntity.ok(usuarioServicio.generarReporte(id, reporte));
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }*/
+    /*
+     * @PostMapping("/{id}/registrarPrestamo")
+     * public ResponseEntity<?> registrarPrestamo(@PathVariable Long
+     * id, @RequestBody Solicitud solicitud) {
+     * try {
+     * return ResponseEntity.ok(usuarioServicio.registrarPrestamo(id, solicitud));
+     * } catch (EntityNotFoundException e) {
+     * return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+     * }
+     * }
+     * 
+     * @PostMapping("/{id}/registrarMovimiento")
+     * public ResponseEntity<?> registrarMovimiento(@PathVariable Long
+     * id, @RequestBody Movimiento movimiento) {
+     * try {
+     * return ResponseEntity.ok(usuarioServicio.registrarMovimiento(id,
+     * movimiento));
+     * } catch (EntityNotFoundException e) {
+     * return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+     * }
+     * }
+     * 
+     * @PostMapping("/{id}/generarReporte")
+     * public ResponseEntity<?> generarReporte(@PathVariable Long id, @RequestBody
+     * Reporte reporte) {
+     * try {
+     * return ResponseEntity.ok(usuarioServicio.generarReporte(id, reporte));
+     * } catch (EntityNotFoundException e) {
+     * return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+     * }
+     * }
+     */
 }

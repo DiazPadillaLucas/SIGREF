@@ -9,6 +9,8 @@ document.addEventListener("DOMContentLoaded", function () {
   obtenerInsumosSelect();
   mostrarFormulario();
   listarUsuarios();
+  listarMovimientos();
+  
 });
 
 document.addEventListener("click", function (event) {
@@ -25,6 +27,74 @@ function validarSesion() {
   const usuario = JSON.parse(user);
   document.getElementById("rolUS").textContent = usuario.rol;
   document.getElementById("nombreUS").textContent = usuario.nombreUsuario;
+}
+
+function listarMovimientos() {
+        fetch("http://localhost:8080/api/movimientos")
+          .then((response) => response.json())
+          .then((data) => {
+            const tabla = document.getElementById("tabla-movimientos");
+
+            data.forEach((movimiento) => {
+              const columna = document.createElement("tr");
+
+              const id = document.createElement("td");
+              id.textContent = movimiento.id;
+              id.style = "display: none;";
+              id.id = "id-recurso-" + movimiento.id;
+
+              const fecha = document.createElement("td");
+              fecha.textContent = movimiento.codigo;
+              fecha.className = "px-6 py-2 whitespace-nowrap text-sm text-gray-500";
+
+              const insumo = document.createElement("td");
+              insumo.textContent = movimiento.recurso.nombre;
+              insumo.className = "px-6 py-2 whitespace-nowrap text-sm font-medium";
+            
+
+
+              const tipo = document.createElement("td");
+              tipo.className = "px-6 py-2 whitespace-nowrap text-sm text-gray-500";
+              const span = document.createElement("span");
+              span.textContent = movimiento.tipo;
+
+              tipo.appendChild(span);
+
+              console.log("tipo de movimiento", movimiento.tipo);
+
+              const cantidad = document.createElement("td");
+              cantidad.textContent = movimiento.cantidad;
+              cantidad.className = "px-6 py-2 whitespace-nowrap text-sm text-gray-500";
+
+              const motivo = document.createElement("span");
+              motivo.textContent = movimiento.motivo;
+              motivo.className = "px-6 py-2 whitespace-nowrap text-sm text-gray-500";
+
+
+              const usuario = document.createElement("td");
+              usuario.textContent = movimiento.generadoPor.nombreUsuario;
+              usuario.className = "px-6 py-2 whitespace-nowrap text-sm text-gray-500";
+
+
+
+              columna.appendChild(fecha);
+              columna.appendChild(insumo);
+              if(span.textContent === "INGRESO"){
+                span.className = "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800";
+              }
+              if(span.textContent === "EGRESO"){
+                span.className = "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800";
+              }
+              
+              columna.appendChild(tipo);
+
+              columna.appendChild(cantidad);
+              columna.appendChild(motivo);
+              columna.appendChild(usuario);
+
+              tabla.appendChild(columna);
+            });
+          });
 }
 
 function showSection(sectionId) {
@@ -661,7 +731,6 @@ function listarUsuarios() {
             document.getElementById("modificar-usuario-id").value = usuario.id;
             document.getElementById("contraseña-modificar").value =
                 usuario.contrasenia;
-
             document.getElementById("rol-modificar").value =
                 usuario.rol;
             document.getElementById("estado-modificar").value = usuario.estado;
@@ -712,7 +781,7 @@ function listarUsuarios() {
           tabla.appendChild(columna);
         });
       });
-
+    }
   /*
 
 
@@ -777,7 +846,7 @@ function listarUsuarios() {
        console.log("despues ddel fetch");
    }*/
 
-  window.crearUsuario = function() {
+window.crearUsuario = function() {
      const usuario = {
        nombre: document.querySelector("#form-nuevo-usuario input[type='text']").value,
        nombreUsuario: document.querySelectorAll("#form-nuevo-usuario input[type='text']")[1].value,
@@ -803,9 +872,9 @@ function listarUsuarios() {
        .catch((err) => console.error("Error al crear usuario:", err));
 
 
-   };
+};
 
-
+    
 //modificar usuario
   // Función para modificar usuario
 function modificarUsuario() {
@@ -836,15 +905,14 @@ function modificarUsuario() {
     })
     .then(() => reloadPage())
     .catch(error => console.error("Error al modificar usuario:", error));
-  }
+}
 
-// Asignar evento al botón Guardar
-  document.getElementById("guardar-modificar-usuario").addEventListener("click", modificarUsuario);
+//Asignar evento al botón Guardar
+document.getElementById("guardar-modificar-usuario").addEventListener("click", modificarUsuario);
 
 
-  // Eliminar usuario (dar de baja)
-
-  function eliminarUsuario(idUsuario) {
+// Eliminar usuario (dar de baja)
+function eliminarUsuario(idUsuario) {
     if (confirm("¿Estás seguro de dar de baja este usuario?")) {
       fetch("http://localhost:8080/api/usuarios/" + idUsuario, {
         method: "PATCH", // o PATCH si tu backend hace baja lógica
@@ -852,7 +920,4 @@ function modificarUsuario() {
           .then(() => reloadPage())
           .catch((err) => console.error("Error al dar de baja usuario:", err));
     }
-  }
-
-
 }
