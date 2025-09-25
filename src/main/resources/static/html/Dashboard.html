@@ -659,6 +659,13 @@
                     </div>
 
                     <div class="flex justify-end">
+                      <button
+                              type="button"
+                              onclick="hideResourceForm('form-egreso')"
+                              class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 cancel-btn"
+                      >
+                        Cancelar
+                      </button>
                         <button
                                 type="button"
                                 class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -702,6 +709,13 @@
                     </div>
 
                     <div class="flex justify-end">
+                      <button
+                              type="button"
+                              onclick="hideResourceForm('form-ingreso')"
+                              class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 cancel-btn"
+                      >
+                        Cancelar
+                      </button>
                         <button
                                 type="button"
                                 class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -791,12 +805,12 @@
                   class="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              <select
+              <select id="filtroTipo"
                 class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option>Todos los tipos</option>
-                <option>Ingresos</option>
-                <option>Salidas</option>
+                <option value="todos">Todos los tipos</option>
+                <option value="ingreso">Ingresos</option>
+                <option value="egreso">Egresos</option>
               </select>
             </div>
           </div>
@@ -838,39 +852,6 @@
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200" id="tabla-movimientos">
-                <tr>
-                  <td
-                    class="px-6 py-2 whitespace-nowrap text-sm text-gray-500"
-                  >
-                    15/06/2025
-                  </td>
-                  <td class="px-6 py-2 whitespace-nowrap text-sm font-medium">
-                    Hojas A4
-                  </td>
-                  <td
-                    class="px-6 py-2 whitespace-nowrap text-sm text-gray-500"
-                  >
-                    <span
-                      class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
-                      >Ingreso</span
-                    >
-                  </td>
-                  <td
-                    class="px-6 py-2 whitespace-nowrap text-sm text-gray-500"
-                  >
-                    +500
-                  </td>
-                  <td
-                    class="px-6 py-2 whitespace-nowrap text-sm text-gray-500"
-                  >
-                    Reposición de stock
-                  </td>
-                  <td
-                    class="px-6 py-2 whitespace-nowrap text-sm text-gray-500"
-                  >
-                    juan.perez
-                  </td>
-                </tr>
               </tbody>
             </table>
           </div>

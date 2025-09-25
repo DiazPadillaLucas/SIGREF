@@ -29,13 +29,26 @@ function validarSesion() {
   document.getElementById("nombreUS").textContent = usuario.nombreUsuario;
 }
 
+document.getElementById("filtroTipo").addEventListener("change", function() {
+  listarMovimientos();
+});
+
 function listarMovimientos() {
+
+        const filtro = document.getElementById("filtroTipo").value;
         fetch("http://localhost:8080/api/movimientos")
           .then((response) => response.json())
           .then((data) => {
             const tabla = document.getElementById("tabla-movimientos");
 
-            data.forEach((movimiento) => {
+            tabla.innerHTML = ""; // Limpia la tabla antes de agregar filas
+
+      // Filtra los movimientos según el select
+            const movimientosFiltrados = filtro === "todos"
+            ? data
+            : data.filter(mov => mov.tipo.toLowerCase() === filtro);
+
+            movimientosFiltrados.forEach((movimiento) => {
               const columna = document.createElement("tr");
 
               const id = document.createElement("td");
@@ -44,23 +57,22 @@ function listarMovimientos() {
               id.id = "id-recurso-" + movimiento.id;
 
               const fecha = document.createElement("td");
-              fecha.textContent = movimiento.codigo;
+              const fechaObj = new Date(movimiento.fecha);
+              const dia = String(fechaObj.getDate()).padStart(2, "0");
+              const mes = String(fechaObj.getMonth() + 1).padStart(2, "0");
+              const anio = fechaObj.getFullYear();
+              fecha.textContent = `${dia}-${mes}-${anio}`;
               fecha.className = "px-6 py-2 whitespace-nowrap text-sm text-gray-500";
 
               const insumo = document.createElement("td");
               insumo.textContent = movimiento.recurso.nombre;
               insumo.className = "px-6 py-2 whitespace-nowrap text-sm font-medium";
-            
-
 
               const tipo = document.createElement("td");
               tipo.className = "px-6 py-2 whitespace-nowrap text-sm text-gray-500";
               const span = document.createElement("span");
               span.textContent = movimiento.tipo;
-
               tipo.appendChild(span);
-
-              console.log("tipo de movimiento", movimiento.tipo);
 
               const cantidad = document.createElement("td");
               cantidad.textContent = movimiento.cantidad;
@@ -70,12 +82,9 @@ function listarMovimientos() {
               motivo.textContent = movimiento.motivo;
               motivo.className = "px-6 py-2 whitespace-nowrap text-sm text-gray-500";
 
-
               const usuario = document.createElement("td");
               usuario.textContent = movimiento.generadoPor.nombreUsuario;
               usuario.className = "px-6 py-2 whitespace-nowrap text-sm text-gray-500";
-
-
 
               columna.appendChild(fecha);
               columna.appendChild(insumo);
@@ -85,9 +94,7 @@ function listarMovimientos() {
               if(span.textContent === "EGRESO"){
                 span.className = "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800";
               }
-              
               columna.appendChild(tipo);
-
               columna.appendChild(cantidad);
               columna.appendChild(motivo);
               columna.appendChild(usuario);
@@ -876,7 +883,8 @@ window.crearUsuario = function() {
 
     
 //modificar usuario
-  // Función para modificar usuario
+//Función para modificar usuario
+
 function modificarUsuario() {
   const usuario = {
     nombre: document.getElementById("nombre-completo-modificar").value,
