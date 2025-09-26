@@ -237,6 +237,7 @@ function agregarAlertaStockMinimo() {
 document.getElementById("filtroCategoria").addEventListener("change", function() {
   listarRecursos();
 });
+
 function listarRecursos() {
 const filtro = document.getElementById("filtroCategoria").value;
   fetch("http://localhost:8080/api/recursos/activos")
@@ -248,11 +249,10 @@ const filtro = document.getElementById("filtroCategoria").value;
       tabla.innerHTML = ""; // Limpia la tabla antes de agregar filas
 
             // Filtra las Categoria según el select
-                  const categoriasFiltrados = filtro === "todos"
-                  ? data
-                  : data.filter(recurso => recurso.categoria.toLowerCase() === filtro);
-
+      const categoriasFiltrados = filtro === "todos" ? data : data.filter(recurso => recurso.categoria.toLowerCase() === filtro);
+      console.log(filtro);
        categoriasFiltrados.forEach((recurso) => {
+         console.log(recurso.categoria.toLowerCase());
         const columna = document.createElement("tr");
 
         const id = document.createElement("td");
@@ -640,7 +640,7 @@ function generarReporte(tipo) {
     .catch((error) => console.error("Error al generar reporte:", error));
 }
 
-// Mostrar/ocultar formularios en gestión de recursos (modificada)
+// /ocultar formularios en gestión de recursos (modificada)
 
 function showResourceForm(idForm) {
   document.getElementById(idForm).classList.remove("hidden");

@@ -8,11 +8,11 @@ INSERT INTO usuario (nombre, nombre_usuario, contrasenia, rol) VALUES
 
 -- Insertar Recursos
 INSERT INTO recurso (nombre, descripcion, codigo, cantidad, minimo, ubicacion, estado, categoria) VALUES
-('Impresora HP', 'Impresora láser', 'IMP001', 10, 2, 'Oficina A', true, 'INFORMATICO'),
-('Silla ergonómica', 'Silla para oficina', 'SIL001', 15, 5, 'Deposito', true, 'MOBILIARIO'),
-('PC Escritorio', 'Computadora de escritorio', 'PC001', 5, 1, 'Sala B', true, 'INFORMATICO'),
+('Impresora HP', 'Impresora láser', 'IMP001', 10, 2, 'Oficina A', true, 'OFICINA'),
+('Silla ergonómica', 'Silla para oficina', 'SIL001', 15, 5, 'Deposito', true, 'OFICINA'),
+('PC Escritorio', 'Computadora de escritorio', 'PC001', 5, 1, 'Sala B', true, 'INSUMOELECTRICO'),
 ('Proyector', 'Proyector de presentaciones', 'PRO001', 2, 4, 'Sala de Reuniones', true, 'OFICINA'),
-('Mesa Reunión', 'Mesa grande', 'MES001', 3, 5, 'Sala de Reuniones', true, 'MOBILIARIO');
+('Mesa Reunión', 'Mesa grande', 'MES001', 3, 5, 'Sala de Reuniones', true, 'LIMPIEZA');
 
 -- Insertar Movimientos
 INSERT INTO movimiento (fecha, tipo, cantidad, motivo, usuario_id, recurso_id) VALUES

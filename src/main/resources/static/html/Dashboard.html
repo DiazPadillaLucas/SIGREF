@@ -501,7 +501,7 @@
                 <option value="todos">Todos</option>
                 <option value="oficina">Oficina</option>
                 <option value="limpieza">Limpieza</option>
-                <option value="insumoElectrico">Insumo Electrico</option>
+                <option value="insumoelectrico">Insumo Electrico</option>
 
               </select>
             </div>
@@ -573,42 +573,117 @@
       <section id="control-stock" class="section-content hidden">
         <div class="flex justify-between items-center mb-8">
           <h2 class="text-2xl font-bold text-gray-800">Control de Stock</h2>
-          <div class="flex items-center">
-            <i class="fas fa-calendar-alt mr-2 text-gray-500"></i>
-            <span id="fecha-actual-stock" class="text-sm text-gray-600"></span>
+          <div class="flex space-x-3">
+            <button
+              onclick="mostrarFormulario('egreso')"
+              class="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              <i class="fas fa-plus mr-2"></i> Egreso
+            </button>
+            <button
+              onclick="mostrarFormulario('ingreso')"
+              class="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              <i class="fas fa-plus mr-2"></i> Ingreso
+            </button>
           </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <!-- Registrar Movimiento -->
             <div class="form-container p-6">
-                <h3 class="text-xl font-semibold mb-4 flex items-center">
-                    <i class="fas fa-exchange-alt mr-2 text-blue-600"></i> Registrar Movimiento
-                </h3>
-
-                <!-- Botones -->
-                <div class="mb-4">
-                    <label class="block text-gray-700 mb-2">Tipo de Movimiento</label>
-                    <button
-                            type="button"
-                            onclick="mostrarFormulario('egreso')"
-                            class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100"
-                    >
-                        Egreso
-                    </button>
-                    <button
-                            type="button"
-                            onclick="mostrarFormulario('ingreso')"
-                            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                    >
-                        Ingreso
-                    </button>
-                </div>
-
-
+            
                 <!-- Formulario Egreso -->
-                <form id="form-egreso" class="hidden">
+                <div id="form-egreso" class="form-container p-6 mb-8 hidden">
+                  <h3 class="text-xl font-semibold mb-4 flex items-center">
+                      <i class="fas fa-exchange-alt mr-2 text-blue-600"></i> Registrar Movimiento
+                    </h3> 
+                <form>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label class="block text-gray-700 mb-2">Insumos</label>
+                        <select
+                                required
+                                id="insumoMovimientoEgreso"
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 insumo-selec-movimiento"
+                        >
+                            <option value="" disabled selected>Selecciona insumo...</option>
+                        </select>                    
+                    </div>
+                    <div>
+                      <label class="block text-gray-700 mb-2">Cantidad</label>
+                        <input
+                                type="number"
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                id="cantidadMovimientoEgreso"
+                                required
+                        />
+                    </div>
+                    <div>
+                      <label class="block text-gray-700 mb-2">Nombre de Solicitante</label>
+                        <input
+                                type="text"
+                                id="nombreSolicitanteMovimientoEgreso"
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                        />
+                    </div>
+                    <div>
+                      <label class="block text-gray-700 mb-2">Área/Destino</label>
+                        <input
+                                type="text"
+                                id="areaDestinoMovimientoEgreso"
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                        />
+                    </div>
+                    <div>
+                      <label class="block text-gray-700 mb-2">Ubicación</label>
+                      <input
+                        type="text"
+                        id="registro-rec-ubicacion"
+                        class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label class="block text-gray-700 mb-2"
+                        >Mínimo de Reposición</label
+                      >
+                      <input
+                        type="number"
+                        id="registro-rec-min"
+                        class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div class="md:col-span-2">
+                      <label class="block text-gray-700 mb-2">Descripción</label>
+                      <textarea
+                        rows="3"
+                        id="registro-rec-desc"
+                        class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      ></textarea>
+                    </div>
+                  </div>
+                  <div class="flex justify-end mt-6 space-x-3">
+                    <button
+                              type="button"
+                              onclick="hideResourceForm('form-ingreso')"
+                              class="ppx-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                      > Cancelar
+                      </button>
+                        <button
+                                type="button"
+                                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                                onclick="registrarMovimiento()"
+                        >
+                            <i class="fas fa-save mr-2"></i> Registrar Movimiento
+                        </button>
+                  </div>
+              </form>
+
+
                     <div class="mb-4">
+
                         <label class="block text-gray-700 mb-2">Insumos</label>
                         <select
                                 required
@@ -674,10 +749,17 @@
                             <i class="fas fa-save mr-2"></i> Registrar Movimiento
                         </button>
                     </div>
-                </form>
+                </div>
 
                 <!-- Formulario Ingreso -->
-                <form id="form-ingreso" class="hidden">
+                <form id="form-ingreso" class="form.container p-6 mb-8 hidden">
+                  <h3 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-exchange-alt mr-2 text-blue-600"></i> Registrar Movimiento
+                  </h3>
+
+
+
+
                     <div class="mb-4">
                         <label class="block text-gray-700 mb-2">Insumos</label>
                         <select
@@ -728,7 +810,7 @@
             </div>
 
 
-            <!-- Alertas de Stock -->
+            <!-- Alertas de Stock
           <div class="bg-white p-6 rounded-lg shadow">
             <h3 class="text-xl font-semibold mb-4 flex items-center">
               <i class="fas fa-exclamation-triangle mr-2 text-yellow-600"></i>
@@ -790,7 +872,7 @@
             </div>
           </div>
         </div>
-
+        -->
         <!-- Historial de Movimientos -->
         <div class="bg-white p-6 rounded-lg shadow mt-6">
           <div class="flex justify-between items-center mb-4">
