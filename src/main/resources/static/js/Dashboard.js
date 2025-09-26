@@ -29,80 +29,141 @@ function validarSesion() {
   document.getElementById("nombreUS").textContent = usuario.nombreUsuario;
 }
 
-document.getElementById("filtroTipo").addEventListener("change", function() {
+document.addEventListener('DOMContentLoaded', () => {
+  const selectTipo = document.getElementById("filtroTipo");
+  const inputFecha = document.getElementById("filtroFecha"); // asegúrate de que exista en el HTML
+  const tabla = document.getElementById("tabla-movimientos");
+
+  if (selectTipo) selectTipo.addEventListener("change", listarMovimientos);
+  if (inputFecha) inputFecha.addEventListener("change", listarMovimientos);
+
+  // Normaliza una fecha que venga en varios formatos -> "yyyy-mm-dd" o null
+  function normalizeDate(raw) {
+    if (!raw && raw !== 0) return null;
+    // si ya es Date
+    if (raw instanceof Date) return isNaN(raw) ? null : raw.toISOString().slice(0,10);
+    const s = String(raw).trim();
+    // ISO o ISO con hora
+    const isoMatch = s.match(/^(\d{4}-\d{2}-\d{2})/);
+    if (isoMatch) return isoMatch[1];
+    // dd-mm-yyyy o dd/mm/yyyy
+    const dmy = s.match(/^(\d{2})[-\/](\d{2})[-\/](\d{4})$/);
+    if (dmy) return `${dmy[3]}-${dmy[2]}-${dmy[1]}`;
+    // timestamp o texto parseable por Date
+    const dd = new Date(s);
+    if (!isNaN(dd)) return dd.toISOString().slice(0,10);
+    return null;
+  }
+
+  async function listarMovimientos() {
+    try {
+      if (!tabla) {
+        console.warn('No se encontró #tabla-movimientos');
+        return;
+      }
+
+      const filtro = (selectTipo?.value ?? 'todos').toLowerCase();
+      const filtroFecha = inputFecha?.value ?? '';
+
+      console.log('listarMovimientos -> filtro:', filtro, 'filtroFecha:', filtroFecha);
+      tabla.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-sm">Cargando movimientos...</td></tr>`;
+
+      const resp = await fetch("http://localhost:8080/api/movimientos");
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const dataRaw = await resp.json();
+      console.log('movimientos recibidos:', dataRaw);
+
+      // soporta pageable { content: [...] } o array directo
+      const data = Array.isArray(dataRaw) ? dataRaw : (Array.isArray(dataRaw?.content) ? dataRaw.content : []);
+      if (!data.length) {
+        tabla.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-sm text-gray-500">No hay movimientos registrados.</td></tr>`;
+        return;
+      }
+
+      // Filtrado único que combina tipo + fecha
+      const movimientosFiltrados = data.filter(mov => {
+        const tipoMov = String(mov?.tipo ?? mov?.type ?? '').toLowerCase();
+        const tipoOk = filtro === 'todos' || tipoMov === filtro;
+
+        const rawFecha = mov?.fecha ?? mov?.fechaMovimiento ?? mov?.date;
+        const fechaMov = normalizeDate(rawFecha);
+        const fechaOk = !filtroFecha || (fechaMov && fechaMov === filtroFecha);
+
+        // para debug:
+        // console.log({ rawFecha, fechaMov, tipoMov, tipoOk, fechaOk });
+
+        return tipoOk && fechaOk;
+      });
+
+      if (!movimientosFiltrados.length) {
+        tabla.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-sm text-gray-500">No hay movimientos para ese filtro.</td></tr>`;
+        console.log('Movimientos filtrados: []');
+        return;
+      }
+
+      // Renderizar filas
+      tabla.innerHTML = '';
+      movimientosFiltrados.forEach(movimiento => {
+        const columna = document.createElement("tr");
+
+        // Fecha formateada dd-mm-yyyy
+        const fechaNormalized = normalizeDate(movimiento.fecha ?? movimiento.fechaMovimiento ?? movimiento.date);
+        let fechaTexto = '';
+        if (fechaNormalized) {
+          const [y,m,d] = fechaNormalized.split('-');
+          fechaTexto = `${d}-${m}-${y}`;
+        }
+
+        const tdFecha = document.createElement("td");
+        tdFecha.textContent = fechaTexto;
+        tdFecha.className = "px-6 py-2 whitespace-nowrap text-sm text-gray-500";
+
+        const tdInsumo = document.createElement("td");
+        tdInsumo.textContent = movimiento?.recurso?.nombre ?? movimiento?.recurso ?? '';
+        tdInsumo.className = "px-6 py-2 whitespace-nowrap text-sm font-medium";
+
+        const tdTipo = document.createElement("td");
+        tdTipo.className = "px-6 py-2 whitespace-nowrap text-sm text-gray-500";
+        const spanTipo = document.createElement("span");
+        spanTipo.textContent = movimiento?.tipo ?? movimiento?.type ?? '';
+        const tipoUpper = String(spanTipo.textContent).toUpperCase();
+        if (tipoUpper === "INGRESO") spanTipo.className = "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800";
+        if (tipoUpper === "EGRESO") spanTipo.className = "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800";
+        tdTipo.appendChild(spanTipo);
+
+        const tdCantidad = document.createElement("td");
+        tdCantidad.textContent = movimiento?.cantidad ?? movimiento?.quantity ?? '';
+        tdCantidad.className = "px-6 py-2 whitespace-nowrap text-sm text-gray-500";
+
+        const tdMotivo = document.createElement("td");
+        tdMotivo.textContent = movimiento?.motivo ?? movimiento?.reason ?? '';
+        tdMotivo.className = "px-6 py-2 whitespace-nowrap text-sm text-gray-500";
+
+        const tdUsuario = document.createElement("td");
+        tdUsuario.textContent = movimiento?.generadoPor?.nombreUsuario ?? movimiento?.usuario ?? movimiento?.user ?? '';
+        tdUsuario.className = "px-6 py-2 whitespace-nowrap text-sm text-gray-500";
+
+        columna.appendChild(tdFecha);
+        columna.appendChild(tdInsumo);
+        columna.appendChild(tdTipo);
+        columna.appendChild(tdCantidad);
+        columna.appendChild(tdMotivo);
+        columna.appendChild(tdUsuario);
+
+        tabla.appendChild(columna);
+      });
+
+      console.log('Movimientos mostrados:', movimientosFiltrados.length);
+    } catch (err) {
+      console.error('Error listarMovimientos:', err);
+      tabla.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-sm text-red-600">Error cargando movimientos. Revisa la consola.</td></tr>`;
+    }
+  }
+
+  // carga inicial
   listarMovimientos();
 });
 
-function listarMovimientos() {
-
-        const filtro = document.getElementById("filtroTipo").value;
-        fetch("http://localhost:8080/api/movimientos")
-          .then((response) => response.json())
-          .then((data) => {
-            const tabla = document.getElementById("tabla-movimientos");
-
-            tabla.innerHTML = ""; // Limpia la tabla antes de agregar filas
-
-      // Filtra los movimientos según el select
-            const movimientosFiltrados = filtro === "todos"
-            ? data
-            : data.filter(mov => mov.tipo.toLowerCase() === filtro);
-
-            movimientosFiltrados.forEach((movimiento) => {
-              const columna = document.createElement("tr");
-
-              const id = document.createElement("td");
-              id.textContent = movimiento.id;
-              id.style = "display: none;";
-              id.id = "id-recurso-" + movimiento.id;
-
-              const fecha = document.createElement("td");
-              const fechaObj = new Date(movimiento.fecha);
-              const dia = String(fechaObj.getDate()).padStart(2, "0");
-              const mes = String(fechaObj.getMonth() + 1).padStart(2, "0");
-              const anio = fechaObj.getFullYear();
-              fecha.textContent = `${dia}-${mes}-${anio}`;
-              fecha.className = "px-6 py-2 whitespace-nowrap text-sm text-gray-500";
-
-              const insumo = document.createElement("td");
-              insumo.textContent = movimiento.recurso.nombre;
-              insumo.className = "px-6 py-2 whitespace-nowrap text-sm font-medium";
-
-              const tipo = document.createElement("td");
-              tipo.className = "px-6 py-2 whitespace-nowrap text-sm text-gray-500";
-              const span = document.createElement("span");
-              span.textContent = movimiento.tipo;
-              tipo.appendChild(span);
-
-              const cantidad = document.createElement("td");
-              cantidad.textContent = movimiento.cantidad;
-              cantidad.className = "px-6 py-2 whitespace-nowrap text-sm text-gray-500";
-
-              const motivo = document.createElement("span");
-              motivo.textContent = movimiento.motivo;
-              motivo.className = "px-6 py-2 whitespace-nowrap text-sm text-gray-500";
-
-              const usuario = document.createElement("td");
-              usuario.textContent = movimiento.generadoPor.nombreUsuario;
-              usuario.className = "px-6 py-2 whitespace-nowrap text-sm text-gray-500";
-
-              columna.appendChild(fecha);
-              columna.appendChild(insumo);
-              if(span.textContent === "INGRESO"){
-                span.className = "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800";
-              }
-              if(span.textContent === "EGRESO"){
-                span.className = "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800";
-              }
-              columna.appendChild(tipo);
-              columna.appendChild(cantidad);
-              columna.appendChild(motivo);
-              columna.appendChild(usuario);
-
-              tabla.appendChild(columna);
-            });
-          });
-}
 
 function showSection(sectionId) {
   // Ocultar todas las secciones antes de mostrar la seleccionada
