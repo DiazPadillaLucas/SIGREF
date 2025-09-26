@@ -234,14 +234,25 @@ function agregarAlertaStockMinimo() {
     })
     .catch((error) => console.error("Error al crear alerta de stock:", error));
 }
-
+document.getElementById("filtroCategoria").addEventListener("change", function() {
+  listarRecursos();
+});
 function listarRecursos() {
+const filtro = document.getElementById("filtroCategoria").value;
   fetch("http://localhost:8080/api/recursos/activos")
     .then((response) => response.json())
     .then((data) => {
       const tabla = document.getElementById("tabla-recursos");
 
-      data.forEach((recurso) => {
+      //data.forEach((recurso) => {
+      tabla.innerHTML = ""; // Limpia la tabla antes de agregar filas
+
+            // Filtra las Categoria según el select
+                  const categoriasFiltrados = filtro === "todos"
+                  ? data
+                  : data.filter(recurso => recurso.categoria.toLowerCase() === filtro);
+
+       categoriasFiltrados.forEach((recurso) => {
         const columna = document.createElement("tr");
 
         const id = document.createElement("td");
