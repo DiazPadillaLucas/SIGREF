@@ -16,7 +16,7 @@ INSERT INTO recurso (nombre, descripcion, codigo, cantidad, minimo, ubicacion, e
 
 -- Insertar Movimientos
 INSERT INTO movimiento (fecha, tipo, cantidad, motivo, usuario_id, recurso_id) VALUES
-(CURRENT_DATE, 'INGRESO', 5, 'Compra', 1, 1),
+('2025-09-25', 'INGRESO', 5, 'Compra', 1, 1),
 (CURRENT_DATE, 'EGRESO', 2, 'Prestamo', 2, 2),
 (CURRENT_DATE, 'INGRESO', 3, 'Devolucion', 3, 3),
 (CURRENT_DATE, 'EGRESO', 1, 'Reparación', 4, 4),
