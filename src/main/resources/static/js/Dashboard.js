@@ -693,18 +693,30 @@ function showUserForm(action) {
     document.getElementById("form-nuevo-usuario").classList.remove("hidden");
   }
 }
+
+document.getElementById("filtroRol").addEventListener("change", function() {
+  listarUsuarios();
+});
+
 function listarUsuarios() {
+  // 1. Obtener el valor del filtro correctamente del select con ID "filtroRol"
+  const filtroRol = document.getElementById("filtroRol").value;
 
   fetch("http://localhost:8080/api/usuarios")
       .then((response) => response.json())
       .then((data) => {
         const tabla = document.getElementById("tabla-usuarios");
+        tabla.innerHTML = ""; // limpiar antes de renderizar
+        console.log("Lista de usuarios: ", data);
 
-        console.log("Lista de usuarios: ",data);
+        // 2. Aplicar el filtro:
+        //    - Si filtroRol es "TODOS", devuelve todos los datos (data).
+        //    - En otro caso, filtra donde el rol del usuario coincida con el valor de filtroRol.
+        const usuariosFiltrados = (filtroRol === "TODOS")
+          ? data
+          : data.filter((usuario) => usuario.rol === filtroRol);
 
-
-        data.forEach((usuario) => {
-
+        usuariosFiltrados.forEach((usuario) => {
           const columna = document.createElement("tr");
 
           const nombreUsuario = document.createElement("td");
@@ -718,8 +730,6 @@ function listarUsuarios() {
           const rol = document.createElement("td");
           rol.textContent = usuario.rol;
           rol.className = "px-6 py-4 whitespace-nowrap text-sm";
-
-
 
           const acciones = document.createElement("td");
           acciones.className = "px-6 py-4 whitespace-nowrap text-sm font-medium";
@@ -764,7 +774,8 @@ function listarUsuarios() {
                   .then((data) => reloadPage())
                   .catch((error) =>
                       console.error("Error al dar de baja el usuario:", error));
-              reloadPage();
+              // Es mejor llamar a reloadPage() solo después de la respuesta exitosa
+              // reloadPage(); // Eliminada: ya se llama en .then()
             }
 
           });
@@ -787,8 +798,9 @@ function listarUsuarios() {
 
           tabla.appendChild(columna);
         });
-      });
-    }
+      })
+      .catch((error) => console.error("Error al obtener usuarios:", error));
+}
   /*
 
 
