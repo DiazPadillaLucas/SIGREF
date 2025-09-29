@@ -5,10 +5,12 @@ import com.sistema.demo.entidad.Reporte;
 import com.sistema.demo.entidad.Solicitud;
 import com.sistema.demo.entidad.Usuario;
 import com.sistema.demo.entidad.enums.Tipo;
+import com.sistema.demo.entidad.Movimiento;
 import com.sistema.demo.repositorio.RecursoRepositorio;
 import com.sistema.demo.repositorio.ReporteRepositorio;
 import com.sistema.demo.repositorio.SolicitudRepositorio;
 import com.sistema.demo.repositorio.UsuarioRepositorio;
+import com.sistema.demo.repositorio.MovimientoRepositorio;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,8 @@ public class ReporteServicio {
 
     @Autowired
     private RecursoRepositorio recursoRepositorio;
+    @Autowired
+    private MovimientoRepositorio movimientoRepositorio;
 
 
     public List<Reporte> listarReportes() {
@@ -71,6 +75,9 @@ public class ReporteServicio {
         reporteRepositorio.save(nuevoReporte);
 
         switch (tipoReporte.toLowerCase()) {
+            case "movimiento":
+                List<Movimiento> movimientos = movimientoRepositorio.findAll();
+                return movimientos;
             case "prestamos":
                 List<Solicitud> prestamos = solicitudRepositorio.findByTipoAndActivo(Tipo.PRESTAMO, true);
                 return prestamos;

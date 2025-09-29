@@ -9,7 +9,6 @@ document.addEventListener("DOMContentLoaded", function () {
   obtenerInsumosSelect();
   mostrarFormulario();
   listarUsuarios();
-  listarMovimientos();
   
 });
 
@@ -467,6 +466,66 @@ function modificarRecurso() {
     .catch((error) => console.error("Error al modificar recurso:", error));
 }
 
+function generarReporteMovimientoPDF(movimientos) {
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    console.log("funcion generar reporte movimiento");
+    doc.setFontSize(16);
+
+    if (movimientos.length === 0) {
+      doc.text("No hay Movimientos.", 14, 20);
+      doc.save("reporte_insumos_movimiento.pdf");
+      return;
+    }
+
+    doc.text("Reporte de Movimientos", 14, 20);
+
+    const columns = [
+      "ID",
+      "Fecha",
+      "Tipo",
+      "Nombre de insumo",
+      "Cantidad",
+      "Destino",
+      "Nombre de Solicitante",
+    ];
+
+    const rows = movimientos.map(mov => {
+      // convertir mov.fecha en Date (por si viene como string desde la API)
+      const fechaObj = new Date(mov.fecha);
+
+      const dia = String(fechaObj.getDate()).padStart(2, "0");
+      const mes = String(fechaObj.getMonth() + 1).padStart(2, "0"); // los meses empiezan en 0
+      const anio = fechaObj.getFullYear();
+
+      const fechaFormateada = `${dia}-${mes}-${anio}`;
+
+      return [
+        mov.id,
+        fechaFormateada,  // acá usamos la fecha formateada
+        mov.tipo,
+        mov.recurso.nombre,
+        mov.cantidad,
+        mov.destino,
+        mov.nombre_solicitante,
+      ];
+    });
+
+    doc.autoTable({
+      head: [columns],
+      body: rows,
+      startY: 30,
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [41, 128, 185] },
+    });
+
+    doc.save("reporte_movimiento.pdf");
+  } catch (error) {
+    console.error("Error generando el PDF:", error);
+  }
+}
+
 function generarReporteStockMinimoPDF(recursos) {
   try {
     const { jsPDF } = window.jspdf;
@@ -692,6 +751,9 @@ function generarReporte(tipo) {
           break;
         case "inventario":
           generarReporteInventarioPDF(data);
+          break;
+        case "movimiento":
+          generarReporteMovimientoPDF(data);
           break;
 
         default:
@@ -962,9 +1024,7 @@ window.crearUsuario = function() {
        })
        .catch((err) => console.error("Error al crear usuario:", err));
 
-
-};
-
+}
     
 //modificar usuario
 //Función para modificar usuario
@@ -986,7 +1046,7 @@ function modificarUsuario() {
     return;
   }
 
-  fetch(`http://localhost:8080/api/usuarios/${idUsuario}`, {
+  fetch("http://localhost:8080/api/usuarios/${idUsuario}", {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(usuario)
