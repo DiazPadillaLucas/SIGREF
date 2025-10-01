@@ -473,13 +473,35 @@ function generarReporteMovimientoPDF(movimientos) {
     console.log("funcion generar reporte movimiento");
     doc.setFontSize(16);
 
-    if (movimientos.length === 0) {
-      doc.text("No hay Movimientos.", 14, 20);
-      doc.save("reporte_insumos_movimiento.pdf");
+    // obtener fechas del formulario
+    const fechaInicio = document.getElementById("fechaInicio").value; // formato YYYY-MM-DD
+    const fechaFin = document.getElementById("fechaFin").value;       // formato YYYY-MM-DD
+
+    // aplicar filtro si hay fechas cargadas
+    let movimientosFiltrados = movimientos;
+    if (fechaInicio && fechaFin) {
+      movimientosFiltrados = movimientos.filter(mov => {
+        // me quedo con la parte de la fecha sin horas
+        const fechaMov = mov.fecha.split("T")[0];
+        return fechaMov >= fechaInicio && fechaMov <= fechaFin;
+      });
+    }
+
+    const hoy = new Date();
+    const yyyy = hoy.getFullYear();
+    const mm = String(hoy.getMonth() + 1).padStart(2, "0"); // meses empiezan en 0
+    const dd = String(hoy.getDate()).padStart(2, "0");
+    const fechaHoy=`${dd}/${mm}/${yyyy}`;
+
+    if (movimientosFiltrados.length === 0) {
+    doc.text("No hay Movimientos en el rango seleccionado.", 14, 20);
+    doc.text(fechaHoy, 190, 20, { align: "right" }); // fecha a la derecha
+    doc.save("reporte_movimiento.pdf");
       return;
     }
 
     doc.text("Reporte de Movimientos", 14, 20);
+    doc.text(fechaHoy, 190, 20, { align: "right" }); // fecha a la derecha
 
     const columns = [
       "ID",
@@ -491,19 +513,17 @@ function generarReporteMovimientoPDF(movimientos) {
       "Nombre de Solicitante",
     ];
 
-    const rows = movimientos.map(mov => {
-      // convertir mov.fecha en Date (por si viene como string desde la API)
+    const rows = movimientosFiltrados.map(mov => {
+      // asegurar fecha formateada para mostrar
       const fechaObj = new Date(mov.fecha);
-
       const dia = String(fechaObj.getDate()).padStart(2, "0");
-      const mes = String(fechaObj.getMonth() + 1).padStart(2, "0"); // los meses empiezan en 0
+      const mes = String(fechaObj.getMonth() + 1).padStart(2, "0");
       const anio = fechaObj.getFullYear();
-
       const fechaFormateada = `${dia}-${mes}-${anio}`;
 
       return [
         mov.id,
-        fechaFormateada,  // acá usamos la fecha formateada
+        fechaFormateada,
         mov.tipo,
         mov.recurso.nombre,
         mov.cantidad,
@@ -533,13 +553,21 @@ function generarReporteStockMinimoPDF(recursos) {
 
     doc.setFontSize(16);
 
+    const hoy = new Date();
+        const yyyy = hoy.getFullYear();
+        const mm = String(hoy.getMonth() + 1).padStart(2, "0"); // meses empiezan en 0
+        const dd = String(hoy.getDate()).padStart(2, "0");
+        const fechaHoy=`${dd}/${mm}/${yyyy}`;
+
     if (recursos.length === 0) {
       doc.text("No hay recursos con stock menor al mínimo.", 14, 20);
+      doc.text(fechaHoy, 190, 20, { align: "right" }); // fecha a la derecha
       doc.save("reporte_recursos_stock_minimo.pdf");
       return;
     }
 
     doc.text("Reporte de Recursos con stock menor al minimo", 14, 20);
+    doc.text(fechaHoy, 190, 20, { align: "right" }); // fecha a la derecha
 
     const columns = [
       "ID",
@@ -592,9 +620,15 @@ async function generarReporteInventarioPDF(recursos) {
       (rec) =>
         rec.categoria.toUpperCase() === categoriaSeleccionada.toUpperCase()
     );
+     const hoy = new Date();
+            const yyyy = hoy.getFullYear();
+            const mm = String(hoy.getMonth() + 1).padStart(2, "0"); // meses empiezan en 0
+            const dd = String(hoy.getDate()).padStart(2, "0");
+            const fechaHoy=`${dd}/${mm}/${yyyy}`;
 
     if (recursosFiltrados.length === 0) {
       alert("No hay recursos registrados para esta categoría.");
+      doc.text(fechaHoy, 190, 20, { align: "right" }); // fecha a la derecha
       return;
     }
 
@@ -603,6 +637,7 @@ async function generarReporteInventarioPDF(recursos) {
 
     doc.setFontSize(16);
     doc.text(`Reporte de Inventario - Categoría: ${categoriaSeleccionada}`, 14, 20);
+    doc.text(fechaHoy, 190, 20, { align: "right" }); // fecha a la derecha
 
     const columns = [
       "ID",
@@ -634,102 +669,6 @@ async function generarReporteInventarioPDF(recursos) {
     console.error("Error generando el PDF:", error);
   }
 }
-
-/*
-function cargarRecursos(){
-  fetch("http://localhost:8080/api/recursos/activos")
-    .then((response) => response.json())
-    .then((data) => {
-      console.log(data);
-
-      const selectRecurso = document.getElementById("select-recurso");
-      selectRecurso.innerHTML = ""; // Limpiar opciones previas
-      const optionDefault = document.createElement("option");
-      optionDefault.value = "";
-      optionDefault.textContent = "-- Seleccione un recurso --";
-      selectRecurso.appendChild(optionDefault);
-      data.forEach((recurso) => {
-        const optionPrestamo = document.createElement("option");
-        optionPrestamo.value = recurso.id;
-        optionPrestamo.textContent = recurso.nombre;
-        selectRecurso.appendChild(optionPrestamo);
-      });
-    })
-    .catch((error) => console.error("Error al cargar recursos:", error));
-}
-*/
-/*
-function registrarMovimiento() {
-  console.log("valor cantidad", document.getElementById("cantidadMovimiento"))
-  const movimiento = {
-    tipo: document.querySelector('input[name="tipo_movimiento"]:checked').value,
-    cantidad: parseInt(document.getElementById("cantidadMovimiento").value),
-    motivo: document.getElementById("motivoMovimiento").value,
-    recursoId: parseInt(document.getElementById("recursoMovimiento").value),
-    usuarioId: JSON.parse(localStorage.getItem("usuarioLogueado")).id,
-  };
-  console.log(movimiento);
-
-  fetch("http://localhost:8080/api/movimientos", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(movimiento),
-  })
-    .then((response) => response.json())
-    .then((data) => alert("Movimiento registrado"))
-    .catch((error) => console.error("Error en movimiento:", error));
-}
-*/
-/*
-function registrarSolicitud() {
-  const solicitud = {
-    recursoId: parseInt(document.getElementById("select-recurso").value),
-    cantidad: parseInt(document.getElementById("solicitud-cantidad").value),
-    nombreSolicitante: document.getElementById("solicitud-nombre").value,
-    destino: document.getElementById("solicitud-destino").value,
-    tipo: document.getElementById("solicitud-tipo").value,
-    usuarioId: JSON.parse(localStorage.getItem("usuarioLogueado")).id,
-  };
-
-  fetch(
-    "http://localhost:8080/api/solicitudes/registrar?idRecurso=" +
-      solicitud.recursoId +
-      "&idUsuario=" +
-      solicitud.usuarioId,
-    {
-      method: "POST",
-      body: JSON.stringify(solicitud),
-      headers: { "Content-Type": "application/json" },
-    }
-  )
-    .then((response) => response.json())
-    .then((data) =>
-      alert("Préstamo registrado con código: " + data.codigoSolicitud)
-    )
-    .catch((error) => console.error("Error en préstamo:", error));
-
-    reloadPage();
-}
-*/
-/*
-function registrarDevolucion() {
-  const codigo = document.getElementById("codigoDevolucion").value;
-  const usuarioId = JSON.parse(localStorage.getItem("usuarioLogueado")).id;
-
-  fetch(
-    "http://localhost:8080/api/solicitudes/devolucion?codigoSolicitud=" +
-      encodeURIComponent(codigo) +
-      "&usuarioId=" +
-      usuarioId,
-    {
-      method: "POST",
-    }
-  )
-    .then((response) => response.json())
-    .then((data) => alert("Devolución registrada"))
-    .catch((error) => console.error("Error en devolución:", error));
-}
-*/
 
 function generarReporte(tipo) {
   const usuarioId = JSON.parse(localStorage.getItem("usuarioLogueado")).id;
@@ -801,24 +740,6 @@ function obtenerInsumosSelect(){
       });
 }
 
-
-/*
-// Mostrar/ocultar formularios en préstamos
-function showLoanForm(action) {
-  
-  
-  if (action === "prestamo") {
-    document.getElementById("form-prestamo").classList.remove("hidden");
-    document.getElementById("form-devolucion").classList.add("hidden");
-    cargarRecursos();
-  } else {
-    document.getElementById("form-prestamo").classList.add("hidden");
-    document.getElementById("form-devolucion").classList.remove("hidden");
-    cargarRecursos();
-  }
-}
-
- */
 
 // Mostrar/ocultar formularios en usuarios
 function showUserForm(action) {
@@ -935,69 +856,6 @@ function listarUsuarios() {
       })
       .catch((error) => console.error("Error al obtener usuarios:", error));
 }
-  /*
-
-
-          editar.className = "text-yellow-600 hover:text-yellow-900 mr-3";
-          const editarIcon = document.createElement("i");
-          editarIcon.className = "fas fa-edit";
-          editar.appendChild(editarIcon);
-
-          const eliminar = document.createElement("button");
-          eliminar.className = "text-red-600 hover:text-red-900";
-          eliminar.addEventListener("click", function () {
-            if (confirm("¿Estás seguro de dar de baja este recurso?")) {
-              fetch(
-                  "http://localhost:8080/api/recursos/" + recurso.id + "/darDeBaja",
-                  {
-                    method: "PATCH",
-                  }
-              )
-                  .then((response) => response.json())
-                  .then((data) => reloadPage())
-                  .catch((error) =>
-                      console.error("Error al dar de baja el recurso:", error));
-              reloadPage();
-            }
-          });
-          const eliminarIcon = document.createElement("i");
-          eliminarIcon.className = "fas fa-trash";
-
-   */
-
-
-
-
-   // ======================= ABM USUARIOS =======================
-
-   /* Crear usuario
-   function crearUsuario(){
-     const usuario = {
-       nombre: document.querySelector("#form-nuevo-usuario input[type='text']").value,
-       nombreUsuario: document.querySelectorAll("#form-nuevo-usuario input[type='text']")[1].value,
-       contrasenia: document.querySelector("#form-nuevo-usuario input[type='password']").value,
-       rol: document.querySelector("#form-nuevo-usuario select")[0].value,
-       //estado: document.querySelector("#form-nuevo-usuario select")[1].value
-     };
-     console.log(">>> crearUsuario antes del fecth");
-
-     // Validación básica
-     const confirmar = document.querySelectorAll("#form-nuevo-usuario input[type='password']")[1].value;
-     if (usuario.contrasenia !== confirmar) {
-       alert("Las contraseñas no coinciden");
-       return;
-     }
-
-     fetch("http://localhost:8080/api/usuarios", {
-       method: "POST",
-       headers: { "Content-Type": "application/json" },
-       body: JSON.stringify(usuario),
-     })
-       .then((res) => res.json())
-       .then(() => reloadPage())
-       .catch((err) => console.error("Error al crear usuario:", err));
-       console.log("despues ddel fetch");
-   }*/
 
 window.crearUsuario = function() {
      const usuario = {
