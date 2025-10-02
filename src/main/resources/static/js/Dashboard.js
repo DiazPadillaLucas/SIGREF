@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
   obtenerInsumosSelect();
   mostrarFormulario();
   listarUsuarios();
-  
+
 });
 
 document.addEventListener("click", function (event) {
@@ -614,7 +614,7 @@ async function generarReporteInventarioPDF(recursos) {
     if (categoriaSeleccionada === "") {
       alert("Por favor seleccione una categoría.");
       return;
-    } 
+    }
 
     const recursosFiltrados = recursos.filter(
       (rec) =>
@@ -883,7 +883,7 @@ window.crearUsuario = function() {
        .catch((err) => console.error("Error al crear usuario:", err));
 
 }
-    
+
 //modificar usuario
 //Función para modificar usuario
 
@@ -930,4 +930,78 @@ function eliminarUsuario(idUsuario) {
           .then(() => reloadPage())
           .catch((err) => console.error("Error al dar de baja usuario:", err));
     }
+}
+
+
+
+
+// Agregar nuevo Movimiento
+function registrarMovimiento() {
+
+    let tipo, cantidad, motivo, nombreSolicitante, destino, nombreRecurso;
+
+    if (!document.getElementById("form-ingreso").classList.contains("hidden")) {
+
+        tipo = "INGRESO";
+        cantidad = parseInt(document.getElementById("cantidadMovimientoIngreso").value);
+        motivo = document.getElementById("motivoMovimientoIngreso").value;
+        nombreRecurso = document.getElementById("insumoMovimientoIngreso").value;
+        nombreSolicitante = "--";
+        destino = "--"; // Si no hay campo destino en ingreso, déjalo vacío o agrega uno
+
+    } else {
+
+        tipo = "EGRESO";
+        cantidad = parseInt(document.getElementById("cantidadMovimientoEgreso").value);
+        motivo = document.getElementById("motivoMovimientoEgreso").value;
+        nombreRecurso = document.getElementById("insumoMovimientoEgreso").value;
+        nombreSolicitante = document.getElementById("nombreSolicitanteMovimientoEgreso").value;
+        destino = document.getElementById("areaDestinoMovimientoEgreso").value;
+    }
+
+
+
+    console.log("nombre solicitante", nombreSolicitante);
+    const usuarioId = JSON.parse(localStorage.getItem("usuarioLogueado")).id;
+
+
+    fetch("http://localhost:8080/api/recursos/activos")
+        .then((response) => response.json())
+        .then((recursos) => {
+            const recurso = recursos.find(r => r.nombre === nombreRecurso);
+            if (!recurso) {
+                alert("No se encontró el recurso seleccionado.");
+                return;
+            }
+
+
+
+      // Obtener la fecha actual en la zona horaria de Argentina en formato ISO completo
+      const fecha= new Date().toLocaleString('sv-SE', { timeZone: 'America/Argentina/Buenos_Aires' }).replace(' ', 'T');
+      // Si el backend espera un Date completo, enviar el string ISO (yyyy-MM-ddTHH:mm:ss)
+      const movimiento = {
+        fecha: fecha,
+        tipo: tipo,
+        cantidad: cantidad,
+        nombre_solicitante: nombreSolicitante,
+        destino: destino,
+        motivo: motivo,
+        generadoPor: { id: usuarioId },
+        recurso: { id: recurso.id }
+      };
+
+
+            return fetch("http://localhost:8080/api/movimientos", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(movimiento),
+            });
+        })
+        .then((response) => {
+            if (response && response.ok) {
+                alert("Movimiento registrado correctamente");
+                reloadPage();
+            }
+        })
+        .catch((error) => console.error("Error al registrar movimiento:", error));
 }
