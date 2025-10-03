@@ -1064,7 +1064,6 @@ function registrarMovimiento() {
 
 
 
-    console.log("nombre solicitante", nombreSolicitante);
     const usuarioId = JSON.parse(localStorage.getItem("usuarioLogueado")).id;
 
 
@@ -1093,8 +1092,8 @@ function registrarMovimiento() {
         recurso: { id: recurso.id }
       };
 
-
-            return fetch("http://localhost:8080/api/movimientos", {
+      console.log("Movimiento a registrar:", movimiento);
+      return fetch("http://localhost:8080/api/movimientos/registrar?idUsuario="+ usuarioId + "&idRecurso="+recurso.id, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(movimiento),
@@ -1102,8 +1101,11 @@ function registrarMovimiento() {
         })
         .then((response) => {
             if (response && response.ok) {
-                alert("Movimiento registrado correctamente");
+                alert("Movimiento registrado correctamente.");
                 reloadPage();
+            }else{
+              alert("Movimiento no valido.");
+              reloadPage();
             }
         })
         .catch((error) => console.error("Error al registrar movimiento:", error));

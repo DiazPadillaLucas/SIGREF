@@ -17,7 +17,6 @@ public class MovimientoControlador {
     @Autowired
     private MovimientoServicio movimientoServicio;
 
-
     @GetMapping
     public ResponseEntity<List<Movimiento>> listar() {
         return ResponseEntity.ok(movimientoServicio.listarMovimientos());
@@ -57,7 +56,8 @@ public class MovimientoControlador {
     }
 
     @PostMapping("/registrar")
-    public ResponseEntity<?> registrarNuevoMovimiento(@RequestParam Long idUsuario, @RequestParam Long idRecurso, @RequestBody Movimiento movimiento) {
+    public ResponseEntity<?> registrarNuevoMovimiento(@RequestParam Long idUsuario, @RequestParam Long idRecurso,
+            @RequestBody Movimiento movimiento) {
         try {
             return ResponseEntity.ok(movimientoServicio.registrarNuevoMovimiento(idUsuario, idRecurso, movimiento));
         } catch (EntityNotFoundException e) {

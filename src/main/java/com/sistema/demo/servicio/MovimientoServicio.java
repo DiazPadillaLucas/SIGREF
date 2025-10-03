@@ -68,6 +68,18 @@ public class MovimientoServicio {
         movimiento.setGeneradoPor(usuario);
         movimiento.setRecurso(recurso);
 
+        int cantidad = movimiento.getCantidad();
+        if ("INGRESO".equalsIgnoreCase(movimiento.getTipo())) {
+            recurso.setCantidad(recurso.getCantidad() + cantidad);
+            recursoRepositorio.save(recurso);
+        } else if ("EGRESO".equalsIgnoreCase(movimiento.getTipo())) {
+            if (recurso.getCantidad() < cantidad) {
+                throw new IllegalArgumentException("Stock insuficiente para realizar el egreso.");
+            }
+            recurso.setCantidad(recurso.getCantidad() - cantidad);
+        }
+        System.out.println("estamos en registrar nuevo movimiento");
+
         return movimientoRepositorio.save(movimiento);
     }
 
