@@ -200,24 +200,7 @@
                 >Ir a Reportes </a
               >
             </div>
-              <!-- Tabla de últimos movimientos -->
-              <div class="overflow-x-auto">
-                  <table class="w-full text-left border-collapse">
-                      <thead>
-                      <tr class="border-b">
-                          <th class="py-2 px-3">FECHA</th>
-                          <th class="py-2 px-3">RECURSO</th>
-                          <th class="py-2 px-3">TIPO</th>
-                          <th class="py-2 px-3 text-right">CANTIDAD</th>
-                      </tr>
-                      </thead>
-                      <tbody id="tbody-movimientos">
-                      <!-- Se rellena dinámicamente desde dashboard.js -->
-                      </tbody>
-                  </table>
-              </div>
-          </div>
-            <!--<div class="overflow-x-auto">
+            <div class="overflow-x-auto">
               <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                   <tr>
@@ -292,7 +275,7 @@
                   </tr>
                 </tbody>
               </table>
-            </div>-->
+            </div>
           </div>
         </div>
       </section>
@@ -872,6 +855,301 @@
         </div>
       </section>
 
+      <!-- Préstamos
+      <section id="prestamos" class="section-content hidden">
+        <div class="flex justify-between items-center mb-8">
+          <h2 class="text-2xl font-bold text-gray-800">
+            Gestión de Solicitudes
+          </h2>
+          <div class="flex space-x-3">
+            <button
+              onclick="showLoanForm('prestamo')"
+              class="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              <i class="fas fa-hand-holding mr-2"></i> Nueva Solicitud
+            </button>
+          </div>
+        </div>
+
+
+        Formulario Préstamo
+
+        <div id="form-prestamo" class="form-container p-6 mb-6 hidden">
+          <h3 class="text-xl font-semibold mb-4 flex items-center">
+            <i class="fas fa-hand-holding mr-2 text-blue-600"></i> Registrar
+            Solicitud de Préstamo/Entrega
+          </h3>
+          <form>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-gray-700 mb-2">Recurso</label>
+                <select
+                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  id="select-recurso"
+                >
+                  <option value="">-- Seleccione un recurso --</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-gray-700 mb-2">Cantidad</label>
+                <input
+                  type="number"
+                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  id="solicitud-cantidad"
+                />
+              </div>
+              <div>
+                <label class="block text-gray-700 mb-2"
+                  >Nombre del Solicitante</label
+                >
+                <input
+                  type="text"
+                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  id="solicitud-nombre"
+                />
+              </div>
+              <div>
+                <label class="block text-gray-700 mb-2">Área/Destino</label>
+                <input
+                  type="text"
+                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  id="solicitud-destino"
+                />
+              </div>
+              <div>
+                <label class="block text-gray-700 mb-2">Tipo</label>
+                <select
+                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  id="solicitud-tipo"
+                >
+                  <option value="">-- Seleccione un tipo --</option>
+                  <option value="PRESTAMO">Prestamo</option>
+                  <option value="ENTREGA">Entrega</option>
+                </select>
+              </div>
+            </div>
+            <div class="flex justify-end mt-6">
+              <button
+                type="button"
+                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                onclick="registrarSolicitud()"
+              >
+                <i class="fas fa-save mr-2"></i> Registrar Préstamo
+              </button>
+            </div>
+          </form>
+        </div>
+
+
+        Préstamos Activos
+
+        <div class="bg-white p-6 rounded-lg shadow mb-6">
+          <h3 class="text-xl font-semibold mb-4 flex items-center">
+            <i class="fas fa-clipboard-list mr-2 text-blue-600"></i> Solicitudes de Prestamo
+            Activas
+          </h3>
+
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Código
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Recurso
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Solicitante
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Fecha Préstamo
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Fecha Devolución
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    PR-2025-001
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    Mouse Inalámbrico
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    Juan Pérez - RRHH
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    14/06/2025
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    21/06/2025
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button class="text-green-600 hover:text-green-900">
+                      <i class="fas fa-undo mr-1"></i> Devolver
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    PR-2025-002
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    Monitor 24"
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    María Gómez - Contabilidad
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    10/06/2025
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    24/06/2025
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button class="text-green-600 hover:text-green-900">
+                      <i class="fas fa-undo mr-1"></i> Devolver
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        Historial de Préstamos
+
+        <div class="bg-white p-6 rounded-lg shadow">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold flex items-center">
+              <i class="fas fa-history mr-2 text-blue-600"></i> Historial de
+              Solicitudes
+            </h3>
+            <div class="flex items-center space-x-3">
+              <div class="relative">
+                <i
+                  class="fas fa-calendar-alt absolute left-3 top-3 text-gray-400"
+                ></i>
+                <input
+                  type="date"
+                  class="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <select
+                class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option>Todo el estado</option>
+                <option>Devuelto</option>
+                <option>Vencido</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Código
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Recurso
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Solicitante
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Fecha Préstamo
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Fecha Devolución
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Estado
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    PR-2025-001
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    Laptop Dell
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    Carlos Rojas - Ventas
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    01/06/2025
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    10/06/2025
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <span
+                      class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
+                      >Devuelto</span
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    PR-2025-002
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm">Proyector</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    Ana López - Marketing
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    31/05/2025
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    07/06/2025
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <span
+                      class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800"
+                      >Vencido</span
+                    >
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      -->
 
       <!-- Reportes -->
       <section id="reportes" class="section-content hidden">
@@ -1161,7 +1439,11 @@
                         type="button"
                         class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                     <i class="fas fa-save mr-2"></i> Guardar
-                </button>
+                </button>     <!-- <button type="button"
+                        onclick="modificarUsuario(usuarioIdSeleccionado)"
+                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                    <i class="fas fa-save mr-2"></i> Guardar
+                </button>-->
             </div>
           </form>
         </div>
