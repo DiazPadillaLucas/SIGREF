@@ -266,57 +266,58 @@ function formatCantidad(tipo, cantidad) {
 
 // Método principal: trae los últimos 6 y los muestra
 async function cargarUltimosMovimientos() {
-  try {
-    const res = await fetch('/api/movimientos/ultimos');
-    if (!res.ok) throw new Error(`Error al cargar movimientos: ${res.status}`);
-    const data = await res.json();
-    const movimientos = Array.isArray(data) ? data.slice(0, 6) : [];
 
-    // 1) Si existe una tabla con tbody id="tbody-movimientos", rellenarla
-    const tbody = document.getElementById('tbody-movimientos');
-    if (tbody) {
-      tbody.innerHTML = '';
-      movimientos.forEach(mov => {
-        const tr = document.createElement('tr');
-        tr.className = 'border-b';
-        const recursoNombre = (mov.recurso && (mov.recurso.nombre || mov.recurso.nombreRecurso)) || '—';
-        tr.innerHTML = `
-          <td class="py-4">${formatDate(mov.fecha)}</td>
-          <td class="py-4 font-semibold">${recursoNombre}</td>
-          <td class="py-4"><span class="${tipoBadgeClass(mov.tipo)}">${mov.tipo || '—'}</span></td>
-          <td class="py-4 text-right">${formatCantidad(mov.tipo, mov.cantidad)}</td>
-        `;
-        tbody.appendChild(tr);
+  fetch("http://localhost:8080/api/movimientos/ultimos")
+      .then((response) => response.json())
+      .then((data) => {
+        const tabla = document.getElementById("tabla-ultimos-movimientos");
+
+        //data.forEach((recurso) => {
+        tabla.innerHTML = ""; // Limpia la tabla antes de agregar filas
+
+        // Filtra las Categoria según el select
+
+        data.forEach((mov) => {
+          const columna = document.createElement("tr");
+
+          const fecha = document.createElement("td");
+          const fechaObj = new Date(mov.fecha);
+          const dia = String(fechaObj.getDate()).padStart(2, "0");
+          const mes = String(fechaObj.getMonth() + 1).padStart(2, "0");
+          const anio = fechaObj.getFullYear();
+          fecha.textContent = `${dia}-${mes}-${anio}`;
+          fecha.className = "px-4 py-2 whitespace-nowrap text-sm text-gray-500";
+
+          const recurso = document.createElement("td");
+          recurso.className = "px-4 py-2 whitespace-nowrap text-sm font-medium";
+          recurso.textContent = mov.recurso.nombre;
+
+          const tipo = document.createElement("td");
+          tipo.className = "px-6 py-2 whitespace-nowrap text-sm text-gray-500";
+          const span = document.createElement("span");
+          span.className = "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800";
+          span.textContent = mov.tipo;
+          tipo.appendChild(span);
+
+          const cantidad = document.createElement("td");
+          cantidad.className = "px-4 py-2 whitespace-nowrap text-sm text-gray-500";
+          cantidad.textContent = mov.cantidad;
+
+
+          columna.appendChild(fecha);
+          columna.appendChild(recurso);
+          if(span.textContent === "INGRESO"){
+            span.className = "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800";
+          }
+          if(span.textContent === "EGRESO"){
+            span.className = "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800";
+          }
+          columna.appendChild(tipo);
+          columna.appendChild(cantidad);
+          tabla.appendChild(columna);
+
+        });
       });
-      return; // si usamos la tabla, paramos acá
-    }
-
-    // 2) Si existe un contenedor de tarjetas id="contenedor-movimientos", rellenarlo
-    const cont = document.getElementById('contenedor-movimientos');
-    if (cont) {
-      cont.innerHTML = '';
-      movimientos.forEach(mov => {
-        const recursoNombre = (mov.recurso && (mov.recurso.nombre || mov.recurso.nombreRecurso)) || '—';
-        const card = document.createElement('div');
-        card.className = 'flex justify-between items-center border-b py-3';
-        card.innerHTML = `
-          <div class="text-sm">${formatDate(mov.fecha)}</div>
-          <div class="font-semibold">${recursoNombre}</div>
-          <div><span class="${tipoBadgeClass(mov.tipo)}">${mov.tipo || '—'}</span></div>
-          <div class="text-right">${formatCantidad(mov.tipo, mov.cantidad)}</div>
-        `;
-        cont.appendChild(card);
-      });
-      return;
-    }
-
-    console.warn('No se encontró "tbody-movimientos" ni "contenedor-movimientos" en el DOM.');
-  } catch (err) {
-    console.error(err);
-    // Si querés, mostrar un mensaje de error visible en la UI:
-    // const contError = document.getElementById('contenedor-movimientos') || document.getElementById('tbody-movimientos');
-    // if (contError) contError.innerHTML = '<div class="text-red-600">No se pudieron cargar los movimientos.</div>';
-  }
 }
 
 // Ejecutar al cargar la página
@@ -352,6 +353,52 @@ function contarPrestamosPendientes() {
 }
 
 */
+function agregarUltimosMovimientos() {
+  fetch("http://localhost:8080/api/recursos/listarStockMinimo")
+      .then((response) => response.json())
+      .then((data) => {
+        const listaAlertas = document.getElementById("contenedor-alertas");
+        listaAlertas.innerHTML = "";
+        let cant = 0;
+
+        data.forEach((recurso) => {
+          if (cant < 6) {
+            const div = document.createElement("div");
+            div.className =
+                "flex items-start p-3 border border-yellow-200 rounded-lg bg-yellow-50";
+
+            const icon = document.createElement("i");
+            icon.className =
+                "fas fa-exclamation-circle text-yellow-500 mt-1 mr-3";
+            const div2 = document.createElement("div");
+
+            const nombre = document.createElement("p");
+            nombre.className = "font-medium text-yellow-800";
+            nombre.textContent = recurso.nombre;
+
+            const stock = document.createElement("p");
+            stock.className = "text-sm text-yellow-700";
+            stock.textContent = ` Stock actual: ${recurso.cantidad} - Mínimo: ${recurso.minimo}`;
+
+            div2.appendChild(nombre);
+            div2.appendChild(stock);
+
+            div.appendChild(icon);
+            div.appendChild(div2);
+
+            listaAlertas.appendChild(div);
+            cant++;
+          }
+        });
+
+        if (data.length === 0) {
+          listaAlertas.innerHTML = "<li>No hay alertas de stock mínimo.</li>";
+        }
+      })
+      .catch((error) => console.error("Error al crear alerta de stock:", error));
+}
+
+
 
 function agregarAlertaStockMinimo() {
   fetch("http://localhost:8080/api/recursos/listarStockMinimo")
@@ -397,12 +444,14 @@ function agregarAlertaStockMinimo() {
     })
     .catch((error) => console.error("Error al crear alerta de stock:", error));
 }
+
+
 document.getElementById("filtroCategoria").addEventListener("change", function() {
   listarRecursos();
 });
 
 function listarRecursos() {
-const filtro = document.getElementById("filtroCategoria").value;
+  const filtro = document.getElementById("filtroCategoria").value;
   fetch("http://localhost:8080/api/recursos/activos")
     .then((response) => response.json())
     .then((data) => {
