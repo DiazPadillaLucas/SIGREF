@@ -932,8 +932,7 @@ function listarUsuarios() {
                   .then((data) => reloadPage())
                   .catch((error) =>
                       console.error("Error al dar de baja el usuario:", error));
-              // Es mejor llamar a reloadPage() solo después de la respuesta exitosa
-              // reloadPage(); // Eliminada: ya se llama en .then()
+              reloadPage();
             }
 
           });
@@ -1007,7 +1006,7 @@ function modificarUsuario() {
     return;
   }
 
-  fetch("http://localhost:8080/api/usuarios/${idUsuario}", {
+  fetch("http://localhost:8080/api/usuarios/"+idUsuario, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(usuario)
