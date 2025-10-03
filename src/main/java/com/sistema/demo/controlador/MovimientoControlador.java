@@ -64,4 +64,8 @@ public class MovimientoControlador {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
+    @GetMapping("/ultimos")
+    public ResponseEntity<List<Movimiento>> listarUltimos() {
+        return ResponseEntity.ok(movimientoServicio.listarUltimos6Movimientos());
+    }
 }

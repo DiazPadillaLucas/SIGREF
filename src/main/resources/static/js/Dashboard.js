@@ -235,6 +235,109 @@ function contarAlertasDeStockMinimo() {
       console.error("Error al contar alertas de stock mínimo:", error)
     );
 }
+// dashboard.js
+
+// Formatea fecha a dd/mm/yyyy
+function formatDate(fecha) {
+  if (!fecha) return '';
+  const d = new Date(fecha);
+  if (isNaN(d)) return '';
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const yyyy = d.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+}
+
+// Clase de badge según tipo
+function tipoBadgeClass(tipo) {
+  if (!tipo) return 'inline-block px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-700';
+  const t = tipo.toLowerCase();
+  if (t.includes('ingres')) return 'inline-block px-3 py-1 rounded-full text-sm bg-green-100 text-green-700';
+  if (t.includes('prést') || t.includes('prest') || t.includes('salid') || t.includes('egres')) return 'inline-block px-3 py-1 rounded-full text-sm bg-red-100 text-red-700';
+  return 'inline-block px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-700';
+}
+
+// Formatea cantidad (pone + para ingresos positivos)
+function formatCantidad(tipo, cantidad) {
+  const c = Number(cantidad) || 0;
+  if (tipo && tipo.toLowerCase().includes('ingres') && c > 0) return `+${c}`;
+  return String(c);
+}
+
+// Método principal: trae los últimos 6 y los muestra
+async function cargarUltimosMovimientos() {
+  try {
+    const res = await fetch('/api/movimientos/ultimos');
+    if (!res.ok) throw new Error(`Error al cargar movimientos: ${res.status}`);
+    const data = await res.json();
+    const movimientos = Array.isArray(data) ? data.slice(0, 6) : [];
+
+    // 1) Si existe una tabla con tbody id="tbody-movimientos", rellenarla
+    const tbody = document.getElementById('tbody-movimientos');
+    if (tbody) {
+      tbody.innerHTML = '';
+      movimientos.forEach(mov => {
+        const tr = document.createElement('tr');
+        tr.className = 'border-b';
+        const recursoNombre = (mov.recurso && (mov.recurso.nombre || mov.recurso.nombreRecurso)) || '—';
+        tr.innerHTML = `
+          <td class="py-4">${formatDate(mov.fecha)}</td>
+          <td class="py-4 font-semibold">${recursoNombre}</td>
+          <td class="py-4"><span class="${tipoBadgeClass(mov.tipo)}">${mov.tipo || '—'}</span></td>
+          <td class="py-4 text-right">${formatCantidad(mov.tipo, mov.cantidad)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      return; // si usamos la tabla, paramos acá
+    }
+
+    // 2) Si existe un contenedor de tarjetas id="contenedor-movimientos", rellenarlo
+    const cont = document.getElementById('contenedor-movimientos');
+    if (cont) {
+      cont.innerHTML = '';
+      movimientos.forEach(mov => {
+        const recursoNombre = (mov.recurso && (mov.recurso.nombre || mov.recurso.nombreRecurso)) || '—';
+        const card = document.createElement('div');
+        card.className = 'flex justify-between items-center border-b py-3';
+        card.innerHTML = `
+          <div class="text-sm">${formatDate(mov.fecha)}</div>
+          <div class="font-semibold">${recursoNombre}</div>
+          <div><span class="${tipoBadgeClass(mov.tipo)}">${mov.tipo || '—'}</span></div>
+          <div class="text-right">${formatCantidad(mov.tipo, mov.cantidad)}</div>
+        `;
+        cont.appendChild(card);
+      });
+      return;
+    }
+
+    console.warn('No se encontró "tbody-movimientos" ni "contenedor-movimientos" en el DOM.');
+  } catch (err) {
+    console.error(err);
+    // Si querés, mostrar un mensaje de error visible en la UI:
+    // const contError = document.getElementById('contenedor-movimientos') || document.getElementById('tbody-movimientos');
+    // if (contError) contError.innerHTML = '<div class="text-red-600">No se pudieron cargar los movimientos.</div>';
+  }
+}
+
+// Ejecutar al cargar la página
+document.addEventListener('DOMContentLoaded', () => {
+  cargarUltimosMovimientos();
+  // Opcional: refrescar cada 60s
+  // setInterval(cargarUltimosMovimientos, 60000);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*
 
 function contarPrestamosPendientes() {
@@ -259,7 +362,7 @@ function agregarAlertaStockMinimo() {
       let cant = 0;
 
       data.forEach((recurso) => {
-        if (cant < 2) {
+        if (cant < 6) {
           const div = document.createElement("div");
           div.className =
             "flex items-start p-3 border border-yellow-200 rounded-lg bg-yellow-50";

@@ -8,8 +8,8 @@ INSERT INTO usuario (nombre, nombre_usuario, contrasenia, rol) VALUES
 
 -- Insertar Recursos
 INSERT INTO recurso (nombre, descripcion, codigo, cantidad, minimo, ubicacion, estado, categoria) VALUES
-('Impresora HP', 'Impresora láser', 'IMP001', 10, 2, 'Oficina A', true, 'OFICINA'),
-('Silla ergonómica', 'Silla para oficina', 'SIL001', 15, 5, 'Deposito', true, 'OFICINA'),
+('Impresora HP', 'Impresora láser', 'IMP001', 1, 2, 'Oficina A', true, 'OFICINA'),
+('Silla ergonómica', 'Silla para oficina', 'SIL001', 4, 5, 'Deposito', true, 'OFICINA'),
 ('PC Escritorio', 'Computadora de escritorio', 'PC001', 5, 1, 'Sala B', true, 'INSUMOELECTRICO'),
 ('Proyector', 'Proyector de presentaciones', 'PRO001', 2, 4, 'Sala de Reuniones', true, 'OFICINA'),
 ('Mesa Reunión', 'Mesa grande', 'MES001', 3, 5, 'Sala de Reuniones', true, 'LIMPIEZA');
@@ -19,8 +19,8 @@ INSERT INTO movimiento (fecha, tipo, cantidad,nombre_solicitante, destino, motiv
 ('2025-09-25', 'INGRESO', 5, '--','--', 'Compra', 1, 1),
 (CURRENT_DATE, 'EGRESO', 2, 'Lucas','laboratorio','Prestamo', 2, 2),
 ('2025-08-20', 'INGRESO', 3, '--','--','Devolucion', 3, 3),
-(CURRENT_DATE, 'EGRESO', 1, 'Mirian','aula 23','Reparación', 4, 4),
-(CURRENT_DATE, 'INGRESO', 4, '--','--','Donación', 5, 5);
+(CURRENT_DATE, 'EGRESO', 1, 'Mirian','aula 23','Reparación', 4, 4),(CURRENT_DATE, 'EGRESO', 3, 'Mirian','aula 23','Reparación', 4, 4),
+(CURRENT_DATE, 'INGRESO', 4, '--','--','Donación', 5, 5),(CURRENT_DATE, 'INGRESO', 6, '--','--','Donación', 5, 2);
 
 -- Insertar Solicitudes
 INSERT INTO solicitud (codigo_solicitud, fecha, nombre_solicitante, destino, cantidad, activo, tipo, usuario_id, recurso_id) VALUES

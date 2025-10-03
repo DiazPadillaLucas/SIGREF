@@ -9,6 +9,8 @@ import com.sistema.demo.repositorio.UsuarioRepositorio;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -67,5 +69,10 @@ public class MovimientoServicio {
         movimiento.setRecurso(recurso);
 
         return movimientoRepositorio.save(movimiento);
+    }
+
+    public List<Movimiento> listarUltimos6Movimientos() {
+        Pageable limite = PageRequest.of(0, 6); // página 0, máximo 6 resultados
+        return movimientoRepositorio.findAllByOrderByFechaDesc(limite);
     }
 }
