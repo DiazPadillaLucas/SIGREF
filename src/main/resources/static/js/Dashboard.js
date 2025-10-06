@@ -714,13 +714,13 @@ function generarReporteStockMinimoPDF(recursos) {
         const fechaHoy=`${dd}/${mm}/${yyyy}`;
 
     if (recursos.length === 0) {
-      doc.text("No hay recursos con stock menor al mínimo.", 14, 20);
+      doc.text("No hay insumos con alerta de stock mínimo.", 14, 20);
       doc.text(fechaHoy, 190, 20, { align: "right" }); // fecha a la derecha
       doc.save("reporte_recursos_stock_minimo.pdf");
       return;
     }
 
-    doc.text("Reporte de Recursos con stock menor al minimo", 14, 20);
+    doc.text("Reporte de insumos con alerta de stock minimo", 14, 20);
     doc.text(fechaHoy, 190, 20, { align: "right" }); // fecha a la derecha
 
     const columns = [
@@ -731,10 +731,14 @@ function generarReporteStockMinimoPDF(recursos) {
       "Cantidad",
       "Mínimo",
       "Ubicación",
-      "Estado",
       "Categoría",
     ];
-    const rows = recursos.map((rec) => [
+
+    const recursosFiltrados = recursos.filter((rec) =>
+        rec.estado === true
+    )
+
+    const rows = recursosFiltrados.map((rec) => [
       rec.id,
       rec.nombre,
       rec.descripcion,
@@ -742,7 +746,6 @@ function generarReporteStockMinimoPDF(recursos) {
       rec.cantidad,
       rec.minimo,
       rec.ubicacion,
-      rec.estado ? "Activo" : "Inactivo",
       rec.categoria,
     ]);
 
