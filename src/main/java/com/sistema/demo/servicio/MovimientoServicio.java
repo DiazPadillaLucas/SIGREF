@@ -11,6 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Date;
+
+
 
 import java.util.List;
 
@@ -87,4 +94,9 @@ public class MovimientoServicio {
         Pageable limite = PageRequest.of(0, 6); // página 0, máximo 6 resultados
         return movimientoRepositorio.findAllByOrderByFechaDesc(limite);
     }
+
+    public long contarMovimientosDeHoy() {
+        return movimientoRepositorio.contarMovimientosDeHoy();
+    }
+
 }

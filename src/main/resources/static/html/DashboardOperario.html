@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SIGREF - Sistema de Gestión de Recursos</title>
@@ -13,596 +13,566 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
     <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <link rel="stylesheet" href="/css/Dashboard.css" />
-  </head>
-  <body class="bg-gray-50 flex">
-    <!-- Sidebar -->
-    <div
-      class="sidebar bg-blue-800 text-white w-64 min-h-screen p-4 flex flex-col"
-    >
-      <div class="flex items-center mb-8 mt-4">
+</head>
+<body class="bg-gray-50 flex">
+<!-- Sidebar -->
+<div
+        class="sidebar bg-blue-800 text-white w-64 min-h-screen p-4 flex flex-col"
+>
+    <div class="flex items-center mb-8 mt-4">
         <img
+                src="/img/SIGREF-2.png"
+                alt="Logo SIGREF - Letras azules sobre fondo blanco en estilo moderno minimalista"
+                class="h-10"
+                style="margin: 10px"
+        />
+        <!--<img
           src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/2007bdc7-5686-495d-9529-6b5cbb8f4db3.png"
           alt="Logo SIGREF - Letras azules sobre fondo blanco en estilo moderno minimalista"
           class="h-10"
           style="margin: 10px"
-        />
+        /> -->
         <h1 class="text-xl font-bold">SIGREF</h1>
-      </div>
-
-      <nav class="flex-1">
-        <div class="mb-6">
-          <h2 class="text-xs uppercase tracking-wider text-blue-200 mb-3 px-2">
-            Menú Principal
-          </h2>
-          <ul>
-            <li class="mb-2">
-              <a
-                href="#"
-                onclick="showSection('dashboard')"
-                class="flex items-center p-2 rounded hover:bg-blue-700"
-              >
-                <i class="fas fa-home mr-3"></i> Inicio
-              </a>
-            </li>
-            <li class="mb-2">
-              <a
-                href="#"
-                onclick="showSection('gestion-recursos')"
-                class="flex items-center p-2 rounded hover:bg-blue-700"
-              >
-                <i class="fas fa-boxes mr-3"></i> Gestión Insumo
-              </a>
-            </li>
-            <li class="mb-2">
-              <a
-                href="#"
-                onclick="showSection('control-stock')"
-                class="flex items-center p-2 rounded hover:bg-blue-700"
-              >
-                <i class="fas fa-exchange-alt mr-3"></i> Movimientos
-              </a>
-            </li>
-
-            <!-- <li class="mb-2">
-              <a
-                href="#"
-                onclick="showSection('prestamos')"
-                class="flex items-center p-2 rounded hover:bg-blue-700"
-              >
-                <i class="fas fa-hand-holding mr-3"></i> Préstamos
-              </a>
-            </li>
-            -->
-
-
-          </ul>
-        </div>
-      </nav>
-
-      <div class="mt-auto pt-4 border-t border-blue-700">
-        <div
-          class="flex items-center p-2 rounded hover:bg-blue-700 cursor-pointer"
-        >
-          <img
-            src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/c924dfd6-33e0-4910-b5ef-2cbe71a42169.png"
-            alt="Avatar de usuario - Icono de persona con fondo azul claro"
-            class="h-8 w-8 rounded-full"
-            style="margin: 10px"
-          />
-          <div>
-            <p class="text-sm font-medium" id="rolUS"></p>
-            <p class="text-xs text-blue-200" id="nombreUS"></p>
-          </div>
-        </div>
-        <a
-          href="#"
-          id="cerrarSesion"
-          class="flex items-center p-2 rounded hover:bg-blue-700 mt-2"
-        >
-          <i class="fas fa-sign-out-alt mr-3"></i> Cerrar Sesión
-        </a>
-      </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="flex-1 p-8">
-      <!-- Dashboard (Inicio) -->
-      <section id="dashboard" class="section-content">
+    <nav class="flex-1">
+        <div class="mb-6">
+            <h2 class="text-xs uppercase tracking-wider text-blue-200 mb-3 px-2">
+                Menú Principal
+            </h2>
+            <ul>
+                <li class="mb-2">
+                    <a
+                            href="#"
+                            onclick="showSection('dashboard')"
+                            class="flex items-center p-2 rounded hover:bg-blue-700"
+                    >
+                        <i class="fas fa-home mr-3"></i> Inicio
+                    </a>
+                </li>
+                <li class="mb-2">
+                    <a
+                            href="#"
+                            onclick="showSection('gestion-recursos')"
+                            class="flex items-center p-2 rounded hover:bg-blue-700"
+                    >
+                        <i class="fas fa-boxes mr-3"></i> Gestión Insumo
+                    </a>
+                </li>
+                <li class="mb-2">
+                    <a
+                            href="#"
+                            onclick="showSection('control-stock')"
+                            class="flex items-center p-2 rounded hover:bg-blue-700"
+                    >
+                        <i class="fas fa-exchange-alt mr-3"></i> Movimientos
+                    </a>
+                </li>
+
+                <!-- <li class="mb-2">
+                  <a
+                    href="#"
+                    onclick="showSection('prestamos')"
+                    class="flex items-center p-2 rounded hover:bg-blue-700"
+                  >
+                    <i class="fas fa-hand-holding mr-3"></i> Préstamos
+                  </a>
+                </li>
+                -->
+            </ul>
+        </div>
+    </nav>
+
+    <div class="mt-auto pt-4 border-t border-blue-700">
+        <div
+                class="flex items-center p-2 rounded hover:bg-blue-700 cursor-pointer"
+        >
+            <img
+                    src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/c924dfd6-33e0-4910-b5ef-2cbe71a42169.png"
+                    alt="Avatar de usuario - Icono de persona con fondo azul claro"
+                    class="h-8 w-8 rounded-full"
+                    style="margin: 10px"
+            />
+            <div>
+                <p class="text-sm font-medium" id="rolUS"></p>
+                <p class="text-xs text-blue-200" id="nombreUS"></p>
+            </div>
+        </div>
+        <a
+                href="#"
+                id="cerrarSesion"
+                class="flex items-center p-2 rounded hover:bg-blue-700 mt-2"
+        >
+            <i class="fas fa-sign-out-alt mr-3"></i> Cerrar Sesión
+        </a>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="flex-1 p-8">
+    <!-- Dashboard (Inicio) -->
+    <section id="dashboard" class="section-content">
         <div class="flex justify-between items-center mb-8">
-          <h2 class="text-2xl font-bold text-gray-800">Página Principal</h2>
-          <div class="flex items-center">
-            <i class="fas fa-calendar-alt mr-2 text-gray-500"></i>
-            <span id="fecha-actual" class="text-sm text-gray-600"></span>
-          </div>
+            <h2 class="text-2xl font-bold text-gray-800">Página Principal</h2>
+            <div class="flex items-center">
+                <i class="fas fa-calendar-alt mr-2 text-gray-500"></i>
+                <span id="fecha-actual" class="text-sm text-gray-600"></span>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div class="bg-white p-6 rounded-lg shadow">
-            <div class="flex items-center">
-              <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
-                <i class="fas fa-box-open text-xl"></i>
-              </div>
-              <div>
-                <p class="text-gray-500">Total Insumo</p>
-                <h3 class="text-2xl font-bold" id="totalRecursos"></h3>
-              </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
+                        <i class="fas fa-box-open text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-500">Total Insumo</p>
+                        <h3 class="text-2xl font-bold" id="totalRecursos"></h3>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="bg-white p-6 rounded-lg shadow">
-            <div class="flex items-center">
-              <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4">
-                <i class="fas fa-exclamation-triangle text-xl"></i>
-              </div>
-              <div>
-                <p class="text-gray-500">Alertas Stock</p>
-                <h3 class="text-2xl font-bold" id="alertasStock"></h3>
-              </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4">
+                        <i class="fas fa-exclamation-triangle text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-500">Alertas Stock</p>
+                        <h3 class="text-2xl font-bold" id="alertasStock"></h3>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="bg-white p-6 rounded-lg shadow">
-            <div class="flex items-center">
-              <div class="p-3 rounded-full bg-red-100 text-red-600 mr-4">
-                <i class="fas fa-chart-line text-xl"></i>
-              </div>
-              <div>
-                <p class="text-gray-500">Movimientos Hoy</p>
-                <h3 class="text-2xl font-bold">3</h3>
-              </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-red-100 text-red-600 mr-4">
+                        <i class="fas fa-chart-line text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-500">Movimientos Hoy</p>
+                        <h3 class="text-2xl font-bold" id="totalMovimientosHoy"></h3>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div class="bg-white p-6 rounded-lg shadow">
-            <div class="flex justify-between items-center mb-4">
-              <h3 class="font-semibold text-lg">Alertas de Stock Mínimo</h3>
-              <a href="#" class="text-sm text-blue-600 hover:underline"
-                >Ver todas</a
-              >
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-semibold text-lg">Alertas de Stock Mínimo</h3>
+                    <!--<a href="#" class="text-sm text-blue-600 hover:underline"
+                       onclick="showSection('reportes')"
+                    >Ir a Reportes</a
+                    >-->
+                </div>
+                <div class="space-y-4" id="contenedor-alertas"></div>
             </div>
-            <div class="space-y-4" id="contenedor-alertas"></div>
-          </div>
 
-          <div class="bg-white p-6 rounded-lg shadow">
-            <div class="flex justify-between items-center mb-4">
-              <h3 class="font-semibold text-lg">Últimos Movimientos</h3>
-              <a href="#" class="text-sm text-blue-600 hover:underline"
-                >Ver todos</a
-              >
-            </div>
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th
-                      class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"
-                    >
-                      Fecha
-                    </th>
-                    <th
-                      class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"
-                    >
-                      Recurso
-                    </th>
-                    <th
-                      class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"
-                    >
-                      Tipo
-                    </th>
-                    <th
-                      class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"
-                    >
-                      Cantidad
-                    </th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                  <tr>
-                    <td
-                      class="px-4 py-2 whitespace-nowrap text-sm text-gray-500"
-                    >
-                      15/06/2025
-                    </td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm font-medium">
-                      Hojas A4
-                    </td>
-                    <td
-                      class="px-4 py-2 whitespace-nowrap text-sm text-gray-500"
-                    >
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-semibold text-lg">Últimos Movimientos</h3>
+                    <!--<a href="#" class="text-sm text-blue-600 hover:underline"
+                       onclick="showSection('reportes')"
+                    >Ir a Reportes </a
+                    >-->
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th
+                                    class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"
+                            >
+                                Fecha
+                            </th>
+                            <th
+                                    class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"
+                            >
+                                Recurso
+                            </th>
+                            <th
+                                    class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"
+                            >
+                                Tipo
+                            </th>
+                            <th
+                                    class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"
+                            >
+                                Cantidad
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="tabla-ultimos-movimientos">
+                        <tr>
+                            <td
+                                    class="px-4 py-2 whitespace-nowrap text-sm text-gray-500"
+                            >
+                                14/06/2025
+                            </td>
+                            <td class="px-4 py-2 whitespace-nowrap text-sm font-medium">
+                                Mouse Inalámbrico
+                            </td>
+                            <td
+                                    class="px-4 py-2 whitespace-nowrap text-sm text-gray-500"
+                            >
                       <span
-                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
-                        >Ingreso</span
+                              class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800"
+                      >Préstamo</span
                       >
-                    </td>
-                    <td
-                      class="px-4 py-2 whitespace-nowrap text-sm text-gray-500"
-                    >
-                      +500
-                    </td>
-                  </tr>
-                  <tr>
-                    <td
-                      class="px-4 py-2 whitespace-nowrap text-sm text-gray-500"
-                    >
-                      14/06/2025
-                    </td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm font-medium">
-                      Mouse Inalámbrico
-                    </td>
-                    <td
-                      class="px-4 py-2 whitespace-nowrap text-sm text-gray-500"
-                    >
-                      <span
-                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800"
-                        >Préstamo</span
-                      >
-                    </td>
-                    <td
-                      class="px-4 py-2 whitespace-nowrap text-sm text-gray-500"
-                    >
-                      -1
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                            </td>
+                            <td
+                                    class="px-4 py-2 whitespace-nowrap text-sm text-gray-500"
+                            >
+                                -1
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-          </div>
         </div>
-      </section>
+    </section>
 
-      <!-- Gestión de Recursos -->
-      <section id="gestion-recursos" class="section-content hidden">
+    <!-- Gestión de insumos -->
+    <section id="gestion-recursos" class="section-content hidden">
         <div class="flex justify-between items-center mb-8">
-          <h2 class="text-2xl font-bold text-gray-800">Gestión de Insumo</h2>
-          <div class="flex space-x-3">
-            <button
-              onclick="showResourceForm('nuevo')"
-              class="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              <i class="fas fa-plus mr-2"></i> Nuevo Insumo
-            </button>
-          </div>
+            <h2 class="text-2xl font-bold text-gray-800">Gestión de Insumo</h2>
+            <div class="flex space-x-3">
+                <button
+                        onclick="showResourceForm('form-nuevo-recurso')"
+                        class="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                    <i class="fas fa-plus mr-2"></i> Nuevo Insumo
+                </button>
+            </div>
         </div>
 
         <!-- Formulario Nuevo Recurso -->
         <div id="form-nuevo-recurso" class="form-container p-6 mb-8 hidden">
-          <h3 class="text-xl font-semibold mb-4 flex items-center">
-            <i class="fas fa-plus-circle mr-2 text-blue-600"></i> Registrar
-            Nuevo Insumo
-          </h3>
-          <form>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label class="block text-gray-700 mb-2">Nombre</label>
-                <input
-                  type="text"
-                  id="registro-rec-nombre"
-                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label class="block text-gray-700 mb-2">Categoría</label>
-                <select
-                  id="registro-rec-cat"
-                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option>Seleccione...</option>
-                  <option>Oficina</option>
-                  <option>Limpieza</option>
-                  <option>Insumos Electricos</option>
+            <h3 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="fas fa-plus-circle mr-2 text-blue-600"></i> Registrar
+                Nuevo Insumo
+            </h3>
+            <form>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-gray-700 mb-2">Nombre</label>
+                        <input
+                                type="text"
+                                id="registro-rec-nombre"
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Categoría</label>
+                        <select
+                                id="registro-rec-cat"
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option>Seleccione...</option>
+                            <option value="oficina">Oficina</option>
+                            <option value="limpieza">Limpieza</option>
+                            <option value="insumoelectrico">Insumos Electricos</option>
 
-                </select>
-              </div>
-              <div>
-                <label class="block text-gray-700 mb-2">Código Interno</label>
-                <input
-                  type="text"
-                  id="registro-rec-cod"
-                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label class="block text-gray-700 mb-2">Cantidad Inicial</label>
-                <input
-                  type="number"
-                  id="registro-rec-cant"
-                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label class="block text-gray-700 mb-2">Ubicación</label>
-                <input
-                  type="text"
-                  id="registro-rec-ubicacion"
-                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label class="block text-gray-700 mb-2"
-                  >Mínimo de Reposición</label
-                >
-                <input
-                  type="number"
-                  id="registro-rec-min"
-                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div class="md:col-span-2">
-                <label class="block text-gray-700 mb-2">Descripción</label>
-                <textarea
-                  rows="3"
-                  id="registro-rec-desc"
-                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                ></textarea>
-              </div>
-            </div>
-            <div class="flex justify-end mt-6 space-x-3">
-              <button
-                      type="button"
-                      class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 cancel-btn"
-                      onclick="hideResourceForm('form-nuevo-recurso')"
-              >Cancelar
-              </button>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Código Interno</label>
+                        <input
+                                type="text"
+                                id="registro-rec-cod"
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Cantidad Inicial</label>
+                        <input
+                                type="number"
+                                id="registro-rec-cant"
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Ubicación</label>
+                        <input
+                                type="text"
+                                id="registro-rec-ubicacion"
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2"
+                        >Mínimo de Reposición</label
+                        >
+                        <input
+                                type="number"
+                                id="registro-rec-min"
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-gray-700 mb-2">Descripción</label>
+                        <textarea
+                                rows="3"
+                                id="registro-rec-desc"
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        ></textarea>
+                    </div>
+                </div>
+                <div class="flex justify-end mt-6 space-x-3">
+                    <button
+                            type="button"
+                            class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 cancel-btn"
+                            onclick="hideResourceForm('form-nuevo-recurso')"
+                    >Cancelar
+                    </button>
 
-              <button
-                type="button"
-                onclick="crearRecurso()"
-                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                Guardar
-              </button>
-            </div>
-          </form>
+                    <button
+                            type="button"
+                            onclick="crearRecurso()"
+                            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    >
+                        Guardar
+                    </button>
+                </div>
+            </form>
         </div>
 
         <!-- Formulario editar recurso -->
         <div id="form-modificar-recurso" class="form-container p-6 mb-8 hidden">
-          <h3 class="text-xl font-semibold mb-4 flex items-center">
-            <i class="fas fa-plus-circle mr-2 text-blue-600"></i> Modificar
-            Insumo
-          </h3>
-          <form>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label class="block text-gray-700 mb-2">ID Recurso</label>
-                <input
-                  type="text"
-                  id="modificar-rec-id"
-                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  readonly
-                />
-              </div>
-
-              <div>
-                <label class="block text-gray-700 mb-2">Nombre</label>
-                <input
-                  type="text"
-                  id="modificar-rec-nombre"
-                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label class="block text-gray-700 mb-2">Categoría</label>
-                <select
-                  id="modificar-rec-cat"
-                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Seleccione...</option>
-                  <option value="oficina">Oficina</option>
-                  <option value="informatico">Informatico</option>
-                  <option value="mobiliario">Mobiliario</option>
-                  <option value="utilitario">Utilitario</option>
-                  <option value="tecnico">Tecnico</option>
-                  <option value="aula">Aula</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-gray-700 mb-2">Código Interno</label>
-                <input
-                  type="text"
-                  id="modificar-rec-cod"
-                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label class="block text-gray-700 mb-2">Cantidad Inicial</label>
-                <input
-                  type="number"
-                  id="modificar-rec-cant"
-                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label class="block text-gray-700 mb-2">Ubicación</label>
-                <input
-                  type="text"
-                  id="modificar-rec-ubicacion"
-                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label class="block text-gray-700 mb-2"
-                  >Mínimo de Reposición</label
-                >
-                <input
-                  type="number"
-                  id="modificar-rec-min"
-                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div class="md:col-span-2">
-                <label class="block text-gray-700 mb-2">Descripción</label>
-                <textarea
-                  rows="3"
-                  id="modificar-rec-desc"
-                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                ></textarea>
-              </div>
-            </div>
-            <div class="flex justify-end mt-6 space-x-3">
-              <button
-                type="button"
-                onclick="hideResourceForm('form-modificar-recurso')"
-                class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 cancel-btn"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onclick="modificarRecurso()"
-                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                <i class="fas fa-save mr-2"></i> Guardar
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <!-- Listado de Recursos -->
-        <div class="bg-white p-6 rounded-lg shadow">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="font-semibold text-lg">Inventario de Insumos</h3>
-            <div class="flex items-center">
-              <div class="relative mr-3">
-                <i
-                  class="fas fa-search absolute left-3 top-3 text-gray-400"
-                ></i>
-                <input
-                  type="text"
-                  placeholder="Buscar Insumo..."
-                  class="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <select
-                class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Seleccione...</option>
-                <option value="oficina">Oficina</option>
-                <option value="limpieza">Limpieza</option>
-                <option value="insumoElectrico">Insumo Electrico</option>
-
-              </select>
-            </div>
-          </div>
-
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Código
-                  </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Nombre
-                  </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Categoría
-                  </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Stock
-                  </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Ubicación
-                  </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody
-                class="bg-white divide-y divide-gray-200"
-                id="tabla-recursos"
-              ></tbody>
-            </table>
-          </div>
-
-          <!-- <div class="flex justify-between items-center mt-4">
-                    <div class="text-sm text-gray-500">
-                        Mostrando <span class="font-medium">1</span> a <span class="font-medium">3</span> de <span class="font-medium">24</span> resultados
+            <h3 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="fas fa-plus-circle mr-2 text-blue-600"></i> Modificar
+                Insumo
+            </h3>
+            <form>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-gray-700 mb-2">ID Recurso</label>
+                        <input
+                                type="text"
+                                id="modificar-rec-id"
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                readonly
+                        />
                     </div>
-                    <div class="flex space-x-1">
-                        <button class="px-3 py-1 border rounded hover:bg-gray-100">
-                            <i class="fas fa-angle-left"></i>
-                        </button>
-                        <button class="px-3 py-1 border bg-blue-600 text-white rounded">1</button>
-                        <button class="px-3 py-1 border rounded hover:bg-gray-100">2</button>
-                        <button class="px-3 py-1 border rounded hover:bg-gray-100">3</button>
-                        <button class="px-3 py-1 border rounded hover:bg-gray-100">
-                            <i class="fas fa-angle-right"></i>
-                        </button>
+
+                    <div>
+                        <label class="block text-gray-700 mb-2">Nombre</label>
+                        <input
+                                type="text"
+                                id="modificar-rec-nombre"
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
                     </div>
-                </div> -->
-        </div>
-      </section>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Categoría</label>
+                        <select
+                                id="modificar-rec-cat"
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value="">Seleccione...</option>
+                            <option value="oficina">Oficina</option>
+                            <option value="limpieza">limpieza</option>
+                            <option value="insumoelectrico">Insumo Electrico</option>
 
-      <!-- Control de Stock -->
-      <section id="control-stock" class="section-content hidden">
-        <div class="flex justify-between items-center mb-8">
-          <h2 class="text-2xl font-bold text-gray-800">Control de Stock</h2>
-          <div class="flex items-center">
-            <i class="fas fa-calendar-alt mr-2 text-gray-500"></i>
-            <span id="fecha-actual-stock" class="text-sm text-gray-600"></span>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <!-- Registrar Movimiento -->
-            <div class="form-container p-6">
-                <h3 class="text-xl font-semibold mb-4 flex items-center">
-                    <i class="fas fa-exchange-alt mr-2 text-blue-600"></i> Registrar Movimiento
-                </h3>
-
-                <!-- Botones -->
-                <div class="mb-4">
-                    <label class="block text-gray-700 mb-2">Tipo de Movimiento</label>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Código Interno</label>
+                        <input
+                                type="text"
+                                id="modificar-rec-cod"
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Cantidad Inicial</label>
+                        <input
+                                type="number"
+                                id="modificar-rec-cant"
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Ubicación</label>
+                        <input
+                                type="text"
+                                id="modificar-rec-ubicacion"
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2"
+                        >Mínimo de Reposición</label
+                        >
+                        <input
+                                type="number"
+                                id="modificar-rec-min"
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-gray-700 mb-2">Descripción</label>
+                        <textarea
+                                rows="3"
+                                id="modificar-rec-desc"
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        ></textarea>
+                    </div>
+                </div>
+                <div class="flex justify-end mt-6 space-x-3">
                     <button
                             type="button"
-                            onclick="mostrarFormulario('egreso')"
-                            class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100"
+                            onclick="hideResourceForm('form-modificar-recurso')"
+                            class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 cancel-btn"
                     >
-                        Egreso
+                        Cancelar
                     </button>
                     <button
                             type="button"
-                            onclick="mostrarFormulario('ingreso')"
+                            onclick="modificarRecurso()"
                             class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                     >
-                        Ingreso
+                        <i class="fas fa-save mr-2"></i> Guardar
                     </button>
                 </div>
+            </form>
+        </div>
 
-                <!-- Formulario Egreso -->
-                <form id="form-egreso" class="hidden">
-                    <div class="mb-4">
+        <!-- Listado de Insumos -->
+        <div class="bg-white p-6 rounded-lg shadow">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-semibold text-lg">Inventario de Insumos</h3>
+                <div class="flex items-center">
+                    <!--<div class="relative mr-3">
+                        <i
+                                class="fas fa-search absolute left-3 top-3 text-gray-400"
+                        ></i>
+                        <input
+                                type="text"
+                                placeholder="Buscar Insumo..."
+                                class="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>-->
+                    <select id="filtroCategoria"
+                            class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value="todos">Todos</option>
+                        <option value="oficina">Oficina</option>
+                        <option value="limpieza">Limpieza</option>
+                        <option value="insumoelectrico">Insumo Electrico</option>
+
+                    </select>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                            Código
+                        </th>
+                        <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                            Nombre
+                        </th>
+                        <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                            Categoría
+                        </th>
+                        <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                            Stock
+                        </th>
+                        <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                            Ubicación
+                        </th>
+                        <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                            Acciones
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody
+                            class="bg-white divide-y divide-gray-200"
+                            id="tabla-recursos"
+                    ></tbody>
+                </table>
+            </div>
+
+            <!-- <div class="flex justify-between items-center mt-4">
+                      <div class="text-sm text-gray-500">
+                          Mostrando <span class="font-medium">1</span> a <span class="font-medium">3</span> de <span class="font-medium">24</span> resultados
+                      </div>
+                      <div class="flex space-x-1">
+                          <button class="px-3 py-1 border rounded hover:bg-gray-100">
+                              <i class="fas fa-angle-left"></i>
+                          </button>
+                          <button class="px-3 py-1 border bg-blue-600 text-white rounded">1</button>
+                          <button class="px-3 py-1 border rounded hover:bg-gray-100">2</button>
+                          <button class="px-3 py-1 border rounded hover:bg-gray-100">3</button>
+                          <button class="px-3 py-1 border rounded hover:bg-gray-100">
+                              <i class="fas fa-angle-right"></i>
+                          </button>
+                      </div>
+                  </div> -->
+        </div>
+    </section>
+
+    <!-- Control de Stock -->
+    <section id="control-stock" class="section-content hidden">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-2xl font-bold text-gray-800">Control de Stock</h2>
+            <div class="flex space-x-3">
+                <button
+                        onclick="mostrarFormulario('egreso')"
+                        class="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                    <i class="fas fa-minus mr-2"></i> Egreso
+                </button>
+                <button
+                        onclick="mostrarFormulario('ingreso')"
+                        class="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                    <i class="fas fa-plus mr-2"></i> Ingreso
+                </button>
+            </div>
+        </div>
+
+        <!-- Registrar Movimiento -->
+        <!-- Formulario Egreso -->
+        <div id="form-egreso" class="form-container p-6 mb-8 hidden">
+            <h3 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="fas fa-exchange-alt mr-2 text-blue-600"></i> Registrar Movimiento
+            </h3>
+            <form>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
                         <label class="block text-gray-700 mb-2">Insumos</label>
                         <select
                                 required
-                                id="select-list-insumo-egreso"
-                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                id="insumoMovimientoEgreso"
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 insumo-selec-movimiento"
                         >
                             <option value="" disabled selected>Selecciona insumo...</option>
                         </select>
                     </div>
-
-                    <div class="mb-4">
+                    <div>
                         <label class="block text-gray-700 mb-2">Cantidad</label>
                         <input
                                 type="number"
@@ -611,26 +581,25 @@
                                 required
                         />
                     </div>
-
-                    <div class="mb-4">
+                    <div>
                         <label class="block text-gray-700 mb-2">Nombre de Solicitante</label>
                         <input
                                 type="text"
+                                id="nombreSolicitanteMovimientoEgreso"
                                 class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 required
                         />
                     </div>
-
-                    <div class="mb-4">
+                    <div>
                         <label class="block text-gray-700 mb-2">Área/Destino</label>
                         <input
                                 type="text"
+                                id="areaDestinoMovimientoEgreso"
                                 class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 required
                         />
                     </div>
-
-                    <div class="mb-4">
+                    <div>
                         <label class="block text-gray-700 mb-2">Motivo</label>
                         <textarea
                                 rows="3"
@@ -638,32 +607,43 @@
                                 class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                         ></textarea>
                     </div>
+                </div>
+                <div class="flex justify-end mt-6 space-x-3">
+                    <button
+                            type="button"
+                            onclick="hideResourceForm('form-egreso')"
+                            class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 cancel-btn"
+                    > Cancelar
+                    </button>
+                    <button
+                            type="button"
+                            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                            onclick="registrarMovimiento()"
+                    >
+                        <i class="fas fa-save mr-2"></i> Registrar Egreso
+                    </button>
+                </div>
+            </form>
+        </div>
 
-                    <div class="flex justify-end">
-                        <button
-                                type="button"
-                                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                                onclick="registrarMovimiento()"
-                        >
-                            <i class="fas fa-save mr-2"></i> Registrar Movimiento
-                        </button>
-                    </div>
-                </form>
-
-                <!-- Formulario Ingreso -->
-                <form id="form-ingreso" class="hidden">
-                    <div class="mb-4">
+        <!-- Formulario Ingreso -->
+        <div id="form-ingreso" class="form-container p-6 mb-8 hidden">
+            <h3 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="fas fa-exchange-alt mr-2 text-blue-600"></i> Registrar Movimiento
+            </h3>
+            <form>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
                         <label class="block text-gray-700 mb-2">Insumos</label>
                         <select
                                 required
-                                id="select-list-insumo-ingreso"
-                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                id="insumoMovimientoIngreso"
+                                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 insumo-selec-movimiento"
                         >
                             <option value="" disabled selected>Selecciona insumo...</option>
                         </select>
                     </div>
-
-                    <div class="mb-4">
+                    <div>
                         <label class="block text-gray-700 mb-2">Cantidad</label>
                         <input
                                 type="number"
@@ -672,8 +652,7 @@
                                 required
                         />
                     </div>
-
-                    <div class="mb-4">
+                    <div>
                         <label class="block text-gray-700 mb-2">Motivo</label>
                         <textarea
                                 rows="3"
@@ -681,511 +660,455 @@
                                 class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                         ></textarea>
                     </div>
-
-                    <div class="flex justify-end">
-                        <button
-                                type="button"
-                                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                                onclick="registrarMovimiento()"
-                        >
-                            <i class="fas fa-save mr-2"></i> Registrar Movimiento
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <script>
-                function mostrarFormulario(tipo) {
-                  document.getElementById("form-ingreso").classList.add("hidden");
-                  document.getElementById("form-egreso").classList.add("hidden");
-
-                  if (tipo === "ingreso") {
-                    document.getElementById("form-ingreso").classList.remove("hidden");
-                  } else if (tipo === "egreso") {
-                    document.getElementById("form-egreso").classList.remove("hidden");
-                  }
-                }
-            </script>
-
-
-
-
-            <!-- Alertas de Stock -->
-          <div class="bg-white p-6 rounded-lg shadow">
-            <h3 class="text-xl font-semibold mb-4 flex items-center">
-              <i class="fas fa-exclamation-triangle mr-2 text-yellow-600"></i>
-              Alertas de Stock Mínimo
-            </h3>
-            <div class="space-y-4">
-              <div
-                class="flex items-start p-4 border border-yellow-200 rounded-lg bg-yellow-50"
-              >
-                <i
-                  class="fas fa-exclamation-circle text-yellow-500 mt-1 mr-3"
-                ></i>
-                <div class="flex-1">
-                  <div class="flex justify-between">
-                    <p class="font-medium text-yellow-800">Cable UTP Cat6</p>
-                    <span
-                      class="text-sm bg-yellow-200 text-yellow-800 px-2 py-1 rounded"
-                      >Material eléctrico</span
-                    >
-                  </div>
-                  <p class="text-sm text-yellow-700">
-                    Stock actual: 5 - Mínimo: 10
-                  </p>
-                  <p class="text-sm text-yellow-700 mt-1">
-                    Ubicación: Almacén B
-                  </p>
                 </div>
-              </div>
-              <div
-                class="flex items-start p-4 border border-yellow-200 rounded-lg bg-yellow-50"
-              >
-                <i
-                  class="fas fa-exclamation-circle text-yellow-500 mt-1 mr-3"
-                ></i>
-                <div class="flex-1">
-                  <div class="flex justify-between">
-                    <p class="font-medium text-yellow-800">Tóner Impresora</p>
-                    <span
-                      class="text-sm bg-yellow-200 text-yellow-800 px-2 py-1 rounded"
-                      >Materiales de oficina</span
+                <div class="flex justify-end mt-6 space-x-3">
+                    <button
+                            type="button"
+                            onclick="hideResourceForm('form-ingreso')"
+                            class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 cancel-btn"
+                    > Cancelar
+                    </button>
+                    <button
+                            type="button"
+                            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                            onclick="registrarMovimiento()"
                     >
-                  </div>
-                  <p class="text-sm text-yellow-700">
-                    Stock actual: 1 - Mínimo: 3
-                  </p>
-                  <p class="text-sm text-yellow-700 mt-1">
-                    Ubicación: Almacén A
-                  </p>
+                        <i class="fas fa-save mr-2"></i> Registrar Ingreso
+                    </button>
                 </div>
-              </div>
-            </div>
+            </form>
+        </div>
 
-            <div class="mt-6">
-              <button
-                class="flex items-center px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
-              >
-                <i class="fas fa-download mr-2"></i> Exportar Reporte
-              </button>
+
+
+        <!-- Alertas de Stock
+      <div class="bg-white p-6 rounded-lg shadow">
+        <h3 class="text-xl font-semibold mb-4 flex items-center">
+          <i class="fas fa-exclamation-triangle mr-2 text-yellow-600"></i>
+          Alertas de Stock Mínimo
+        </h3>
+        <div class="space-y-4">
+          <div
+            class="flex items-start p-4 border border-yellow-200 rounded-lg bg-yellow-50"
+          >
+            <i
+              class="fas fa-exclamation-circle text-yellow-500 mt-1 mr-3"
+            ></i>
+            <div class="flex-1">
+              <div class="flex justify-between">
+                <p class="font-medium text-yellow-800">Cable UTP Cat6</p>
+                <span
+                  class="text-sm bg-yellow-200 text-yellow-800 px-2 py-1 rounded"
+                  >Material eléctrico</span
+                >
+              </div>
+              <p class="text-sm text-yellow-700">
+                Stock actual: 5 - Mínimo: 10
+              </p>
+              <p class="text-sm text-yellow-700 mt-1">
+                Ubicación: Almacén B
+              </p>
+            </div>
+          </div>
+          <div
+            class="flex items-start p-4 border border-yellow-200 rounded-lg bg-yellow-50"
+          >
+            <i
+              class="fas fa-exclamation-circle text-yellow-500 mt-1 mr-3"
+            ></i>
+            <div class="flex-1">
+              <div class="flex justify-between">
+                <p class="font-medium text-yellow-800">Tóner Impresora</p>
+                <span
+                  class="text-sm bg-yellow-200 text-yellow-800 px-2 py-1 rounded"
+                  >Materiales de oficina</span
+                >
+              </div>
+              <p class="text-sm text-yellow-700">
+                Stock actual: 1 - Mínimo: 3
+              </p>
+              <p class="text-sm text-yellow-700 mt-1">
+                Ubicación: Almacén A
+              </p>
             </div>
           </div>
         </div>
 
+        <div class="mt-6">
+          <button
+            class="flex items-center px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+          >
+            <i class="fas fa-download mr-2"></i> Exportar Reporte
+          </button>
+        </div>
+      </div>
+    </div>
+    -->
         <!-- Historial de Movimientos -->
         <div class="bg-white p-6 rounded-lg shadow mt-6">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="font-semibold text-lg">Historial de Movimientos</h3>
-            <div class="flex items-center space-x-3">
-              <div class="relative">
-                <i
-                  class="fas fa-calendar-alt absolute left-3 top-3 text-gray-400"
-                ></i>
-                <input
-                  type="date"
-                  class="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-semibold text-lg">Historial de Movimientos</h3>
+                <div class="flex items-center space-x-3">
+                    <div class="relative">
+                        <i
+                                class="fas fa-calendar-alt absolute left-3 top-3 text-gray-400"
+                        ></i>
+                        <input
+                                type="date"
+                                id="filtroFecha"
+                                class="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+                    <select id="filtroTipo"
+                            class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value="todos">Todos los tipos</option>
+                        <option value="ingreso">Ingresos</option>
+                        <option value="egreso">Egresos</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                            Fecha
+                        </th>
+                        <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                            Recurso
+                        </th>
+                        <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                            Tipo
+                        </th>
+                        <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                            Cantidad
+                        </th>
+                        <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                            Motivo
+                        </th>
+                        <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                            Usuario
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="tabla-movimientos">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Préstamos
+    <section id="prestamos" class="section-content hidden">
+      <div class="flex justify-between items-center mb-8">
+        <h2 class="text-2xl font-bold text-gray-800">
+          Gestión de Solicitudes
+        </h2>
+        <div class="flex space-x-3">
+          <button
+            onclick="showLoanForm('prestamo')"
+            class="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            <i class="fas fa-hand-holding mr-2"></i> Nueva Solicitud
+          </button>
+        </div>
+      </div>
+
+
+      Formulario Préstamo
+
+      <div id="form-prestamo" class="form-container p-6 mb-6 hidden">
+        <h3 class="text-xl font-semibold mb-4 flex items-center">
+          <i class="fas fa-hand-holding mr-2 text-blue-600"></i> Registrar
+          Solicitud de Préstamo/Entrega
+        </h3>
+        <form>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-gray-700 mb-2">Recurso</label>
               <select
-                class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                id="select-recurso"
               >
-                <option>Todos los tipos</option>
-                <option>Ingresos</option>
-                <option>Salidas</option>
+                <option value="">-- Seleccione un recurso --</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-gray-700 mb-2">Cantidad</label>
+              <input
+                type="number"
+                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                id="solicitud-cantidad"
+              />
+            </div>
+            <div>
+              <label class="block text-gray-700 mb-2"
+                >Nombre del Solicitante</label
+              >
+              <input
+                type="text"
+                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                id="solicitud-nombre"
+              />
+            </div>
+            <div>
+              <label class="block text-gray-700 mb-2">Área/Destino</label>
+              <input
+                type="text"
+                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                id="solicitud-destino"
+              />
+            </div>
+            <div>
+              <label class="block text-gray-700 mb-2">Tipo</label>
+              <select
+                class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                id="solicitud-tipo"
+              >
+                <option value="">-- Seleccione un tipo --</option>
+                <option value="PRESTAMO">Prestamo</option>
+                <option value="ENTREGA">Entrega</option>
               </select>
             </div>
           </div>
-
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Fecha
-                  </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Recurso
-                  </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Tipo
-                  </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Cantidad
-                  </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Motivo
-                  </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Usuario
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                <tr>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    15/06/2025
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    Resma Papel A4
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    <span
-                      class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
-                      >Ingreso</span
-                    >
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    +500
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    Compra proveedor
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    admin
-                  </td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    14/06/2025
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    Mouse Inalámbrico
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    <span
-                      class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800"
-                      >Préstamo</span
-                    >
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    -1
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    Préstamo a RRHH
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    operador
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- Préstamos
-      <section id="prestamos" class="section-content hidden">
-        <div class="flex justify-between items-center mb-8">
-          <h2 class="text-2xl font-bold text-gray-800">
-            Gestión de Solicitudes
-          </h2>
-          <div class="flex space-x-3">
+          <div class="flex justify-end mt-6">
             <button
-              onclick="showLoanForm('prestamo')"
-              class="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              type="button"
+              class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              onclick="registrarSolicitud()"
             >
-              <i class="fas fa-hand-holding mr-2"></i> Nueva Solicitud
+              <i class="fas fa-save mr-2"></i> Registrar Préstamo
             </button>
           </div>
+        </form>
+      </div>
+
+
+      Préstamos Activos
+
+      <div class="bg-white p-6 rounded-lg shadow mb-6">
+        <h3 class="text-xl font-semibold mb-4 flex items-center">
+          <i class="fas fa-clipboard-list mr-2 text-blue-600"></i> Solicitudes de Prestamo
+          Activas
+        </h3>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Código
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Recurso
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Solicitante
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Fecha Préstamo
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Fecha Devolución
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Acciones
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  PR-2025-001
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  Mouse Inalámbrico
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  Juan Pérez - RRHH
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  14/06/2025
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  21/06/2025
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <button class="text-green-600 hover:text-green-900">
+                    <i class="fas fa-undo mr-1"></i> Devolver
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  PR-2025-002
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  Monitor 24"
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  María Gómez - Contabilidad
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  10/06/2025
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  24/06/2025
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <button class="text-green-600 hover:text-green-900">
+                    <i class="fas fa-undo mr-1"></i> Devolver
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </div>
 
+      Historial de Préstamos
 
-        Formulario Préstamo
-
-        <div id="form-prestamo" class="form-container p-6 mb-6 hidden">
-          <h3 class="text-xl font-semibold mb-4 flex items-center">
-            <i class="fas fa-hand-holding mr-2 text-blue-600"></i> Registrar
-            Solicitud de Préstamo/Entrega
+      <div class="bg-white p-6 rounded-lg shadow">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-semibold flex items-center">
+            <i class="fas fa-history mr-2 text-blue-600"></i> Historial de
+            Solicitudes
           </h3>
-          <form>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label class="block text-gray-700 mb-2">Recurso</label>
-                <select
-                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  id="select-recurso"
-                >
-                  <option value="">-- Seleccione un recurso --</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-gray-700 mb-2">Cantidad</label>
-                <input
-                  type="number"
-                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  id="solicitud-cantidad"
-                />
-              </div>
-              <div>
-                <label class="block text-gray-700 mb-2"
-                  >Nombre del Solicitante</label
-                >
-                <input
-                  type="text"
-                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  id="solicitud-nombre"
-                />
-              </div>
-              <div>
-                <label class="block text-gray-700 mb-2">Área/Destino</label>
-                <input
-                  type="text"
-                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  id="solicitud-destino"
-                />
-              </div>
-              <div>
-                <label class="block text-gray-700 mb-2">Tipo</label>
-                <select
-                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  id="solicitud-tipo"
-                >
-                  <option value="">-- Seleccione un tipo --</option>
-                  <option value="PRESTAMO">Prestamo</option>
-                  <option value="ENTREGA">Entrega</option>
-                </select>
-              </div>
+          <div class="flex items-center space-x-3">
+            <div class="relative">
+              <i
+                class="fas fa-calendar-alt absolute left-3 top-3 text-gray-400"
+              ></i>
+              <input
+                type="date"
+                class="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </div>
-            <div class="flex justify-end mt-6">
-              <button
-                type="button"
-                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                onclick="registrarSolicitud()"
-              >
-                <i class="fas fa-save mr-2"></i> Registrar Préstamo
-              </button>
-            </div>
-          </form>
-        </div>
-
-
-        Préstamos Activos
-
-        <div class="bg-white p-6 rounded-lg shadow mb-6">
-          <h3 class="text-xl font-semibold mb-4 flex items-center">
-            <i class="fas fa-clipboard-list mr-2 text-blue-600"></i> Solicitudes de Prestamo
-            Activas
-          </h3>
-
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Código
-                  </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Recurso
-                  </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Solicitante
-                  </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Fecha Préstamo
-                  </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Fecha Devolución
-                  </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                <tr>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    PR-2025-001
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    Mouse Inalámbrico
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    Juan Pérez - RRHH
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    14/06/2025
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    21/06/2025
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button class="text-green-600 hover:text-green-900">
-                      <i class="fas fa-undo mr-1"></i> Devolver
-                    </button>
-                  </td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    PR-2025-002
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    Monitor 24"
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    María Gómez - Contabilidad
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    10/06/2025
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    24/06/2025
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button class="text-green-600 hover:text-green-900">
-                      <i class="fas fa-undo mr-1"></i> Devolver
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <select
+              class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option>Todo el estado</option>
+              <option>Devuelto</option>
+              <option>Vencido</option>
+            </select>
           </div>
         </div>
 
-        Historial de Préstamos
-
-        <div class="bg-white p-6 rounded-lg shadow">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-semibold flex items-center">
-              <i class="fas fa-history mr-2 text-blue-600"></i> Historial de
-              Solicitudes
-            </h3>
-            <div class="flex items-center space-x-3">
-              <div class="relative">
-                <i
-                  class="fas fa-calendar-alt absolute left-3 top-3 text-gray-400"
-                ></i>
-                <input
-                  type="date"
-                  class="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <select
-                class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option>Todo el estado</option>
-                <option>Devuelto</option>
-                <option>Vencido</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Código
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Recurso
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Solicitante
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Fecha Préstamo
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Fecha Devolución
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Estado
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  PR-2025-001
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  Laptop Dell
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  Carlos Rojas - Ventas
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  01/06/2025
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  10/06/2025
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  <span
+                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
+                    >Devuelto</span
                   >
-                    Código
-                  </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                </td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  PR-2025-002
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">Proyector</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  Ana López - Marketing
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  31/05/2025
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  07/06/2025
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  <span
+                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800"
+                    >Vencido</span
                   >
-                    Recurso
-                  </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Solicitante
-                  </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Fecha Préstamo
-                  </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Fecha Devolución
-                  </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Estado
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                <tr>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    PR-2025-001
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    Laptop Dell
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    Carlos Rojas - Ventas
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    01/06/2025
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    10/06/2025
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    <span
-                      class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
-                      >Devuelto</span
-                    >
-                  </td>
-                </tr>
-                <tr>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    PR-2025-002
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm">Proyector</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    Ana López - Marketing
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    31/05/2025
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    07/06/2025
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    <span
-                      class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800"
-                      >Vencido</span
-                    >
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-      </section>
-      -->
+      </div>
+    </section>
+    -->
+</div>
 
-        </div>
-      </section>
-    </div>
-
-    <script src="/js/Dashboard.js"></script>
-  </body>
+<script src="/js/Dashboard.js"></script>
+</body>
 </html>

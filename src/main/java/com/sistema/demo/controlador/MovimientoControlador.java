@@ -68,4 +68,9 @@ public class MovimientoControlador {
     public ResponseEntity<List<Movimiento>> listarUltimos() {
         return ResponseEntity.ok(movimientoServicio.listarUltimos6Movimientos());
     }
+
+    @GetMapping("/contar/hoy")
+    public long contarMovimientosDeHoy() {
+        return movimientoServicio.contarMovimientosDeHoy();
+    }
 }

@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
   contarRecursos();
   contarAlertasDeStockMinimo();
   agregarAlertaStockMinimo();
+  contarMovimientosHoy();
   listarRecursos();
   obtenerInsumosSelect();
   mostrarFormulario();
@@ -235,7 +236,20 @@ function contarAlertasDeStockMinimo() {
       console.error("Error al contar alertas de stock mínimo:", error)
     );
 }
-// dashboard.js
+
+function contarMovimientosHoy() {
+    console.log("🔹 contando movimientos hoy...");
+    fetch("http://localhost:8080/api/movimientos/contar/hoy")
+         .then((response) => response.json())
+            .then((data) => {
+              document.getElementById("totalMovimientosHoy").textContent = data;
+            })
+            .catch((error) =>
+              console.error("Error al contar movimientos de hoy", error)
+            );
+}
+
+
 
 // Formatea fecha a dd/mm/yyyy
 function formatDate(fecha) {
@@ -326,18 +340,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Opcional: refrescar cada 60s
   // setInterval(cargarUltimosMovimientos, 60000);
 });
-
-
-
-
-
-
-
-
-
-
-
-
 
 /*
 
