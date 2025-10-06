@@ -770,7 +770,7 @@ async function generarReporteInventarioPDF(recursos) {
 
     const recursosFiltrados = recursos.filter(
       (rec) =>
-        rec.categoria.toUpperCase() === categoriaSeleccionada.toUpperCase()
+        rec.categoria.toUpperCase() === categoriaSeleccionada.toUpperCase() && rec.estado === true
     );
      const hoy = new Date();
             const yyyy = hoy.getFullYear();
