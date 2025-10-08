@@ -2,13 +2,11 @@ package com.sistema.demo.servicio;
 
 import com.sistema.demo.entidad.Recurso;
 import com.sistema.demo.entidad.Reporte;
-import com.sistema.demo.entidad.Solicitud;
 import com.sistema.demo.entidad.Usuario;
 import com.sistema.demo.entidad.enums.Tipo;
 import com.sistema.demo.entidad.Movimiento;
 import com.sistema.demo.repositorio.RecursoRepositorio;
 import com.sistema.demo.repositorio.ReporteRepositorio;
-import com.sistema.demo.repositorio.SolicitudRepositorio;
 import com.sistema.demo.repositorio.UsuarioRepositorio;
 import com.sistema.demo.repositorio.MovimientoRepositorio;
 import jakarta.persistence.EntityNotFoundException;
@@ -26,9 +24,6 @@ public class ReporteServicio {
 
     @Autowired
     private UsuarioRepositorio usuarioRepositorio;
-
-    @Autowired
-    private SolicitudRepositorio solicitudRepositorio;
 
     @Autowired
     private RecursoRepositorio recursoRepositorio;
@@ -78,10 +73,6 @@ public class ReporteServicio {
             case "movimiento":
                 List<Movimiento> movimientos = movimientoRepositorio.findAll();
                 return movimientos;
-            case "prestamos":
-                List<Solicitud> prestamos = solicitudRepositorio.findByTipoAndActivo(Tipo.PRESTAMO, true);
-                return prestamos;
-
             case "inventario":
                 List<Recurso> inventario = recursoRepositorio.findAll();
                 return inventario;

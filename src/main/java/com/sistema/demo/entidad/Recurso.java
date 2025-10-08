@@ -31,7 +31,5 @@ public class Recurso {
     @OneToMany(mappedBy = "recurso", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Movimiento> movimientos;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "recurso", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Solicitud> solicitudes;
+
 }

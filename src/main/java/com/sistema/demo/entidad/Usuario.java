@@ -32,8 +32,5 @@ public class Usuario {
     @OneToMany(mappedBy = "generadoPor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Movimiento> movimientos;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "generadoPor", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Solicitud> solicitudes;
 
 }

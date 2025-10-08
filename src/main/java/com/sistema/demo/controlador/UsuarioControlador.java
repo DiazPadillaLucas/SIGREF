@@ -1,8 +1,5 @@
 package com.sistema.demo.controlador;
 
-import com.sistema.demo.entidad.Movimiento;
-import com.sistema.demo.entidad.Reporte;
-import com.sistema.demo.entidad.Solicitud;
 import com.sistema.demo.entidad.Usuario;
 import com.sistema.demo.servicio.UsuarioServicio;
 import jakarta.persistence.EntityNotFoundException;
