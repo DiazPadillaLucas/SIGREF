@@ -86,7 +86,7 @@ public class RecursoServicio {
         recursoExistente.setCodigo(recursoActualizado.getCodigo());
         recursoExistente.setCantidad(recursoActualizado.getCantidad());
         recursoExistente.setMinimo(recursoActualizado.getMinimo());
-        recursoExistente.setUbicacion(recursoActualizado.getUbicacion());
+       // recursoExistente.setUbicacion(recursoActualizado.getUbicacion());
         recursoExistente.setCategoria(recursoActualizado.getCategoria());
         recursoExistente.setEstado(recursoActualizado.getEstado());
 

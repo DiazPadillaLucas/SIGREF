@@ -495,10 +495,10 @@ function listarRecursos() {
         minimo.textContent = " (Alerta)";
         minimo.className = "text-yellow-600 font-bold ml-1";
 
-        const ubicacion = document.createElement("td");
+       /* const ubicacion = document.createElement("td");
         ubicacion.textContent = recurso.ubicacion;
         ubicacion.className =
-          "px-6 py-4 whitespace-nowrap text-sm text-gray-500";
+          "px-6 py-4 whitespace-nowrap text-sm text-gray-500";*/
 
         const acciones = document.createElement("td");
         acciones.className = "px-6 py-4 whitespace-nowrap text-sm font-medium";
@@ -521,8 +521,8 @@ function listarRecursos() {
           document.getElementById("modificar-rec-cant").value =
             recurso.cantidad;
           document.getElementById("modificar-rec-min").value = recurso.minimo;
-          document.getElementById("modificar-rec-ubicacion").value =
-            recurso.ubicacion;
+          //document.getElementById("modificar-rec-ubicacion").value =
+          //  recurso.ubicacion;
           document.getElementById("modificar-rec-desc").value =
             recurso.descripcion;
         });
@@ -558,15 +558,17 @@ function listarRecursos() {
         columna.appendChild(categoria);
         recurso.cantidad <= recurso.minimo ? stock.appendChild(minimo) : null;
         columna.appendChild(stock);
-        columna.appendChild(ubicacion);
+        columna.appendChild(acciones);
+         acciones.appendChild(editar);
+          acciones.appendChild(eliminar);
+
+
+
+         tabla.appendChild(columna);
+       // columna.appendChild(ubicacion);
 
         /*acciones.appendChild(ver);*/
-        acciones.appendChild(editar);
-        acciones.appendChild(eliminar);
 
-        columna.appendChild(acciones);
-
-        tabla.appendChild(columna);
       });
     });
 }
@@ -583,7 +585,7 @@ function crearRecurso() {
     codigo: document.getElementById("registro-rec-cod").value,
     cantidad: document.getElementById("registro-rec-cant").value,
     minimo: document.getElementById("registro-rec-min").value,
-    ubicacion: document.getElementById("registro-rec-ubicacion").value,
+   // ubicacion: document.getElementById("registro-rec-ubicacion").value,
     descripcion: document.getElementById("registro-rec-desc").value,
     estado: true,
   };
@@ -605,7 +607,7 @@ function modificarRecurso() {
     codigo: document.getElementById("modificar-rec-cod").value,
     cantidad: document.getElementById("modificar-rec-cant").value,
     minimo: document.getElementById("modificar-rec-min").value,
-    ubicacion: document.getElementById("modificar-rec-ubicacion").value,
+   // ubicacion: document.getElementById("modificar-rec-ubicacion").value,
     descripcion: document.getElementById("modificar-rec-desc").value,
     estado: true,
   };
@@ -730,7 +732,7 @@ function generarReporteStockMinimoPDF(recursos) {
       "Código",
       "Cantidad",
       "Mínimo",
-      "Ubicación",
+      //"Ubicación",
       "Categoría",
     ];
 
@@ -745,7 +747,7 @@ function generarReporteStockMinimoPDF(recursos) {
       rec.codigo,
       rec.cantidad,
       rec.minimo,
-      rec.ubicacion,
+    //  rec.ubicacion,
       rec.categoria,
     ]);
 
@@ -801,7 +803,7 @@ async function generarReporteInventarioPDF(recursos) {
       "Nombre",
       "Cantidad",
       "Mínimo",
-      "Ubicación",
+     // "Ubicación",
       "Estado",
     ];
     const rows = recursosFiltrados.map((rec) => [
@@ -809,7 +811,7 @@ async function generarReporteInventarioPDF(recursos) {
       rec.nombre,
       rec.cantidad,
       rec.minimo,
-      rec.ubicacion,
+   //   rec.ubicacion,
       rec.estado ? "Activo" : "Inactivo",
     ]);
 

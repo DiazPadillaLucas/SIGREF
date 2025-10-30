@@ -15,7 +15,7 @@ CREATE TABLE recurso (
                          codigo VARCHAR(50),
                          cantidad INT NOT NULL,
                          minimo INT NOT NULL,
-                         ubicacion VARCHAR(255),
+                         --ubicacion VARCHAR(255),
                          estado BOOLEAN,
                          categoria VARCHAR(50)
 );

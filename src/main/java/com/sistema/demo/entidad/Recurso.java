@@ -21,7 +21,7 @@ public class Recurso {
     private String codigo;
     private int cantidad;
     private int minimo;
-    private String ubicacion;
+    //private String ubicacion;
     private Boolean estado;
 
     @Enumerated(EnumType.STRING)

@@ -7,12 +7,12 @@ INSERT INTO usuario (nombre, nombre_usuario, contrasenia, rol) VALUES
 ('Pedro Gómez', 'pgomez', 'admin', 'ADMINISTRADOR');
 
 -- Insertar Recursos
-INSERT INTO recurso (nombre, descripcion, codigo, cantidad, minimo, ubicacion, estado, categoria) VALUES
-('Resma', 'Resma A4', 'RSP001', 1, 2, 'Oficina A', true, 'OFICINA'),
-('Cartucho Tinta', 'Para impresora hp', 'CTL001', 4, 5, 'Deposito', true, 'OFICINA'),
-('Foco', '100 whatss', 'FO001', 5, 1, 'Sala B', true, 'INSUMOELECTRICO'),
-('Detergente', 'botellas de medio litro', 'DO001', 2, 4, 'Sala de Reuniones', true, 'LIMPIEZA'),
-('Papel higienico', 'x4', 'PH901', 3, 5, 'Deposito', true, 'LIMPIEZA');
+INSERT INTO recurso (nombre, descripcion, codigo, cantidad, minimo,estado, categoria) VALUES
+('Resma', 'Resma A4', 'RSP001', 1, 2, true, 'OFICINA'),
+('Cartucho Tinta', 'Para impresora hp', 'CTL001', 4, 5, true, 'OFICINA'),
+('Foco', '100 whatss', 'FO001', 5, 1, true, 'INSUMOELECTRICO'),
+('Detergente', 'botellas de medio litro', 'DO001', 2, 4, true, 'LIMPIEZA'),
+('Papel higienico', 'x4', 'PH901', 3, 5, true, 'LIMPIEZA');
 
 -- Insertar Movimientos
 INSERT INTO movimiento (fecha, tipo, cantidad,nombre_solicitante, destino, motivo, usuario_id, recurso_id) VALUES
