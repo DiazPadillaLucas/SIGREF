@@ -45,12 +45,23 @@ public class UsuarioControlador {
         }
     }
 
-    @PatchMapping("/{id}")
+   /* @PatchMapping("/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
         try {
             usuarioServicio.eliminarUsuario(id);
             return ResponseEntity.ok("Usuario eliminado");
         } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }*/
+
+    // Código de tu controlador:
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> eliminar(@PathVariable Long id) {
+        try {
+            usuarioServicio.eliminarUsuario(id);
+            return ResponseEntity.ok("Usuario eliminado");
+        } catch (Exception e) { // Captura cualquier cosa
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
@@ -64,36 +75,11 @@ public class UsuarioControlador {
         }
     }
 
-    /*
-     * @PostMapping("/{id}/registrarPrestamo")
-     * public ResponseEntity<?> registrarPrestamo(@PathVariable Long
-     * id, @RequestBody Solicitud solicitud) {
-     * try {
-     * return ResponseEntity.ok(usuarioServicio.registrarPrestamo(id, solicitud));
-     * } catch (EntityNotFoundException e) {
-     * return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-     * }
-     * }
-     * 
-     * @PostMapping("/{id}/registrarMovimiento")
-     * public ResponseEntity<?> registrarMovimiento(@PathVariable Long
-     * id, @RequestBody Movimiento movimiento) {
-     * try {
-     * return ResponseEntity.ok(usuarioServicio.registrarMovimiento(id,
-     * movimiento));
-     * } catch (EntityNotFoundException e) {
-     * return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-     * }
-     * }
-     * 
-     * @PostMapping("/{id}/generarReporte")
-     * public ResponseEntity<?> generarReporte(@PathVariable Long id, @RequestBody
-     * Reporte reporte) {
-     * try {
-     * return ResponseEntity.ok(usuarioServicio.generarReporte(id, reporte));
-     * } catch (EntityNotFoundException e) {
-     * return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-     * }
-     * }
-     */
-}
+    // *** MÉTODO DE MANEJO DE ERRORES ***
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
+        // Devuelve explícitamente 400 Bad Request con el mensaje de error.
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+    }
