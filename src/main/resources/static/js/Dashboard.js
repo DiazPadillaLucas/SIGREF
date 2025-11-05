@@ -878,6 +878,10 @@ function generarReporteMovimientoPDF(movimientos) {
       styles: { fontSize: 10 },
       headStyles: { fillColor: [41, 128, 185] },
     });
+    // Texto final
+        const finalY = doc.lastAutoTable.finalY + 10;
+        doc.setFontSize(12);
+        doc.text("Dirigido a quien corresponda", 14, finalY);
 
     doc.save("reporte_movimiento.pdf");
   } catch (error) {
@@ -885,52 +889,66 @@ function generarReporteMovimientoPDF(movimientos) {
   }
 }
 
-function generarReporteStockMinimoPDF(recursos) {
+async function generarReporteStockMinimoPDF(recursos) {
   try {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
+    const categoriaSeleccionada =
+      document.getElementById("categoria").value;
 
-    doc.setFontSize(16);
-
-    const hoy = new Date();
-        const yyyy = hoy.getFullYear();
-        const mm = String(hoy.getMonth() + 1).padStart(2, "0"); // meses empiezan en 0
-        const dd = String(hoy.getDate()).padStart(2, "0");
-        const fechaHoy=`${dd}/${mm}/${yyyy}`;
-
-    if (recursos.length === 0) {
-      doc.text("No hay insumos con alerta de stock mínimo.", 14, 20);
-      doc.text(fechaHoy, 190, 20, { align: "right" }); // fecha a la derecha
-      doc.save("reporte_recursos_stock_minimo.pdf");
+    if (categoriaSeleccionada === "") {
+      alert("Por favor seleccione una categoría.");
       return;
     }
 
-    doc.text("Reporte de insumos con alerta de stock minimo", 14, 20);
-    doc.text(fechaHoy, 190, 20, { align: "right" }); // fecha a la derecha
+    const recursosFiltrados = recursos.filter(
+      (rec) =>
+        rec.categoria.toUpperCase() === categoriaSeleccionada.toUpperCase() &&
+        rec.estado === true
+    );
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    const hoy = new Date();
+    const yyyy = hoy.getFullYear();
+    const mm = String(hoy.getMonth() + 1).padStart(2, "0");
+    const dd = String(hoy.getDate()).padStart(2, "0");
+    const fechaHoy = `${dd}/${mm}/${yyyy}`;
+
+    if (recursosFiltrados.length === 0) {
+      alert("No hay recursos con alerta de stock mínimo en esta categoría.");
+      doc.setFontSize(12);
+      doc.text(fechaHoy, 190, 20, { align: "right" });
+      doc.text(`Categoría: ${categoriaSeleccionada}`, 14, 30);
+      doc.text("Dirigido a quien corresponda", 14, 50);
+      doc.save(`reporte_stock_minimo_${categoriaSeleccionada.toLowerCase()}.pdf`);
+      return;
+    }
+
+    doc.setFontSize(16);
+    doc.text(
+      `Reporte de Stock Mínimo - Categoría: ${categoriaSeleccionada}`,
+      14,
+      20
+    );
+    doc.text(fechaHoy, 190, 20, { align: "right" });
 
     const columns = [
       "ID",
       "Nombre",
       "Descripción",
-      "Código",
+     // "Código",
       "Cantidad",
       "Mínimo",
-      //"Ubicación",
       "Categoría",
     ];
-
-    const recursosFiltrados = recursos.filter((rec) =>
-        rec.estado === true
-    )
 
     const rows = recursosFiltrados.map((rec) => [
       rec.id,
       rec.nombre,
       rec.descripcion,
-      rec.codigo,
+    //  rec.codigo,
       rec.cantidad,
       rec.minimo,
-    //  rec.ubicacion,
       rec.categoria,
     ]);
 
@@ -938,15 +956,22 @@ function generarReporteStockMinimoPDF(recursos) {
       head: [columns],
       body: rows,
       startY: 30,
-      styles: { fontSize: 10 },
-      headStyles: { fillColor: [41, 128, 185] },
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [255, 193, 7] }, // Amarillo
     });
 
-    doc.save("reporte_recursos_stock_minimo.pdf");
+    // Texto final
+    const finalY = doc.lastAutoTable.finalY + 10;
+    doc.setFontSize(12);
+    doc.text("Dirigido a quien corresponda", 14, finalY);
+
+    doc.save(`reporte_stock_minimo_${categoriaSeleccionada.toLowerCase()}.pdf`);
   } catch (error) {
     console.error("Error generando el PDF:", error);
   }
 }
+
+
 
 async function generarReporteInventarioPDF(recursos) {
   try {
@@ -987,7 +1012,7 @@ async function generarReporteInventarioPDF(recursos) {
       "Cantidad",
       "Mínimo",
      // "Ubicación",
-      "Estado",
+     // "Estado",
     ];
     const rows = recursosFiltrados.map((rec) => [
       rec.id,
@@ -995,7 +1020,7 @@ async function generarReporteInventarioPDF(recursos) {
       rec.cantidad,
       rec.minimo,
    //   rec.ubicacion,
-      rec.estado ? "Activo" : "Inactivo",
+    //  rec.estado ? "Activo" : "Inactivo",
     ]);
 
     doc.autoTable({
@@ -1005,6 +1030,10 @@ async function generarReporteInventarioPDF(recursos) {
       styles: { fontSize: 8 },
       headStyles: { fillColor: [46, 204, 113] }, // Verde
     });
+    // Texto final
+        const finalY = doc.lastAutoTable.finalY + 10;
+        doc.setFontSize(12);
+        doc.text("Dirigido a quien corresponda", 14, finalY);
 
     doc.save(`reporte_inventario_${categoriaSeleccionada.toLowerCase()}.pdf`);
   } catch (error) {
