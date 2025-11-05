@@ -54,6 +54,14 @@
                 <i class="fas fa-home mr-3"></i> Inicio
               </a>
             </li>
+              <li class="mb-2">
+                  <a
+                          href="#"
+                          onclick="showSection('gestion-bien')"
+                          class="flex items-center p-2 rounded hover:bg-blue-700"
+                  >
+                      <i class="fas fa-building mr-3"></i> Gestión de Bienes </a>
+              </li>
             <li class="mb-2">
               <a
                 href="#"
@@ -255,7 +263,259 @@
         </div>
       </section>
 
-      <!-- Gestión de insumos -->
+        <!-- Gestión de bienes -->
+        <section id="gestion-bien" class="section-content hidden">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-gray-800">Gestión de Bienes</h2>
+                <div class="flex space-x-3">
+                    <button
+                            onclick="showResourceForm('form-nuevo-bien')"
+                            class="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    >
+                        <i class="fas fa-plus mr-2"></i> Nuevo Bien
+                    </button>
+                </div>
+            </div>
+
+            <!-- Formulario Nuevo Bien -->
+            <div id="form-nuevo-bien" class="form-container p-6 mb-8 hidden">
+                <h3 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-plus-circle mr-2 text-blue-600"></i> Registrar
+                    Nuevo Bien
+                </h3>
+                <form>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-700 mb-2">Nombre</label>
+                            <input
+                                    type="text"
+                                    id="registro-bien-nombre"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Categoría</label>
+                            <select
+                                    id="registro-bien-cat"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option>Seleccione...</option>
+                                <option value="oficina">Oficina</option>
+                                <option value="limpieza">Limpieza</option>
+                                <option value="insumoelectrico">Insumos Electricos</option>
+
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2"
+                            >Condicion</label
+                            >
+                            <input
+                                    type="number"
+                                    id="registro-bien-min"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-gray-700 mb-2">Ubicación</label>
+                            <textarea
+                                    rows="3"
+                                    id="registro-bien-ubi"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            ></textarea>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-gray-700 mb-2">Descripción</label>
+                            <textarea
+                                    rows="3"
+                                    id="registro-bien-desc"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            ></textarea>
+                        </div>
+                    </div>
+                    <div class="flex justify-end mt-6 space-x-3">
+                        <button
+                                type="button"
+                                class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 cancel-btn"
+                                onclick="hideResourceForm('form-nuevo-bien')"
+                        >Cancelar
+                        </button>
+
+                        <button
+                                type="button"
+                                onclick="crearBien()"
+                                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                        >
+                            Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Formulario editar recurso -->
+            <div id="form-modificar-bien" class="form-container p-6 mb-8 hidden">
+                <h3 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-plus-circle mr-2 text-blue-600"></i> Modificar
+                    bien
+                </h3>
+                <form>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-700 mb-2">ID Bien</label>
+                            <input
+                                    type="text"
+                                    id="modificar-bien-id"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    readonly
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-gray-700 mb-2">Nombre</label>
+                            <input
+                                    type="text"
+                                    id="modificar-bien-nombre"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Categoría</label>
+                            <select
+                                    id="modificar-bien-cat"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="">Seleccione...</option>
+                                <option value="oficina">Oficina</option>
+                                <option value="limpieza">limpieza</option>
+                                <option value="insumoelectrico">Insumo Electrico</option>
+
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Ubicación</label>
+                            <input
+                                    type="text"
+                                    id="modificar-bien-ubi"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Condición</label>
+                            <input
+                                    type="number"
+                                    id="modificar-bien-condicion"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+                        <!--<div>
+                          <label class="block text-gray-700 mb-2">Ubicación</label>
+                          <input
+                            type="text"
+                            id="modificar-rec-ubicacion"
+                            class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>-->
+                        <div class="md:col-span-2">
+                            <label class="block text-gray-700 mb-2">Descripción</label>
+                            <textarea
+                                    rows="3"
+                                    id="modificar-bien-desc"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            ></textarea>
+                        </div>
+                    </div>
+                    <div class="flex justify-end mt-6 space-x-3">
+                        <button
+                                type="button"
+                                onclick="hideResourceForm('form-modificar-bien')"
+                                class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 cancel-btn"
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                                type="button"
+                                onclick="modificarBien()"
+                                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                        >
+                            <i class="fas fa-save mr-2"></i> Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Listado de Insumos -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-semibold text-lg">Inventario de Bienes</h3>
+                    <div class="flex items-center">
+                        <!--<div class="relative mr-3">
+                          <i
+                            class="fas fa-search absolute left-3 top-3 text-gray-400"
+                          ></i>
+                          <input
+                            type="text"
+                            placeholder="Buscar Insumo..."
+                            class="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>-->
+                        <select id="filtroCategoria"
+                                class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value="todos">Todos</option>
+                            <option value="oficina">Oficina</option>
+                            <option value="limpieza">Limpieza</option>
+                            <option value="insumoelectrico">Insumo Electrico</option>
+
+                        </select>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                                Nombre
+                            </th>
+                            <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                                Categoría
+                            </th>
+                            <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                                Descripcion
+                            </th>
+                            <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                                condicion
+                            </th>
+                            <th
+                               class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                             >
+                               Ubicación
+                             </th>
+                            <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                                Acciones
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody
+                                class="bg-white divide-y divide-gray-200"
+                                id="tabla-bienes"
+                        ></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        <!------------------------------------------------------------------->
+        <!-- Gestión de insumos -->
       <section id="gestion-recursos" class="section-content hidden">
         <div class="flex justify-between items-center mb-8">
           <h2 class="text-2xl font-bold text-gray-800">Gestión de Insumo</h2>
@@ -269,7 +529,7 @@
           </div>
         </div>
 
-        <!-- Formulario Nuevo Recurso -->
+        <!-- Formulario Nuevo insumo -->
         <div id="form-nuevo-recurso" class="form-container p-6 mb-8 hidden">
           <h3 class="text-xl font-semibold mb-4 flex items-center">
             <i class="fas fa-plus-circle mr-2 text-blue-600"></i> Registrar
@@ -297,22 +557,6 @@
                   <option value="insumoelectrico">Insumos Electricos</option>
 
                 </select>
-              </div>
-              <div>
-                <label class="block text-gray-700 mb-2">Código Interno</label>
-                <input
-                  type="text"
-                  id="registro-rec-cod"
-                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label class="block text-gray-700 mb-2">Cantidad Inicial</label>
-                <input
-                  type="number"
-                  id="registro-rec-cant"
-                  class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
               </div>
                  <div>
                    <label class="block text-gray-700 mb-2"
