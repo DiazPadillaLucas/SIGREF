@@ -164,6 +164,189 @@ document.addEventListener('DOMContentLoaded', () => {
   listarMovimientos();
 });
 
+// Función para listar categorías en la tabla
+function listarCategorias() {
+  console.log("Cargando categorías...");
+  fetch("http://localhost:8080/api/categorias")
+    .then(response => {
+      if (!response.ok) throw new Error('Error HTTP: ' + response.status);
+      return response.json();
+    })
+    .then(data => {
+      console.log("Categorías recibidas:", data);
+      const tabla = document.getElementById("tabla-categorias");
+      if (!tabla) {
+        console.error("No se encontró #tabla-categorias");
+        return;
+      }
+      tabla.innerHTML = ""; // Limpia la tabla
+
+      // Filtrar si hay un filtro aplicado (usa el select de la sección)
+      const filtro = document.getElementById("filtroCategoria").value.toLowerCase();
+      const categoriasFiltradas = filtro === "todos" ? data : data.filter(cat => cat.nombre.toLowerCase() === filtro);
+
+      categoriasFiltradas.forEach(categoria => {
+        const columna = document.createElement("tr");
+
+        const id = document.createElement("td");
+        id.textContent = categoria.id;
+        id.style = "display: none;";
+        id.id = "id-categoria-" + categoria.id;
+
+        const codigo = document.createElement("td");
+        codigo.textContent = categoria.id;  // Usa ID como código; ajusta si tienes un campo 'codigo'
+        codigo.className = "px-6 py-3 whitespace-nowrap text-sm text-gray-500";
+
+        const nombre = document.createElement("td");
+        nombre.textContent = categoria.nombre;
+        nombre.className = "px-6 py-3 whitespace-nowrap text-sm font-medium";
+
+        const acciones = document.createElement("td");
+        acciones.className = "px-6 py-3 whitespace-nowrap text-sm font-medium";
+
+        const editar = document.createElement("button");
+        editar.addEventListener("click", function () {
+          showResourceForm("form-modificar-categoria");
+          document.getElementById("modificar-cat-id").value = categoria.id;
+          document.getElementById("modificar-cat-nombre").value = categoria.nombre;
+        });
+        editar.className = "text-blue-600 hover:text-blue-900 mr-3";
+        const editarIcon = document.createElement("i");
+        editarIcon.className = "fas fa-edit";
+        editar.appendChild(editarIcon);
+
+        const eliminar = document.createElement("button");
+        eliminar.className = "text-red-600 hover:text-red-900";
+        eliminar.addEventListener("click", function () {
+          if (confirm("¿Estás seguro de dar de baja esta categoría?")) {
+            fetch("http://localhost:8080/api/categorias/" + categoria.id + "/darDeBaja", {
+              method: "PATCH",
+            })
+              .then(() => reloadPage())
+              .catch(error => console.error("Error al dar de baja la categoría:", error));
+          }
+        });
+        const eliminarIcon = document.createElement("i");
+        eliminarIcon.className = "fas fa-trash";
+        eliminar.appendChild(eliminarIcon);
+
+        columna.appendChild(id);
+        columna.appendChild(codigo);
+        columna.appendChild(nombre);
+        columna.appendChild(acciones);
+        acciones.appendChild(editar);
+        acciones.appendChild(eliminar);
+
+        tabla.appendChild(columna);
+      });
+    })
+    .catch(error => console.error("Error listarCategorias:", error));
+}
+
+// Función para crear una nueva categoría
+function crearCategoria() {
+  console.log("Entrando a crearCategoria");
+  const nombre = document.getElementById("registro-rec-nombre").value.trim();  // Usa el ID actual del HTML
+  console.log("Nombre de categoría:", nombre);
+  if (!nombre) {
+    alert("El nombre de la categoría es obligatorio.");
+    return;
+  }
+
+  const categoria = { nombre: nombre };
+
+  fetch("http://localhost:8080/api/categorias", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(categoria),
+  })
+    .then(response => {
+      if (response.ok) {
+        alert("Categoría creada exitosamente.");
+        document.getElementById("registro-rec-nombre").value = "";  // Limpiar campo
+        hideResourceForm("form-nueva-categoria");
+        listarCategorias();  // Recargar tabla
+        actualizarSelectsCategorias();  // Actualizar selects
+      } else {
+        alert("Error al crear la categoría.");
+      }
+    })
+    .catch(error => console.error("Error crearCategoria:", error));
+}
+
+// Función para modificar una categoría
+function modificarCategoria() {
+  console.log("Entrando a modificarCategoria");
+  const id = document.getElementById("modificar-cat-id").value;
+  const nombre = document.getElementById("modificar-cat-nombre").value.trim();
+  console.log("ID:", id, "Nombre:", nombre);
+  if (!nombre) {
+    alert("El nombre de la categoría es obligatorio.");
+    return;
+  }
+
+  const categoria = { nombre: nombre };
+
+  fetch("http://localhost:8080/api/categorias/" + id, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(categoria),
+  })
+    .then(response => {
+      if (response.ok) {
+        alert("Categoría modificada exitosamente.");
+        hideResourceForm("form-modificar-categoria");
+        listarCategorias();
+        actualizarSelectsCategorias();
+      } else {
+        alert("Error al modificar la categoría.");
+      }
+    })
+    .catch(error => console.error("Error modificarCategoria:", error));
+}
+
+// Función para actualizar los selects de categorías en toda la app
+function actualizarSelectsCategorias() {
+  console.log("Actualizando selects de categorías...");
+  fetch("http://localhost:8080/api/categorias")
+    .then(response => response.json())
+    .then(categorias => {
+      console.log("Categorías para selects:", categorias);
+      const selects = [
+        "registro-rec-cat",    // Formulario nuevo insumo
+        "modificar-rec-cat",   // Formulario modificar insumo
+        "filtroCategoria",     // Filtro en sección de insumos y categorías
+        "filtro-categoria"     // Filtro en reportes (si aplica)
+      ];
+
+      selects.forEach(id => {
+        const select = document.getElementById(id);
+        if (select) {
+          select.innerHTML = '<option value="">Seleccione...</option>';  // Opción por defecto
+          categorias.forEach(cat => {
+            const option = document.createElement("option");
+            option.value = cat.nombre.toLowerCase();  // Value en minúsculas para consistencia
+            option.textContent = cat.nombre;
+            select.appendChild(option);
+          });
+        }
+      });
+    })
+    .catch(error => console.error("Error actualizarSelectsCategorias:", error));
+}
+
+// Agregar eventos y llamadas iniciales en DOMContentLoaded
+document.addEventListener("DOMContentLoaded", function () {
+  // ... (tu código existente aquí)
+
+  // Agregar listener para el filtro de categorías en la sección
+  const filtroCat = document.getElementById("filtroCategoria");
+  if (filtroCat) filtroCat.addEventListener("change", listarCategorias);
+
+  // Llamadas iniciales para categorías
+  listarCategorias();
+  actualizarSelectsCategorias();
+});
 
 function showSection(sectionId) {
   // Ocultar todas las secciones antes de mostrar la seleccionada
