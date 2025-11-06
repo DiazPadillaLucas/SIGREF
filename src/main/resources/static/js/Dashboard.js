@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
   agregarAlertaStockMinimo();
   contarMovimientosHoy();
   listarRecursos();
+  listarBienes();
   obtenerInsumosSelect();
   mostrarFormulario();
   listarUsuarios();
@@ -637,26 +638,42 @@ document.getElementById("filtroCategoria").addEventListener("change", function()
 
 function listarRecursos() {
   const filtro = document.getElementById("filtroCategoria").value;
+
+  // Paso 1: Obtener todos los recursos activos
   fetch("http://localhost:8080/api/recursos/activos")
     .then((response) => response.json())
     .then((data) => {
       const tabla = document.getElementById("tabla-recursos");
-
-      //data.forEach((recurso) => {
       tabla.innerHTML = ""; // Limpia la tabla antes de agregar filas
 
-            // Filtra las Categoria según el select
-      const categoriasFiltrados = filtro === "todos" ? data : data.filter(recurso => recurso.categoria.toLowerCase() === filtro);
+      // ----------------------------------------------------------------------
+      // PASO 2: FILTRAR POR UBICACIÓN NULL/Vacía/Undefined
+      const recursosUbicacionNull = data.filter(recurso =>
+          recurso.ubicacion === null ||
+          recurso.ubicacion === undefined ||
+          recurso.ubicacion.trim() === ""
+      );
+      // ----------------------------------------------------------------------
+
+      // Filtra las Categorías según el select
+      const categoriasFiltrados = filtro === "todos"
+        ? recursosUbicacionNull
+        : recursosUbicacionNull.filter(recurso => recurso.categoria.toLowerCase() === filtro);
+
       console.log(filtro);
-       categoriasFiltrados.forEach((recurso) => {
-         console.log(recurso.categoria.toLowerCase());
+
+      categoriasFiltrados.forEach((recurso) => {
         const columna = document.createElement("tr");
 
+        // --------------------------------------------------------------
+        // CAMBIO 1: ID - Ahora será la primera columna visible
+        // --------------------------------------------------------------
         const id = document.createElement("td");
         id.textContent = recurso.id;
-        id.style = "display: none;";
+        id.className = "px-6 py-4 whitespace-nowrap text-sm font-medium"; // Clase para hacerlo visible
         id.id = "id-recurso-" + recurso.id;
 
+        // El Código se muestra a continuación del ID
         const codigo = document.createElement("td");
         codigo.textContent = recurso.codigo;
         codigo.className = "px-6 py-4 whitespace-nowrap text-sm text-gray-500";
@@ -678,19 +695,8 @@ function listarRecursos() {
         minimo.textContent = " (Alerta)";
         minimo.className = "text-yellow-600 font-bold ml-1";
 
-       /* const ubicacion = document.createElement("td");
-        ubicacion.textContent = recurso.ubicacion;
-        ubicacion.className =
-          "px-6 py-4 whitespace-nowrap text-sm text-gray-500";*/
-
         const acciones = document.createElement("td");
         acciones.className = "px-6 py-4 whitespace-nowrap text-sm font-medium";
-
-       /* const ver = document.createElement("button");
-        ver.className = "text-blue-600 hover:text-blue-900 mr-3";
-        const verIcon = document.createElement("i");
-        verIcon.className = "fas fa-eye";
-        ver.appendChild(verIcon);*/
 
         const editar = document.createElement("button");
         editar.addEventListener("click", function () {
@@ -700,7 +706,7 @@ function listarRecursos() {
             recurso.nombre;
           document.getElementById("modificar-rec-cat").value =
             recurso.categoria.toLowerCase();
-          document.getElementById("modificar-rec-cod").value = recurso.codigo;
+          //document.getElementById("modificar-rec-cod").value = recurso.codigo;
           document.getElementById("modificar-rec-cant").value =
             recurso.cantidad;
           document.getElementById("modificar-rec-min").value = recurso.minimo;
@@ -735,23 +741,18 @@ function listarRecursos() {
         eliminarIcon.className = "fas fa-trash";
         eliminar.appendChild(eliminarIcon);
 
+        // Se inserta el ID antes del Código
         columna.appendChild(id);
-        columna.appendChild(codigo);
+        //columna.appendChild(codigo);
         columna.appendChild(nombre);
         columna.appendChild(categoria);
         recurso.cantidad <= recurso.minimo ? stock.appendChild(minimo) : null;
         columna.appendChild(stock);
         columna.appendChild(acciones);
-         acciones.appendChild(editar);
-          acciones.appendChild(eliminar);
+        acciones.appendChild(editar);
+        acciones.appendChild(eliminar);
 
-
-
-         tabla.appendChild(columna);
-       // columna.appendChild(ubicacion);
-
-        /*acciones.appendChild(ver);*/
-
+        tabla.appendChild(columna);
       });
     });
 }
@@ -760,7 +761,176 @@ function reloadPage() {
   // Recargar la página para reflejar los cambios
   window.location.reload();
 }
+//funciones para bien
+function crearBien() {
+  const bien = {
+    nombre: document.getElementById("registro-bien-nombre").value,
+    categoria: document.getElementById("registro-bien-cat").value.toUpperCase(),
+    codigo: "Disponible",
+    cantidad: " ",
+    minimo:" ",
+    ubicacion: document.getElementById("registro-bien-ubi").value,
+    descripcion: document.getElementById("registro-bien-desc").value,
+    estado: true,
+  };
 
+  fetch("http://localhost:8080/api/recursos", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(bien),
+  })
+    .then((response) => response.json())
+    .then((data) => reloadPage())
+    .catch((error) => console.error("Error al crear bien:", error));
+}
+
+function modificarBien() {
+  // 1. Obtener el ID del Bien a modificar
+  const bienId = document.getElementById("modificar-bien-id").value;
+
+  // 2. Construir el objeto con los datos del formulario Bienes
+  const bien = {
+    // Campos que el Backend espera para actualizar el Recurso/Bien
+    nombre: document.getElementById("modificar-bien-nombre").value,
+    categoria: document.getElementById("modificar-bien-cat").value.toUpperCase(),
+
+    // Mapeo especial: Condición (del select) se guarda en el campo 'codigo' (BD)
+    codigo: document.getElementById("modificar-bien-cond").value,
+
+    // El campo de Ubicación del formulario de Bienes
+    ubicacion: document.getElementById("modificar-bien-ubi").value,
+
+    descripcion: document.getElementById("modificar-bien-desc").value,
+    estado: true,
+
+    // Campos no requeridos para Bienes, pero a menudo requeridos por el backend:
+    // Los Bienes no tienen cantidad/stock/mínimo, se envían como 0 o nulos.
+    cantidad: 0,
+    minimo: 0,
+  };
+
+  // 3. Llamada a la API usando el método PUT
+  fetch(`http://localhost:8080/api/recursos/${bienId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(bien),
+  })
+    .then((response) => {
+        if (!response.ok) {
+            // Manejar errores si el servidor rechaza la modificación
+            throw new Error(`Error al modificar el bien: ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then((data) => reloadPage())
+    .catch((error) => console.error("Error al modificar bien:", error));
+}
+
+
+
+function listarBienes() {
+  const filtro = document.getElementById("filtroCategoria").value;
+
+  fetch("http://localhost:8080/api/recursos/activos")
+    .then((response) => response.json())
+    .then((data) => {
+      const tabla = document.getElementById("tabla-bienes");
+      tabla.innerHTML = "";
+
+      const recursosUbicacionNoNull = data.filter(recurso =>
+          recurso.ubicacion !== null &&
+          recurso.ubicacion !== undefined &&
+          String(recurso.ubicacion).trim() !== "" // Convertimos a String para trim seguro
+      );
+
+      // Filtra las Categorías
+      const categoriasFiltrados = filtro === "todos"
+        ? recursosUbicacionNoNull
+        : recursosUbicacionNoNull.filter(recurso => recurso.categoria.toLowerCase() === filtro);
+
+      categoriasFiltrados.forEach((recurso) => {
+        const columna = document.createElement("tr");
+
+          const id = document.createElement("td");
+                id.textContent = recurso.id;
+                id.className = "px-6 py-4 whitespace-nowrap text-sm font-medium";
+        const nombre = document.createElement("td");
+        nombre.textContent = recurso.nombre;
+        nombre.className = "px-6 py-4 whitespace-nowrap text-sm font-medium";
+        const categoria = document.createElement("td");
+        categoria.textContent = recurso.categoria;
+        categoria.className ="px-6 py-4 whitespace-nowrap text-sm text-gray-500";
+        const descripcion = document.createElement("td");
+        descripcion.textContent = recurso.descripcion || 'N/A';
+        descripcion.className = "px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate max-w-xs";
+        const condicion = document.createElement("td");
+        // codigo es el campo que representa la 'condicion'
+        condicion.textContent = recurso.codigo;
+        condicion.className = "px-6 py-4 whitespace-nowrap text-sm text-gray-500";
+
+        const ubicacion = document.createElement("td");
+        ubicacion.textContent = recurso.ubicacion;
+        ubicacion.className = "px-6 py-4 whitespace-nowrap text-sm text-gray-500";
+
+        const acciones = document.createElement("td");
+        acciones.className = "px-6 py-4 whitespace-nowrap text-sm font-medium";
+
+       const editar = document.createElement("button");
+       editar.addEventListener("click", function () {
+         showResourceForm("form-modificar-bien");
+         document.getElementById("modificar-bien-id").value = recurso.id;
+         document.getElementById("modificar-bien-nombre").value = recurso.nombre;
+         document.getElementById("modificar-bien-cat").value = recurso.categoria.toLowerCase();
+         document.getElementById("modificar-bien-cond").value = recurso.codigo;
+         document.getElementById("modificar-bien-ubi").value = recurso.ubicacion;
+         document.getElementById("modificar-bien-desc").value = recurso.descripcion;
+       });
+       editar.className = "text-blue-600 hover:text-blue-900 mr-3";
+       const editarIcon = document.createElement("i");
+       editarIcon.className = "fas fa-edit";
+       editar.appendChild(editarIcon);
+
+         const eliminar = document.createElement("button");
+                eliminar.className = "text-red-600 hover:text-red-900";
+                eliminar.addEventListener("click", function () {
+                  if (confirm("¿Estás seguro de dar de baja este bien?")) {
+                    fetch(
+                      "http://localhost:8080/api/recursos/" + recurso.id + "/darDeBaja",
+                      {
+                        method: "PATCH",
+                      }
+                    )
+                      .then((response) => response.json())
+                      .then((data) => reloadPage())
+                      .catch((error) =>
+                        console.error("Error al dar de baja el bien:", error));
+                    reloadPage();
+                  }
+                });
+        eliminar.className = "text-red-600 hover:text-red-900";
+        const eliminarIcon = document.createElement("i");
+        eliminarIcon.className = "fas fa-trash";
+        eliminar.appendChild(eliminarIcon);
+
+        columna.appendChild(id);
+        columna.appendChild(nombre);       // 1. Nombre
+        columna.appendChild(categoria);    // 2. Categoría
+        columna.appendChild(descripcion);  // 3. Descripción
+        columna.appendChild(condicion);    // 4. Condición
+        columna.appendChild(ubicacion);    // 5. Ubicación
+        columna.appendChild(acciones);     // 6. Acciones
+
+        acciones.appendChild(editar);
+        acciones.appendChild(eliminar);
+
+
+        tabla.appendChild(columna);
+      });
+    });
+}
+
+
+//Funciones para recurso
 function crearRecurso() {
   const recurso = {
     nombre: document.getElementById("registro-rec-nombre").value,
@@ -780,14 +950,14 @@ function crearRecurso() {
   })
     .then((response) => response.json())
     .then((data) => reloadPage())
-    .catch((error) => console.error("Error al crear recurso:", error));
+    .catch((error) => console.error("Error al crear insumo:", error));
 }
 
 function modificarRecurso() {
   const recurso = {
     nombre: document.getElementById("modificar-rec-nombre").value,
     categoria: document.getElementById("modificar-rec-cat").value.toUpperCase(),
-    codigo: document.getElementById("modificar-rec-cod").value,
+    codigo: " ",
     cantidad: document.getElementById("modificar-rec-cant").value,
     minimo: document.getElementById("modificar-rec-min").value,
    // ubicacion: document.getElementById("modificar-rec-ubicacion").value,
