@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
   listarMovimientos();
 });
 
-// Función para listar categorías en la tabla
+/* Función para listar categorías en la tabla
 function listarCategorias() {
   console.log("Cargando categorías...");
   fetch("http://localhost:8080/api/categorias")
@@ -347,7 +347,7 @@ document.addEventListener("DOMContentLoaded", function () {
   listarCategorias();
   actualizarSelectsCategorias();
 });
-
+*/
 function showSection(sectionId) {
   // Ocultar todas las secciones antes de mostrar la seleccionada
 
@@ -765,10 +765,10 @@ function crearRecurso() {
   const recurso = {
     nombre: document.getElementById("registro-rec-nombre").value,
     categoria: document.getElementById("registro-rec-cat").value.toUpperCase(),
-    codigo: document.getElementById("registro-rec-cod").value,
-    cantidad: document.getElementById("registro-rec-cant").value,
+    codigo: " ",
+    cantidad: " ",
     minimo: document.getElementById("registro-rec-min").value,
-   // ubicacion: document.getElementById("registro-rec-ubicacion").value,
+    ubicacion: " ",
     descripcion: document.getElementById("registro-rec-desc").value,
     estado: true,
   };
