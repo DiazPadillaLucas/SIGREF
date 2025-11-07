@@ -72,7 +72,7 @@ public class RecursoServicio {
 
         return "El recurso ya fue dado de baja anteriormente.";
     }
-qq
+
 
     public Recurso crearRecurso(Recurso recurso) {
         recurso.setEstado(true);

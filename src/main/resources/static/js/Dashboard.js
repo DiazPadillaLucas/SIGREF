@@ -1472,6 +1472,128 @@ function eliminarUsuario(idUsuario) {
     }
 }
 
+let filaEditando = null; // Guarda la fila que se está editando
+
+// === MOSTRAR FORMULARIO ===
+function showResourceForm(formId) {
+    document.getElementById(formId).classList.remove("hidden");
+
+    // Si estamos editando, cambiar el título y el texto del botón
+    if (filaEditando) {
+        document.getElementById("form-titulo").innerHTML =
+            '<i class="fas fa-edit mr-2 text-blue-600"></i> Editar Solicitante';
+        document.getElementById("btn-guardar").textContent = "Actualizar";
+    } else {
+        document.getElementById("form-titulo").innerHTML =
+            '<i class="fas fa-plus-circle mr-2 text-blue-600"></i> Registrar Solicitante';
+        document.getElementById("btn-guardar").textContent = "Guardar";
+    }
+}
+
+// === OCULTAR FORMULARIO ===
+function hideResourceForm(formId) {
+    const form = document.getElementById(formId);
+    form.classList.add("hidden");
+
+    // Solo limpiamos si NO estamos editando
+    if (!filaEditando) {
+        limpiarFormulario();
+    }
+}
+
+// === CREAR O EDITAR SOLICITANTE ===
+function crearSolicitante() {
+    const dni = document.getElementById("solicitante-dni").value.trim();
+    const nombre = document.getElementById("solicitante-nombre").value.trim();
+    const puesto = document.getElementById("solicitante-puesto").value.trim();
+
+    if (!dni || !nombre || !puesto) {
+        alert("Por favor, completa todos los campos.");
+        return;
+    }
+
+    const nuevoSolicitante = { dni, nombre, puesto };
+
+    if (filaEditando) {
+        // 🔄 Actualizamos los datos en la fila que se está editando
+        filaEditando.cells[0].textContent = nuevoSolicitante.dni;
+        filaEditando.cells[1].textContent = nuevoSolicitante.nombre;
+        filaEditando.cells[2].textContent = nuevoSolicitante.puesto;
+
+        // Restauramos el modo de registro
+        filaEditando = null;
+    } else {
+        // ➕ Agregamos un nuevo solicitante
+        agregarSolicitanteATabla(nuevoSolicitante);
+    }
+
+    limpiarFormulario();
+    hideResourceForm("form-nuevo-solicitante"); // 👈 Esto cierra la ventana correctamente
+}
+
+// === AGREGAR NUEVA FILA A LA TABLA ===
+function agregarSolicitanteATabla(solicitante) {
+    const tabla = document.getElementById("tabla-solicitantes");
+    const fila = document.createElement("tr");
+
+    fila.innerHTML = `
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${solicitante.dni}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${solicitante.nombre}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${solicitante.puesto}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-center">
+            <button onclick="editarSolicitante(this)" class="text-blue-600 hover:text-blue-800 mr-3">
+                <i class="fas fa-edit"></i>
+            </button>
+            <button onclick="eliminarSolicitante(this)" class="text-red-600 hover:text-red-800">
+                <i class="fas fa-trash"></i>
+            </button>
+        </td>
+    `;
+
+    tabla.appendChild(fila);
+}
+
+// === ELIMINAR SOLICITANTE ===
+function eliminarSolicitante(boton) {
+    if (confirm("¿Deseas eliminar este solicitante?")) {
+        boton.closest("tr").remove();
+    }
+}
+// Llamar cuando quieres abrir el modal en MODO "NUEVO" (no edición)
+function abrirNuevoSolicitante() {
+    // Salimos del modo edición (si hubiera uno activo)
+    filaEditando = null;
+
+    // Limpiamos los campos para un nuevo registro
+    limpiarFormulario();
+
+    // Mostramos el formulario (showResourceForm usa filaEditando para ajustar título/botón)
+    showResourceForm("form-nuevo-solicitante");
+}
+
+// === EDITAR SOLICITANTE EXISTENTE ===
+function editarSolicitante(boton) {
+    const fila = boton.closest("tr");
+    const celdas = fila.querySelectorAll("td");
+
+    const dni = celdas[0].textContent;
+    const nombre = celdas[1].textContent;
+    const puesto = celdas[2].textContent;
+
+    document.getElementById("solicitante-dni").value = dni;
+    document.getElementById("solicitante-nombre").value = nombre;
+    document.getElementById("solicitante-puesto").value = puesto;
+
+    filaEditando = fila;
+    showResourceForm("form-nuevo-solicitante");
+}
+
+// === LIMPIAR FORMULARIO ===
+function limpiarFormulario() {
+    document.getElementById("solicitante-dni").value = "";
+    document.getElementById("solicitante-nombre").value = "";
+    document.getElementById("solicitante-puesto").value = "";
+}
 
 
 
