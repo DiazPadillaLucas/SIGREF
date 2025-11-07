@@ -1471,7 +1471,7 @@ function eliminarUsuario(idUsuario) {
           .catch((err) => console.error("Error al dar de baja usuario:", err));
     }
 }
-
+//----------Gestion Solicitante-----------
 let filaEditando = null; // Guarda la fila que se está editando
 
 // === MOSTRAR FORMULARIO ===
@@ -1515,7 +1515,7 @@ function crearSolicitante() {
     const nuevoSolicitante = { dni, nombre, puesto };
 
     if (filaEditando) {
-        // 🔄 Actualizamos los datos en la fila que se está editando
+        // Actualizamos los datos en la fila que se está editando
         filaEditando.cells[0].textContent = nuevoSolicitante.dni;
         filaEditando.cells[1].textContent = nuevoSolicitante.nombre;
         filaEditando.cells[2].textContent = nuevoSolicitante.puesto;
@@ -1523,7 +1523,7 @@ function crearSolicitante() {
         // Restauramos el modo de registro
         filaEditando = null;
     } else {
-        // ➕ Agregamos un nuevo solicitante
+        // Agregamos un nuevo solicitante
         agregarSolicitanteATabla(nuevoSolicitante);
     }
 
@@ -1595,6 +1595,31 @@ function limpiarFormulario() {
     document.getElementById("solicitante-puesto").value = "";
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+  const dniInput = document.getElementById('solicitante-dni');
+  if (!dniInput) return; // si no existe el campo, no hacer nada
+
+  // Permitir solo números al escribir
+  dniInput.addEventListener('keypress', (e) => {
+    const char = e.key;
+    if (!/[0-9]/.test(char) && e.key !== 'Backspace') {
+      e.preventDefault();
+    }
+  });
+
+  // Evitar pegar texto no numérico
+  dniInput.addEventListener('paste', (e) => {
+    const pasted = (e.clipboardData || window.clipboardData).getData('text');
+    if (!/^\d+$/.test(pasted)) {
+      e.preventDefault();
+    }
+  });
+
+  // Si el usuario arrastra o suelta texto, limpiar cualquier carácter inválido
+  dniInput.addEventListener('input', (e) => {
+    e.target.value = e.target.value.replace(/[^0-9]/g, '');
+  });
+});
 
 
 // Agregar nuevo Movimiento
