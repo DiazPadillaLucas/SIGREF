@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -30,6 +31,10 @@ public class Recurso {
     @JsonIgnore
     @OneToMany(mappedBy = "recurso", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Movimiento> movimientos;
+    // Relación Muchos a Muchos (a través de la entidad intermedia)
+    @JsonIgnore
+    @OneToMany(mappedBy = "recurso", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<SolicitudRecurso> solicitudesAsociadas;
 
 
 }
