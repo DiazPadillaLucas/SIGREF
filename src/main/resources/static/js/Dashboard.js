@@ -2194,4 +2194,332 @@ document.addEventListener("DOMContentLoaded", function() {
     renderTablaSolicitudes();
 });
 
+// Gestión de Solicitudes de Insumos --------------------------------------------------
+
+// Datos almacenados en localStorage
+let solicitudesInsumos = JSON.parse(localStorage.getItem("solicitudesInsumos")) || [];
+
+// Mostrar un formulario y ocultar los demás
+function showResourceForm(formId) {
+    document.querySelectorAll(".form-container").forEach(form => {
+        form.classList.add("hidden");
+    });
+    const form = document.getElementById(formId);
+    if (form) form.classList.remove("hidden");
+}
+
+// Ocultar un formulario
+function hideResourceForm(formId) {
+    const form = document.getElementById(formId);
+    if (form) form.classList.add("hidden");
+}
+
+// ==============================
+// Agregar o eliminar insumos del formulario
+// ==============================
+
+function agregarInsumo(contenedorId = "contenedor-insumos") {
+    const contenedor = document.getElementById(contenedorId);
+    if (!contenedor) return;
+
+    const nuevoInsumo = document.createElement("div");
+    nuevoInsumo.classList.add("grid", "grid-cols-1", "md:grid-cols-3", "gap-4", "items-end", "insumo-item");
+
+    nuevoInsumo.innerHTML = `
+        <div>
+            <label class="block text-gray-700 mb-2">Nombre del Insumo</label>
+            <input type="text" class="input-insumo-nombre w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ej: Papel A4" />
+        </div>
+        <div>
+            <label class="block text-gray-700 mb-2">Cantidad</label>
+            <input type="number" min="1" class="input-insumo-cantidad w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ej: 10" />
+        </div>
+        <button type="button" class="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600" onclick="eliminarInsumo(this)">
+            <i class="fas fa-trash"></i>
+        </button>
+    `;
+    contenedor.appendChild(nuevoInsumo);
+}
+
+function eliminarInsumo(btn) {
+    const item = btn.closest(".insumo-item");
+    if (item) item.remove();
+}
+
+// ==============================
+// Crear una nueva solicitud
+// ==============================
+
+function crearSolicitudInsumos() {
+    const numeroT = document.getElementById("registro-insumo-numeroT").value.trim();
+    const area = document.getElementById("registro-insumo-area").value.trim();
+    const solicitante = document.getElementById("registro-insumo-solicitante").value.trim();
+    const fecha = document.getElementById("registro-insumo-fecha").value.trim();
+
+    if (!numeroT || !area || !solicitante || !fecha) {
+        alert("Complete todos los campos antes de guardar.");
+        return;
+    }
+
+    if (solicitudesInsumos.some(s => s.numeroT === numeroT)) {
+        alert("Ya existe una solicitud con ese número de trámite.");
+        return;
+    }
+
+    const insumos = [];
+    document.querySelectorAll("#contenedor-insumos .insumo-item").forEach(item => {
+        const nombre = item.querySelector(".input-insumo-nombre").value.trim();
+        const cantidad = item.querySelector(".input-insumo-cantidad").value.trim();
+        if (nombre && cantidad) insumos.push({ nombre, cantidad });
+    });
+
+    if (insumos.length === 0) {
+        alert("Debe agregar al menos un insumo.");
+        return;
+    }
+
+    const nuevaSolicitud = {
+        id: Date.now(),
+        numeroT,
+        area,
+        solicitante,
+        fecha,
+        insumos
+    };
+
+    solicitudesInsumos.push(nuevaSolicitud);
+    guardarEnLocalStorageInsumos();
+    renderTablaSolicitudesInsumos();
+    limpiarFormularioSolicitudInsumos();
+    hideResourceForm("form-nueva-solicitudInsumos");
+    alert("Solicitud registrada correctamente.");
+}
+
+// ==============================
+// Cargar datos en formulario de edición
+// ==============================
+
+function editarSolicitudInsumos(id) {
+    const solicitud = solicitudesInsumos.find(s => s.id === id);
+    if (!solicitud) return;
+
+    // Asegúrate de que el formulario de modificación exista en tu HTML
+    // y que tenga los IDs esperados.
+    const idField = document.getElementById("modificar-insumo-id");
+    if (idField) idField.value = solicitud.id; // campo oculto para mantener el id
+
+    document.getElementById("modificar-insumo-numeroT").value = solicitud.numeroT || "";
+    document.getElementById("modificar-insumo-area").value = solicitud.area || "";
+    document.getElementById("modificar-insumo-solicitante").value = solicitud.solicitante || "";
+    document.getElementById("modificar-insumo-fecha").value = solicitud.fecha || "";
+
+    // Rellenar los insumos en el contenedor de modificación
+    const contenedor = document.getElementById("contenedor-insumos-modificar");
+    if (!contenedor) {
+        console.warn("No se encontró #contenedor-insumos-modificar en el DOM.");
+        showResourceForm("form-modificar-solicitudInsumos");
+        return;
+    }
+
+    contenedor.innerHTML = "";
+    solicitud.insumos.forEach(insumo => {
+        const item = document.createElement("div");
+        item.classList.add("grid", "grid-cols-1", "md:grid-cols-3", "gap-4", "items-end", "insumo-item");
+        item.innerHTML = `
+            <div>
+                <label class="block text-gray-700 mb-2">Nombre del Insumo</label>
+                <input type="text" class="input-insumo-nombre w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" value="${insumo.nombre}" />
+            </div>
+            <div>
+                <label class="block text-gray-700 mb-2">Cantidad</label>
+                <input type="number" min="1" class="input-insumo-cantidad w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" value="${insumo.cantidad}" />
+            </div>
+            <button type="button" class="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600" onclick="eliminarInsumo(this)">
+                <i class="fas fa-trash"></i>
+            </button>
+        `;
+        contenedor.appendChild(item);
+    });
+
+    showResourceForm("form-modificar-solicitudInsumos");
+}
+
+// ==============================
+// Modificar solicitud existente
+// ==============================
+
+function modificarSolicitudInsumos() {
+    const idValue = document.getElementById("modificar-insumo-id").value;
+    const id = idValue ? Number(idValue) : null;
+    if (!id) {
+        alert("ID de la solicitud no encontrado. No se puede modificar.");
+        return;
+    }
+
+    const numeroT = document.getElementById("modificar-insumo-numeroT").value.trim();
+    const area = document.getElementById("modificar-insumo-area").value.trim();
+    const solicitante = document.getElementById("modificar-insumo-solicitante").value.trim();
+    const fecha = document.getElementById("modificar-insumo-fecha").value.trim();
+
+    if (!numeroT || !area || !solicitante || !fecha) {
+        alert("Complete todos los campos antes de modificar.");
+        return;
+    }
+
+    // Verificar unicidad de numeroT (excluyendo la propia solicitud)
+    if (solicitudesInsumos.some(s => s.numeroT === numeroT && s.id !== id)) {
+        alert("Otro registro ya usa ese Número de Trámite. Cambie el número o verifique el registro.");
+        return;
+    }
+
+    const insumos = [];
+    document.querySelectorAll("#contenedor-insumos-modificar .insumo-item").forEach(item => {
+        const nombre = item.querySelector(".input-insumo-nombre").value.trim();
+        const cantidad = item.querySelector(".input-insumo-cantidad").value.trim();
+        if (nombre && cantidad) insumos.push({ nombre, cantidad });
+    });
+
+    if (insumos.length === 0) {
+        alert("Debe agregar al menos un insumo.");
+        return;
+    }
+
+    const solicitud = solicitudesInsumos.find(s => s.id === id);
+    if (!solicitud) {
+        alert("No se encontró la solicitud para modificar.");
+        return;
+    }
+
+    solicitud.numeroT = numeroT;
+    solicitud.area = area;
+    solicitud.solicitante = solicitante;
+    solicitud.fecha = fecha;
+    solicitud.insumos = insumos;
+
+    guardarEnLocalStorageInsumos();
+    renderTablaSolicitudesInsumos();
+    hideResourceForm("form-modificar-solicitudInsumos");
+    alert("Solicitud modificada correctamente.");
+}
+
+// ==============================
+// Eliminar solicitud
+// ==============================
+
+function eliminarSolicitudInsumos(id) {
+    const confirmar = confirm("¿Desea eliminar esta solicitud?");
+    if (!confirmar) return;
+
+    solicitudesInsumos = solicitudesInsumos.filter(s => s.id !== id);
+    guardarEnLocalStorageInsumos();
+    renderTablaSolicitudesInsumos();
+}
+
+// ==============================
+// Renderizar tabla con solicitudes
+// ==============================
+
+function renderTablaSolicitudesInsumos() {
+    const tbody = document.getElementById("tabla-solicitudesInsumos");
+    if (!tbody) return;
+
+    tbody.innerHTML = "";
+
+    if (solicitudesInsumos.length === 0) {
+        const fila = document.createElement("tr");
+        const celda = document.createElement("td");
+        celda.colSpan = 6;
+        celda.textContent = "No hay solicitudes registradas.";
+        celda.classList.add("text-center", "py-4", "text-gray-500");
+        fila.appendChild(celda);
+        tbody.appendChild(fila);
+        return;
+    }
+
+    solicitudesInsumos.forEach(s => {
+        const fila = document.createElement("tr");
+
+        const colNum = document.createElement("td");
+        colNum.textContent = s.numeroT;
+        colNum.classList.add("px-6", "py-3", "text-sm", "text-gray-700");
+
+        const colArea = document.createElement("td");
+        colArea.textContent = s.area;
+        colArea.classList.add("px-6", "py-3", "text-sm", "text-gray-700");
+
+        const colSolicitante = document.createElement("td");
+        colSolicitante.textContent = s.solicitante;
+        colSolicitante.classList.add("px-6", "py-3", "text-sm", "text-gray-700");
+
+        const colFecha = document.createElement("td");
+        colFecha.textContent = s.fecha;
+        colFecha.classList.add("px-6", "py-3", "text-sm", "text-gray-700");
+
+        const colInsumos = document.createElement("td");
+        colInsumos.innerHTML = `<ul class="list-disc ml-4">${s.insumos.map(i => `<li>${i.nombre} (${i.cantidad})</li>`).join("")}</ul>`;
+        colInsumos.classList.add("px-6", "py-3", "text-sm", "text-gray-700");
+
+        const colAcciones = document.createElement("td");
+        colAcciones.classList.add("px-6", "py-3", "text-sm", "flex", "space-x-4");
+
+        const btnEditar = document.createElement("button");
+        btnEditar.innerHTML = `<i class="fas fa-edit text-blue-600 hover:text-blue-800 text-lg"></i>`;
+        btnEditar.title = "Editar";
+        btnEditar.onclick = () => editarSolicitudInsumos(s.id);
+
+        const btnEliminar = document.createElement("button");
+        btnEliminar.innerHTML = `<i class="fas fa-trash text-red-600 hover:text-red-800 text-lg"></i>`;
+        btnEliminar.title = "Eliminar";
+        btnEliminar.onclick = () => eliminarSolicitudInsumos(s.id);
+
+        colAcciones.appendChild(btnEditar);
+        colAcciones.appendChild(btnEliminar);
+
+        fila.appendChild(colNum);
+        fila.appendChild(colArea);
+        fila.appendChild(colSolicitante);
+        fila.appendChild(colFecha);
+        fila.appendChild(colInsumos);
+        fila.appendChild(colAcciones);
+
+        tbody.appendChild(fila);
+    });
+}
+
+// ==============================
+// Guardar y limpiar
+// ==============================
+
+function guardarEnLocalStorageInsumos() {
+    localStorage.setItem("solicitudesInsumos", JSON.stringify(solicitudesInsumos));
+}
+
+function limpiarFormularioSolicitudInsumos() {
+    const form = document.getElementById("formCrearSolicitudInsumos");
+    if (form) form.reset();
+
+    const cont = document.getElementById("contenedor-insumos");
+    if (cont) {
+        cont.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end insumo-item">
+                <div>
+                    <label class="block text-gray-700 mb-2">Nombre del Insumo</label>
+                    <input type="text" class="input-insumo-nombre w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ej: Papel A4" />
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Cantidad</label>
+                    <input type="number" min="1" class="input-insumo-cantidad w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ej: 10" />
+                </div>
+                <button type="button" class="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600" onclick="eliminarInsumo(this)">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        `;
+    }
+}
+
+// Inicialización
+document.addEventListener("DOMContentLoaded", renderTablaSolicitudesInsumos);
+
+
 

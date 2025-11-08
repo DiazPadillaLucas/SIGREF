@@ -1048,6 +1048,252 @@
 
 
 
+        <!-- Gestión de Solicitudes de Insumos -->
+        <section id="gestion-solicitudInsumos" class="section-content hidden">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-gray-800">Gestión de Solicitud de Insumos</h2>
+                <div class="flex space-x-3">
+                    <button
+                            onclick="showResourceForm('form-nueva-solicitudInsumos')"
+                            class="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    >
+                        <i class="fas fa-plus mr-2"></i> Nueva Solicitud de Insumos
+                    </button>
+                </div>
+            </div>
+
+            <!-- Formulario Nueva Solicitud de Insumos -->
+            <div id="form-nueva-solicitudInsumos" class="form-container p-6 mb-8 hidden">
+                <h3 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-plus-circle mr-2 text-blue-600"></i> Registrar Nueva Solicitud de Insumos
+                </h3>
+
+                <form id="formCrearSolicitudInsumos">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="registro-insumo-numeroT" class="block text-gray-700 mb-2">Número de Trámite</label>
+                            <input
+                                    type="text"
+                                    id="registro-insumo-numeroT"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label for="registro-insumo-area" class="block text-gray-700 mb-2">Área</label>
+                            <input
+                                    type="text"
+                                    id="registro-insumo-area"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label for="registro-insumo-solicitante" class="block text-gray-700 mb-2">Solicitante</label>
+                            <input
+                                    type="text"
+                                    id="registro-insumo-solicitante"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label for="registro-insumo-fecha" class="block text-gray-700 mb-2">Fecha de Solicitud</label>
+                            <input
+                                    type="date"
+                                    id="registro-insumo-fecha"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Lista de insumos dentro de la solicitud -->
+                    <div class="mt-8">
+                        <h4 class="text-lg font-semibold mb-3 flex items-center">
+                            <i class="fas fa-boxes mr-2 text-blue-600"></i> Insumos Solicitados
+                        </h4>
+
+                        <div id="contenedor-insumos" class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end insumo-item">
+                                <div>
+                                    <label class="block text-gray-700 mb-2">Nombre del Insumo</label>
+                                    <input
+                                            type="text"
+                                            class="input-insumo-nombre w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Ej: Papel A4"
+                                    />
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 mb-2">Cantidad</label>
+                                    <input
+                                            type="number"
+                                            min="1"
+                                            class="input-insumo-cantidad w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Ej: 10"
+                                    />
+                                </div>
+                                <button
+                                        type="button"
+                                        class="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600 remove-insumo-btn"
+                                        onclick="eliminarInsumo(this)"
+                                >
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button
+                                    type="button"
+                                    onclick="agregarInsumo()"
+                                    class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                            >
+                                <i class="fas fa-plus mr-2"></i> Agregar otro insumo
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end mt-6 space-x-3">
+                        <button
+                                type="button"
+                                class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100"
+                                onclick="hideResourceForm('form-nueva-solicitudInsumos')"
+                        >
+                            Cancelar
+                        </button>
+
+                        <button
+                                type="button"
+                                onclick="crearSolicitudInsumos()"
+                                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                        >
+                            Guardar Solicitud
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Formulario Modificar Solicitud de Insumos -->
+            <div id="form-modificar-solicitudInsumos" class="form-container p-6 mb-8 hidden">
+                <h3 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-edit mr-2 text-yellow-600"></i> Modificar Solicitud de Insumos
+                </h3>
+
+                <form id="formModificarSolicitudInsumos">
+                    <input type="hidden" id="modificar-insumo-id" />
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="modificar-insumo-numeroT" class="block text-gray-700 mb-2">Número de Trámite</label>
+                            <input
+                                    type="text"
+                                    id="modificar-insumo-numeroT"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    readonly
+                            />
+                        </div>
+
+                        <div>
+                            <label for="modificar-insumo-area" class="block text-gray-700 mb-2">Área</label>
+                            <input
+                                    type="text"
+                                    id="modificar-insumo-area"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label for="modificar-insumo-solicitante" class="block text-gray-700 mb-2">Solicitante</label>
+                            <input
+                                    type="text"
+                                    id="modificar-insumo-solicitante"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label for="modificar-insumo-fecha" class="block text-gray-700 mb-2">Fecha de Solicitud</label>
+                            <input
+                                    type="date"
+                                    id="modificar-insumo-fecha"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="mt-8">
+                        <h4 class="text-lg font-semibold mb-3 flex items-center">
+                            <i class="fas fa-boxes mr-2 text-blue-600"></i> Insumos Solicitados
+                        </h4>
+
+                        <div id="contenedor-insumos-modificar" class="space-y-4"></div>
+
+                        <div class="mt-4">
+                            <button
+                                    type="button"
+                                    onclick="agregarInsumo('contenedor-insumos-modificar')"
+                                    class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                            >
+                                <i class="fas fa-plus mr-2"></i> Agregar otro insumo
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end mt-6 space-x-3">
+                        <button
+                                type="button"
+                                class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100"
+                                onclick="hideResourceForm('form-modificar-solicitudInsumos')"
+                        >
+                            Cancelar
+                        </button>
+
+                        <button
+                                type="button"
+                                onclick="modificarSolicitudInsumos()"
+                                class="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+                        >
+                            Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Listado de Solicitudes de Insumos -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-semibold text-lg">Solicitudes registradas</h3>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Número de Trámite
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Área
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Solicitante
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Fecha Solicitud
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Insumos Solicitados
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Acciones
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody id="tabla-solicitudesInsumos" class="bg-white divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
 
 
         <!-- Gestión de Solicitudes de Bienes -->
