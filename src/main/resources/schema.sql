@@ -8,16 +8,27 @@ CREATE TABLE usuario (
                          rol VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE recurso (
-                         id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                         nombre VARCHAR(255) NOT NULL,
-                         descripcion VARCHAR(255),
-                         codigo VARCHAR(50),
-                         cantidad INT NOT NULL,
-                         minimo INT NOT NULL,
-                         --ubicacion VARCHAR(255),
-                         estado BOOLEAN,
-                         categoria VARCHAR(50)
+-- --------------------------------------------------------
+-- Script de Creación de Tabla para la Entidad Recurso
+-- Base de Datos: MySQL
+-- --------------------------------------------------------
+
+-- Asume que la tabla de enumeración 'Categoria' existe o será manejada por la aplicación.
+
+CREATE TABLE Recurso (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    nombre VARCHAR(255) NOT NULL,
+    descripcion VARCHAR(500),
+    codigo VARCHAR(50) NOT NULL,
+    cantidad INT NOT NULL,
+    minimo INT NOT NULL,
+    ubicacion VARCHAR(255),
+    condicion VARCHAR(50),
+    tipo VARCHAR(50),
+    estado BOOLEAN NOT NULL,
+    categoria VARCHAR(50) NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT UQ_Recurso_Codigo UNIQUE (codigo)
 );
 
 CREATE TABLE movimiento (
