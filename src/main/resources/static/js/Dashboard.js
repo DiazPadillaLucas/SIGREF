@@ -1592,7 +1592,7 @@ function crearSolicitante() {
     }
 
     limpiarFormulario();
-    hideResourceForm("form-nuevo-solicitante"); // 👈 Esto cierra la ventana correctamente
+    hideResourceForm("form-nuevo-solicitante"); // Esto cierra la ventana correctamente
 }
 
 // === AGREGAR NUEVA FILA A LA TABLA ===
@@ -1759,6 +1759,7 @@ function registrarMovimiento() {
         .catch((error) => console.error("Error al registrar movimiento:", error));
 }
 
+<<<<<<< Updated upstream
 function crearCategoria() {
   const nombreInput = document.getElementById("registro-cat-nombre");
   const tipoSelect = document.getElementById("registro-cat-tipo");
@@ -1988,3 +1989,209 @@ document.addEventListener("DOMContentLoaded", () => {
   listarCategoriasBienes();
   listarCategoriasInsumos();
 });
+=======
+// Gestión de Solicitudes de Bienes--------------------------------------------------
+
+// Datos almacenados en localStorage
+let solicitudesBienes = JSON.parse(localStorage.getItem("solicitudesBienes")) || [];
+
+// Mostrar un formulario y ocultar los demás
+function showResourceForm(formId) {
+    document.querySelectorAll(".form-container").forEach(form => {
+        form.classList.add("hidden");
+    });
+    const form = document.getElementById(formId);
+    if (form) form.classList.remove("hidden");
+}
+
+// Ocultar un formulario
+function hideResourceForm(formId) {
+    const form = document.getElementById(formId);
+    if (form) form.classList.add("hidden");
+}
+
+// Crear una nueva solicitud
+function crearSolicitudBien() {
+    const numeroT = document.getElementById("registro-solcBi-numeroT").value.trim();
+    const area = document.getElementById("registro-solcBi-Area").value.trim();
+    const bien = document.getElementById("registro-solcBi-nombien").value.trim();
+    const solicitante = document.getElementById("registro-solcBi-solicitabien").value.trim();
+    const fecha = document.getElementById("registro-solcBi-fecha").value.trim();
+
+    if (!numeroT || !area || !bien || !solicitante || !fecha) {
+        alert("Complete todos los campos antes de guardar.");
+        return;
+    }
+
+    if (solicitudesBienes.some(s => s.numeroT === numeroT)) {
+        alert("Ya existe una solicitud con ese número de trámite.");
+        return;
+    }
+
+    const nuevaSolicitud = {
+        id: Date.now(),
+        numeroT,
+        area,
+        bien,
+        solicitante,
+        fecha
+    };
+
+    solicitudesBienes.push(nuevaSolicitud);
+    guardarEnLocalStorage();
+    renderTablaSolicitudes();
+    limpiarFormulario("registro");
+    hideResourceForm("form-nueva-solicitudBienes");
+    alert("Solicitud registrada correctamente.");
+}
+
+// Cargar datos en el formulario de modificación
+function editarSolicitud(id) {
+    const solicitud = solicitudesBienes.find(s => s.id === id);
+    if (!solicitud) return;
+
+    document.getElementById("modificar-solcBi-numt").value = solicitud.numeroT;
+    document.getElementById("modificar-solcBi-area").value = solicitud.area;
+    document.getElementById("modificar-solcBi-nombien").value = solicitud.bien;
+    document.getElementById("modificar-solcBi-solicitabien").value = solicitud.solicitante;
+    document.getElementById("modificar-solcBi-fecha").value = solicitud.fecha;
+
+    showResourceForm("form-modificar-solicitudBienes");
+}
+
+// Modificar una solicitud existente
+function modificarSolicitudBien() {
+    const numeroT = document.getElementById("modificar-solcBi-numt").value.trim();
+    const area = document.getElementById("modificar-solcBi-area").value.trim();
+    const bien = document.getElementById("modificar-solcBi-nombien").value.trim();
+    const solicitante = document.getElementById("modificar-solcBi-solicitabien").value.trim();
+    const fecha = document.getElementById("modificar-solcBi-fecha").value.trim();
+
+    const solicitud = solicitudesBienes.find(s => s.numeroT === numeroT);
+    if (!solicitud) {
+        alert("No se encontró la solicitud para modificar.");
+        return;
+    }
+
+    solicitud.area = area;
+    solicitud.bien = bien;
+    solicitud.solicitante = solicitante;
+    solicitud.fecha = fecha;
+
+    guardarEnLocalStorage();
+    renderTablaSolicitudes();
+    hideResourceForm("form-modificar-solicitudBienes");
+    alert("Solicitud modificada correctamente.");
+}
+
+// Eliminar una solicitud
+function eliminarSolicitud(id) {
+    const confirmar = confirm("¿Desea eliminar esta solicitud?");
+    if (!confirmar) return;
+
+    solicitudesBienes = solicitudesBienes.filter(s => s.id !== id);
+    guardarEnLocalStorage();
+    renderTablaSolicitudes();
+}
+
+// Renderizar tabla con las solicitudes
+function renderTablaSolicitudes() {
+    const tbody = document.getElementById("tabla-solicitudesBienes");
+    if (!tbody) return;
+
+    tbody.innerHTML = "";
+
+    if (solicitudesBienes.length === 0) {
+        const fila = document.createElement("tr");
+        const celda = document.createElement("td");
+        celda.colSpan = 6;
+        celda.textContent = "No hay solicitudes registradas.";
+        celda.classList.add("text-center", "py-4", "text-gray-500");
+        fila.appendChild(celda);
+        tbody.appendChild(fila);
+        return;
+    }
+
+    solicitudesBienes.forEach(s => {
+        const fila = document.createElement("tr");
+
+        const colNum = document.createElement("td");
+        colNum.textContent = s.numeroT;
+        colNum.classList.add("px-6", "py-3", "text-sm", "text-gray-700");
+
+        const colArea = document.createElement("td");
+        colArea.textContent = s.area;
+        colArea.classList.add("px-6", "py-3", "text-sm", "text-gray-700");
+
+        const colBien = document.createElement("td");
+        colBien.textContent = s.bien;
+        colBien.classList.add("px-6", "py-3", "text-sm", "text-gray-700");
+
+        const colSolicitante = document.createElement("td");
+        colSolicitante.textContent = s.solicitante;
+        colSolicitante.classList.add("px-6", "py-3", "text-sm", "text-gray-700");
+
+        const colFecha = document.createElement("td");
+        colFecha.textContent = s.fecha;
+        colFecha.classList.add("px-6", "py-3", "text-sm", "text-gray-700");
+
+        const colAcciones = document.createElement("td");
+        colAcciones.classList.add("px-6", "py-3", "text-sm", "flex", "space-x-4");
+
+        // Botón Editar (ícono)
+        const btnEditar = document.createElement("button");
+        btnEditar.innerHTML = `<i class="fas fa-edit text-blue-600 hover:text-blue-800 text-lg"></i>`;
+        btnEditar.title = "Editar";
+        btnEditar.onclick = function() {
+            editarSolicitud(s.id);
+        };
+
+        // Botón Eliminar (ícono)
+        const btnEliminar = document.createElement("button");
+        btnEliminar.innerHTML = `<i class="fas fa-trash text-red-600 hover:text-red-800 text-lg"></i>`;
+        btnEliminar.title = "Eliminar";
+        btnEliminar.onclick = function() {
+            eliminarSolicitud(s.id);
+        };
+
+        colAcciones.appendChild(btnEditar);
+        colAcciones.appendChild(btnEliminar);
+
+        fila.appendChild(colNum);
+        fila.appendChild(colArea);
+        fila.appendChild(colBien);
+        fila.appendChild(colSolicitante);
+        fila.appendChild(colFecha);
+        fila.appendChild(colAcciones);
+
+        tbody.appendChild(fila);
+    });
+}
+
+// Guardar datos en localStorage
+function guardarEnLocalStorage() {
+    localStorage.setItem("solicitudesBienes", JSON.stringify(solicitudesBienes));
+}
+
+// Limpiar campos del formulario
+function limpiarFormulario(prefijo) {
+    const campos = [
+        `${prefijo}-solcBi-numeroT`,
+        `${prefijo}-solcBi-Area`,
+        `${prefijo}-solcBi-nombien`,
+        `${prefijo}-solcBi-solicitabien`,
+        `${prefijo}-solcBi-fecha`
+    ];
+
+    campos.forEach(id => {
+        const campo = document.getElementById(id);
+        if (campo) campo.value = "";
+    });
+}
+
+// Inicialización al cargar la página
+document.addEventListener("DOMContentLoaded", function() {
+    renderTablaSolicitudes();
+});
+
+>>>>>>> Stashed changes

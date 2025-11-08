@@ -1046,227 +1046,90 @@
         </section>
 
 
-        <!-- Gestión de Solicitudes de Insumos -->
-        <section id="gestion-solicitudInsumos" class="section-content hidden">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-2xl font-bold text-gray-800">Gestión de Solicitud de Insumos</h2>
-                <div class="flex space-x-3">
-                    <button
-                            onclick="showResourceForm('form-nueva-categoria')"
-                            class="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                    >
-                        <i class="fas fa-plus mr-2"></i> Nueva Solucitud de Insumos
-                    </button>
-                </div>
-            </div>
 
-            <!-- Formulario Nueva Solicitud -->
-            <div id="form-nueva-solicitudInsumos" class="form-container p-6 mb-8 hidden">
-                <h3 class="text-xl font-semibold mb-4 flex items-center">
-                    <i class="fas fa-plus-circle mr-2 text-blue-600"></i> Registrar
-                    Nueva solicitud de Insumos
-                </h3>
-                <form>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-gray-700 mb-2">Nombre</label>
-                            <input
-                                    type="text"
-                                    id="registro-cat-nombre"
-                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 mb-2">Tipo</label>
-                            <select
-                                    id="registro-cat-tipo"
-                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                <option value="">Seleccione...</option>
-                                <option value="oficina"></option>
-                                <option value="limpieza">Insumo</option>
-                            </select>
-                        </div>
 
-                    </div>
-                    <div class="flex justify-end mt-6 space-x-3">
-                        <button
-                                type="button"
-                                class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 cancel-btn"
-                                onclick="hideResourceForm('form-nuevo-recurso')"
-                        >Cancelar
-                        </button>
 
-                        <button
-                                type="button"
-                                onclick="crearCategoria()"
-                                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                        >
-                            Guardar
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Formulario editar solicitud de Insumos-->
-            <div id="form-modificar-SolicitudInsumo" class="form-container p-6 mb-8 hidden">
-                <h3 class="text-xl font-semibold mb-4 flex items-center">
-                    <i class="fas fa-plus-circle mr-2 text-blue-600"></i> Modificar
-                    solicitud de Insumos
-                </h3>
-                <form>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-gray-700 mb-2">ID Solicitud</label>
-                            <input
-                                    type="text"
-                                    id="modificar-cat-id"
-                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    readonly
-                            />
-                        </div>
-
-                        <div>
-                            <label class="block text-gray-700 mb-2">Nombre</label>
-                            <input
-                                    type="text"
-                                    id="modificar-cat-nombre"
-                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 mb-2">Tipo</label>
-                            <select
-                                    id="modificar-cat-tipo"
-                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                <option value="">Seleccione...</option>
-                                <option value="oficina">Bien</option>
-                                <option value="limpieza">Insumo</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="flex justify-end mt-6 space-x-3">
-                        <button
-                                type="button"
-                                onclick="hideResourceForm('form-modificar-categoria')"
-                                class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 cancel-btn"
-                        >
-                            Cancelar
-                        </button>
-                        <button
-                                type="button"
-                                onclick="modificarCategoria()"
-                                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                        >
-                            <i class="fas fa-save mr-2"></i> Guardar
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Listado de solicitudes de Insumos -->
-            <div class="bg-white p-6 rounded-lg shadow">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-semibold text-lg">Categorias disponibles</h3>
-                    <div class="flex items-center">
-
-                        <select id="filtroCategoria"
-                                class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                            <option value="todos">Todos</option>
-                            <option value="oficina">Oficina</option>
-                            <option value="limpieza">Limpieza</option>
-                            <option value="insumoelectrico">Insumo Electrico</option>
-
-                        </select>
-                    </div>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                        <tr>
-                            <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            >
-                                Código
-                            </th>
-                            <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            >
-                                Nombre
-                            </th>
-                            <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            >
-                                Acciones
-                            </th>
-                        </tr>
-                        </thead>
-                        <tbody
-                                class="bg-white divide-y divide-gray-200"
-                                id="tabla-categorias"
-                        ></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
 
         <!-- Gestión de Solicitudes de Bienes -->
         <section id="gestion-solicitudBienes" class="section-content hidden">
             <div class="flex justify-between items-center mb-8">
-                <h2 class="text-2xl font-bold text-gray-800">Gestión de Solicitud de Bienes </h2>
+                <h2 class="text-2xl font-bold text-gray-800">Gestión de Solicitud de Bienes</h2>
                 <div class="flex space-x-3">
                     <button
-                            onclick="showResourceForm('form-nueva-categoria')"
+                            onclick="showResourceForm('form-nueva-solicitudBienes')"
                             class="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                     >
-                        <i class="fas fa-plus mr-2"></i> Nueva Solucitud de Bienes
+                        <i class="fas fa-plus mr-2"></i> Nueva Solicitud de Bienes
                     </button>
                 </div>
             </div>
 
-            <!-- Formulario Nueva Solicitud de Bienes-->
+            <!-- Formulario Nueva Solicitud de Bienes -->
             <div id="form-nueva-solicitudBienes" class="form-container p-6 mb-8 hidden">
                 <h3 class="text-xl font-semibold mb-4 flex items-center">
-                    <i class="fas fa-plus-circle mr-2 text-blue-600"></i> Registrar
-                    Nueva solicitud de Bienes
+                    <i class="fas fa-plus-circle mr-2 text-blue-600"></i> Registrar Nueva Solicitud de Bienes
                 </h3>
-                <form>
+
+                <form id="formCrearSolicitudBien">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-gray-700 mb-2">Nombre</label>
+                            <label for="registro-solcBi-numeroT" class="block text-gray-700 mb-2">Número de Trámite</label>
                             <input
                                     type="text"
-                                    id="registro-cat-nombre"
+                                    id="registro-solcBi-numeroT"
                                     class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
+
                         <div>
-                            <label class="block text-gray-700 mb-2">Tipo</label>
-                            <select
-                                    id="registro-cat-tipo"
+                            <label for="registro-solcBi-Area" class="block text-gray-700 mb-2">Área</label>
+                            <input
+                                    type="text"
+                                    id="registro-solcBi-Area"
                                     class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                <option value="">Seleccione...</option>
-                                <option value="oficina"></option>
-                                <option value="limpieza">Insumo</option>
-                            </select>
+                            />
                         </div>
 
+                        <div>
+                            <label for="registro-solcBi-nombien" class="block text-gray-700 mb-2">Bien</label>
+                            <input
+                                    type="text"
+                                    id="registro-solcBi-nombien"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label for="registro-solcBi-solicitabien" class="block text-gray-700 mb-2">Solicitante</label>
+                            <input
+                                    type="text"
+                                    id="registro-solcBi-solicitabien"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label for="registro-solcBi-fecha" class="block text-gray-700 mb-2">Fecha de Solicitud</label>
+                            <input
+                                    type="date"
+                                    id="registro-solcBi-fecha"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
                     </div>
+
                     <div class="flex justify-end mt-6 space-x-3">
                         <button
                                 type="button"
                                 class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 cancel-btn"
-                                onclick="hideResourceForm('form-nuevo-recurso')"
-                        >Cancelar
+                                onclick="hideResourceForm('form-nueva-solicitudBienes')"
+                        >
+                            Cancelar
                         </button>
 
                         <button
                                 type="button"
-                                onclick="crearCategoria()"
+                                onclick="crearSolicitudBien()"
                                 class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                         >
                             Guardar
@@ -1275,110 +1138,120 @@
                 </form>
             </div>
 
-            <!-- Formulario editar solicitud  de Bienes-->
-            <div id="form-modificar-solicitudBines" class="form-container p-6 mb-8 hidden">
+            <!-- Formulario Editar Solicitud de Bienes -->
+            <div id="form-modificar-solicitudBienes" class="form-container p-6 mb-8 hidden">
                 <h3 class="text-xl font-semibold mb-4 flex items-center">
-                    <i class="fas fa-plus-circle mr-2 text-blue-600"></i> Modificar
-                    solicitud de Bienes
+                    <i class="fas fa-edit mr-2 text-blue-600"></i> Modificar Solicitud de Bienes
                 </h3>
-                <form>
+
+                <form id="formEditarSolicitudBien">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-gray-700 mb-2">ID Solicitud</label>
+                            <label for="modificar-solcBi-numt" class="block text-gray-700 mb-2">Número de Trámite</label>
                             <input
                                     type="text"
-                                    id="modificar-cat-id"
+                                    id="modificar-solcBi-numt"
                                     class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     readonly
                             />
                         </div>
 
                         <div>
-                            <label class="block text-gray-700 mb-2">Nombre</label>
+                            <label for="modificar-solcBi-area" class="block text-gray-700 mb-2">Área</label>
                             <input
                                     type="text"
-                                    id="modificar-cat-nombre"
+                                    id="modificar-solcBi-area"
                                     class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
+
                         <div>
-                            <label class="block text-gray-700 mb-2">Tipo</label>
-                            <select
-                                    id="modificar-cat-tipo"
+                            <label for="modificar-solcBi-nombien" class="block text-gray-700 mb-2">Bien</label>
+                            <input
+                                    type="text"
+                                    id="modificar-solcBi-nombien"
                                     class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                <option value="">Seleccione...</option>
-                                <option value="oficina">Bien</option>
-                                <option value="limpieza">Insumo</option>
-                            </select>
+                            />
+                        </div>
+
+                        <div>
+                            <label for="modificar-solcBi-solicitabien" class="block text-gray-700 mb-2">Solicitante</label>
+                            <input
+                                    type="text"
+                                    id="modificar-solcBi-solicitabien"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label for="modificar-solcBi-fecha" class="block text-gray-700 mb-2">Fecha de Solicitud</label>
+                            <input
+                                    type="date"
+                                    id="modificar-solcBi-fecha"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
                         </div>
                     </div>
+
                     <div class="flex justify-end mt-6 space-x-3">
                         <button
                                 type="button"
-                                onclick="hideResourceForm('form-modificar-categoria')"
                                 class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 cancel-btn"
+                                onclick="hideResourceForm('form-modificar-solicitudBienes')"
                         >
                             Cancelar
                         </button>
+
                         <button
                                 type="button"
-                                onclick="modificarCategoria()"
+                                onclick="modificarSolicitudBien()"
                                 class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                         >
-                            <i class="fas fa-save mr-2"></i> Guardar
+                            <i class="fas fa-save mr-2"></i> Guardar Cambios
                         </button>
                     </div>
                 </form>
             </div>
 
-            <!-- Listado de solicitudes Bienes -->
+            <!-- Listado de Solicitudes de Bienes -->
             <div class="bg-white p-6 rounded-lg shadow">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-semibold text-lg">Categorias disponibles</h3>
-                    <div class="flex items-center">
-
-                        <select id="filtroCategoria"
-                                class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                            <option value="todos">Todos</option>
-                            <option value="oficina">Oficina</option>
-                            <option value="limpieza">Limpieza</option>
-                            <option value="insumoelectrico">Insumo Electrico</option>
-
-                        </select>
-                    </div>
+                    <h3 class="font-semibold text-lg">Solicitudes registradas</h3>
                 </div>
 
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                         <tr>
-                            <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            >
-                                Código
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Número de Trámite
                             </th>
-                            <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            >
-                                Nombre
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Área
                             </th>
-                            <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            >
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Bien
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Solicitante
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Fecha Solicitud
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Acciones
                             </th>
                         </tr>
                         </thead>
-                        <tbody
-                                class="bg-white divide-y divide-gray-200"
-                                id="tabla-categorias"
-                        ></tbody>
+                        <tbody id="tabla-solicitudesBienes" class="bg-white divide-y divide-gray-200"></tbody>
                     </table>
                 </div>
             </div>
         </section>
+
+
+
+
 
         <!-- Gestión de Solicitantes -->
         <section id="gestion-solicitante" class="section-content hidden">
