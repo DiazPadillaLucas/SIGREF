@@ -1759,7 +1759,7 @@ function registrarMovimiento() {
         .catch((error) => console.error("Error al registrar movimiento:", error));
 }
 
-<<<<<<< Updated upstream
+
 function crearCategoria() {
   const nombreInput = document.getElementById("registro-cat-nombre");
   const tipoSelect = document.getElementById("registro-cat-tipo");
@@ -1989,7 +1989,7 @@ document.addEventListener("DOMContentLoaded", () => {
   listarCategoriasBienes();
   listarCategoriasInsumos();
 });
-=======
+
 // Gestión de Solicitudes de Bienes--------------------------------------------------
 
 // Datos almacenados en localStorage
@@ -2194,4 +2194,4 @@ document.addEventListener("DOMContentLoaded", function() {
     renderTablaSolicitudes();
 });
 
->>>>>>> Stashed changes
+
