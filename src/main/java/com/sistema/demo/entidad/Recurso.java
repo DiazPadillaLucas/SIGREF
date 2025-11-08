@@ -19,12 +19,16 @@ public class Recurso {
     private Long id;
     private String nombre;
     private String descripcion;
+    @Column(unique = true)
     private String codigo;
     private int cantidad;
     private int minimo;
     private String ubicacion;
-    private Boolean estado;
+    private String condicion; // Campo para la condición del recurso (ej: "Nuevo", "Usado", "Deteriorado")
+    private String tipo;      // Campo para el tipo de recurso (ej: "Herramienta", "Material", "Equipo")
 
+    private Boolean estado;
+       // Campo para el tipo de recurso (ej: "Herramienta", "Material", "Equipo")
     @Enumerated(EnumType.STRING)
     private Categoria categoria;
 

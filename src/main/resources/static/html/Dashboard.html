@@ -321,6 +321,14 @@
                             />
                         </div>
                         <div>
+                            <label class="block text-gray-700 mb-2">Codigo</label>
+                            <input
+                                    type="text"
+                                    id="registro-bien-cod"
+                                    class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+                        <div>
                             <label class="block text-gray-700 mb-2">Categoría</label>
                             <select
                                     id="registro-bien-cat"
@@ -386,14 +394,23 @@
                                     readonly
                             />
                         </div>
-
                         <div>
                             <label class="block text-gray-700 mb-2">Nombre</label>
+
                             <input
                                     type="text"
                                     id="modificar-bien-nombre"
                                     class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Código</label>
+                            <input type="text"
+                                   id="modificar-bien-cod"
+                                   name="codigo"
+                                   class="w-full px-4 py-2 border rounded bg-gray-100 cursor-not-allowed focus:outline-none"
+                                   readonly
+                                   disabled>
                         </div>
                         <div>
                             <label class="block text-gray-700 mb-2">Categoría</label>
@@ -499,7 +516,7 @@
                             <th
                                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                             >
-                                Id
+                                Codigo
                             </th>
                             <th
                                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"

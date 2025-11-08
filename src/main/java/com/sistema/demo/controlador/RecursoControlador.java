@@ -87,7 +87,12 @@ public class RecursoControlador {
         try {
             return ResponseEntity.ok(recursoServicio.actualizarRecurso(id, recurso));
         } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: " + e.getMessage());
+            // Maneja errores 404
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: Recurso no encontrado. " + e.getMessage());
+        } catch (Exception e) { // 🆕 Captura cualquier otra excepción, incluyendo las de mapeo/BD
+            // Esto podría ser DataIntegrityViolationException (código único), o HttpMessageNotReadableException (tipo de dato)
+            // Devolvemos un 400 Bad Request y el mensaje de la excepción de Java
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error de validación o datos: " + e.getMessage());
         }
     }
 
@@ -109,6 +114,17 @@ public class RecursoControlador {
     @GetMapping("/listarStockMinimo")
     public ResponseEntity<?> listarStockMin(){
         return ResponseEntity.ok(recursoServicio.listarStockMinimo());
+    }
+
+
+    @GetMapping("/buscarPorCondicion")
+    public ResponseEntity<List<Recurso>> buscarPorCondicion(@RequestParam String condicion) {
+        return ResponseEntity.ok(recursoServicio.buscarPorCondicion(condicion));
+    }
+
+    @GetMapping("/buscarPorTipo")
+    public ResponseEntity<List<Recurso>> buscarPorTipo(@RequestParam String tipo) {
+        return ResponseEntity.ok(recursoServicio.buscarPorTipo(tipo));
     }
 
 }

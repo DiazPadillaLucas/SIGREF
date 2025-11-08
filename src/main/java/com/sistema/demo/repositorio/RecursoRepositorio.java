@@ -11,4 +11,8 @@ public interface RecursoRepositorio extends JpaRepository<Recurso, Long> {
     List<Recurso> findByCodigoContainingIgnoreCase(String codigo);
     List<Recurso> findByCategoria(Categoria categoria);
     List<Recurso> findByEstado(Boolean estado);
+    List<Recurso> findByCondicionContainingIgnoreCase(String condicion);
+    List<Recurso> findByTipoContainingIgnoreCase(String tipo);
+    Boolean existsByCodigo(String codigo);
 }
+

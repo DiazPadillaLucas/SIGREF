@@ -5,6 +5,7 @@ import com.sistema.demo.entidad.enums.Categoria;
 import com.sistema.demo.repositorio.RecursoRepositorio;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -74,9 +75,37 @@ public class RecursoServicio {
     }
 
 
+    // En RecursoServicio.java
+
     public Recurso crearRecurso(Recurso recurso) {
+
+        // 1. Validar la unicidad SOLO si el usuario ingresó un código (Bienes).
+        // Si el código es nulo o vacío, asumimos que es un Insumo y que necesita ser generado.
+        if (recurso.getCodigo() != null && !recurso.getCodigo().trim().isEmpty()) {
+            // Verificamos si este código manual ya existe.
+            if (recursoRepositorio.existsByCodigo(recurso.getCodigo())) {
+                // Lanzamos una excepción que el controlador capturará (409 Conflict).
+                throw new DataIntegrityViolationException("El código '" + recurso.getCodigo() + "' ya está registrado. Por favor, ingrese un código único.");
+            }
+        }
+        // 2. Persistir inicialmente para que Hibernate/JPA asigne el ID (Identity Strategy).
         recurso.setEstado(true);
-        return recursoRepositorio.save(recurso);
+        Recurso recursoGuardado = recursoRepositorio.save(recurso);
+        // 3. Generar Código si es un INSUMO.
+        if ("Insumo".equalsIgnoreCase(recursoGuardado.getTipo())) {
+            // Se asegura que el ID no sea null (aunque no debería con GenerationType.IDENTITY)
+            if (recursoGuardado.getId() == null) {
+                throw new IllegalStateException("El ID del recurso no se generó después de la persistencia inicial.");
+            }
+            // Asignar el código como el ID en negativo, convertido a String.
+            String codigoGenerado = String.valueOf(-recursoGuardado.getId());
+            recursoGuardado.setCodigo(codigoGenerado);
+            // 4. Guardar de nuevo para persistir el código generado.
+            // Usamos saveAndFlush para forzar la escritura inmediata.
+            return recursoRepositorio.saveAndFlush(recursoGuardado);
+        }
+        // Si es un Bien, devolvemos el recurso con el código manual (o vacío si el usuario lo dejó así).
+        return recursoGuardado;
     }
 
     public Recurso actualizarRecurso(Long id, Recurso recursoActualizado) {
@@ -84,12 +113,14 @@ public class RecursoServicio {
 
         recursoExistente.setNombre(recursoActualizado.getNombre());
         recursoExistente.setDescripcion(recursoActualizado.getDescripcion());
-        recursoExistente.setCodigo(recursoActualizado.getCodigo());
+        //recursoExistente.setCodigo(recursoActualizado.getCodigo());
         recursoExistente.setCantidad(recursoActualizado.getCantidad());
         recursoExistente.setMinimo(recursoActualizado.getMinimo());
         recursoExistente.setUbicacion(recursoActualizado.getUbicacion());
         recursoExistente.setCategoria(recursoActualizado.getCategoria());
         recursoExistente.setEstado(recursoActualizado.getEstado());
+        recursoExistente.setCondicion(recursoActualizado.getCondicion()); // Nuevo campo
+        recursoExistente.setTipo(recursoActualizado.getTipo());           // Nuevo campo
 
         return recursoRepositorio.saveAndFlush(recursoExistente);
     }
@@ -112,4 +143,14 @@ public class RecursoServicio {
                 .toList();
         return stockMinimo;
     }
+    public List<Recurso> buscarPorCondicion(String condicion) {
+        // Necesita un método findByCondicionContainingIgnoreCase en el Repositorio
+        return recursoRepositorio.findByCondicionContainingIgnoreCase(condicion);
+    }
+
+    public List<Recurso> buscarPorTipo(String tipo) {
+        // Necesita un método findByTipoContainingIgnoreCase en el Repositorio
+        return recursoRepositorio.findByTipoContainingIgnoreCase(tipo);
+    }
 }
+

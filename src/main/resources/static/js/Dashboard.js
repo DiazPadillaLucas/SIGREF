@@ -646,19 +646,15 @@ function listarRecursos() {
       const tabla = document.getElementById("tabla-recursos");
       tabla.innerHTML = ""; // Limpia la tabla antes de agregar filas
 
-      // ----------------------------------------------------------------------
-      // PASO 2: FILTRAR POR UBICACIÓN NULL/Vacía/Undefined
-      const recursosUbicacionNull = data.filter(recurso =>
-          recurso.ubicacion === null ||
-          recurso.ubicacion === undefined ||
-          recurso.ubicacion.trim() === ""
+      const recursosInsumo = data.filter(recurso =>
+          // 💡 ERROR CORREGIDO: Eliminada la comilla doble extra al final de "Insumo"
+          recurso.tipo === "Insumo"
       );
-      // ----------------------------------------------------------------------
 
       // Filtra las Categorías según el select
       const categoriasFiltrados = filtro === "todos"
-        ? recursosUbicacionNull
-        : recursosUbicacionNull.filter(recurso => recurso.categoria.toLowerCase() === filtro);
+        ? recursosInsumo
+        : recursosInsumo.filter(recurso => recurso.categoria.toLowerCase() === filtro);
 
       console.log(filtro);
 
@@ -756,22 +752,23 @@ function listarRecursos() {
       });
     });
 }
-
 function reloadPage() {
   // Recargar la página para reflejar los cambios
   window.location.reload();
 }
-//funciones para bien
+// funciones para bien
 function crearBien() {
   const bien = {
     nombre: document.getElementById("registro-bien-nombre").value,
     categoria: document.getElementById("registro-bien-cat").value.toUpperCase(),
-    codigo: "Disponible",
-    cantidad: " ",
-    minimo:" ",
+    codigo: document.getElementById("registro-bien-cod").value,
+    cantidad: 0, // Asegurado como número para evitar errores de tipo
+    minimo: 0,   // Asegurado como número para evitar errores de tipo
     ubicacion: document.getElementById("registro-bien-ubi").value,
     descripcion: document.getElementById("registro-bien-desc").value,
     estado: true,
+    condicion: "Disponible",
+    tipo: "Bien",
   };
 
   fetch("http://localhost:8080/api/recursos", {
@@ -779,55 +776,85 @@ function crearBien() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(bien),
   })
-    .then((response) => response.json())
-    .then((data) => reloadPage())
-    .catch((error) => console.error("Error al crear bien:", error));
-}
+    .then((response) => {
+      if (!response.ok) {
+        // El servidor devolvió un error (ej. 400 Bad Request por código duplicado).
+        // Leemos el cuerpo del error para obtener el mensaje específico de Java.
+        return response.json().then((err) => {
+          // Si el servidor devolvió un cuerpo JSON, usamos ese mensaje.
+          // El formato exacto del mensaje del servidor varía, pero 'message' es común.
+          // Aquí capturamos el mensaje del backend que dice 'El código ya está registrado...'
+          throw new Error(err.message || err.error || err.statusText);
+        });
+      }
+      return response.json();
+    })
+    .then((data) => {
+      // Éxito
+      alert("Bien registrado exitosamente.");
+      reloadPage();
+    })
+    .catch((error) => {
+      // Capturamos la excepción lanzada (punto 1) o un error de red.
+      console.error("Fallo al crear bien:", error);
 
+      // 🆕 Muestra el mensaje específico en una ventana emergente
+      const errorMessage = error.message.includes("El código")
+                           ? error.message
+                           : "Error al intentar guardar el bien: " + error.message;
+
+      alert(errorMessage);
+    });
+}
 function modificarBien() {
   // 1. Obtener el ID del Bien a modificar
   const bienId = document.getElementById("modificar-bien-id").value;
+  // 💡 Necesitamos obtener el código que ya existe del campo (oculto)
+    const codigoExistente = document.getElementById("modificar-bien-cod").value;
 
   // 2. Construir el objeto con los datos del formulario Bienes
   const bien = {
-    // Campos que el Backend espera para actualizar el Recurso/Bien
     nombre: document.getElementById("modificar-bien-nombre").value,
     categoria: document.getElementById("modificar-bien-cat").value.toUpperCase(),
 
-    // Mapeo especial: Condición (del select) se guarda en el campo 'codigo' (BD)
-    codigo: document.getElementById("modificar-bien-cond").value,
-
-    // El campo de Ubicación del formulario de Bienes
+    condicion: document.getElementById("modificar-bien-cond").value,
     ubicacion: document.getElementById("modificar-bien-ubi").value,
-
     descripcion: document.getElementById("modificar-bien-desc").value,
     estado: true,
-
-    // Campos no requeridos para Bienes, pero a menudo requeridos por el backend:
-    // Los Bienes no tienen cantidad/stock/mínimo, se envían como 0 o nulos.
+    codigo: codigoExistente,
     cantidad: 0,
     minimo: 0,
+    tipo: "Bien",
   };
 
   // 3. Llamada a la API usando el método PUT
+  // 💡 ERROR CORREGIDO: Se agregaron las comillas invertidas (` `)
   fetch(`http://localhost:8080/api/recursos/${bienId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(bien),
   })
-    .then((response) => {
-        if (!response.ok) {
-            // Manejar errores si el servidor rechaza la modificación
-            throw new Error(`Error al modificar el bien: ${response.statusText}`);
-        }
-        return response.json();
-    })
-    .then((data) => reloadPage())
-    .catch((error) => console.error("Error al modificar bien:", error));
+   .then((response) => {
+       if (!response.ok) {
+           // 1. Si el estado NO es OK (ej. 400, 500), leemos el cuerpo de la respuesta (que contiene el error del backend)
+           return response.json().then(err => {
+               // 2. Lanzamos un nuevo error con el mensaje real del backend (si existe)
+               throw new Error(err.message || 'Error desconocido del servidor');
+           });
+       }
+       // 3. Si es OK (200), devolvemos el JSON de la respuesta
+       return response.json();
+   })
+   .then((data) => reloadPage())
+   .catch((error) => {
+       // 4. Capturamos el error (ya sea de red o el que lanzamos en el punto 2)
+       console.error("Fallo al modificar bien:", error.message);
+       alert("Fallo al modificar: " + (error.message || "Error desconocido.")); // Muestra el mensaje de error al usuario
+   });
 }
 
 
-
+// --- La función listarBienes() NO TENÍA ERRORES DE SINTAXIS ---
 function listarBienes() {
   const filtro = document.getElementById("filtroCategoria").value;
 
@@ -837,23 +864,21 @@ function listarBienes() {
       const tabla = document.getElementById("tabla-bienes");
       tabla.innerHTML = "";
 
-      const recursosUbicacionNoNull = data.filter(recurso =>
-          recurso.ubicacion !== null &&
-          recurso.ubicacion !== undefined &&
-          String(recurso.ubicacion).trim() !== "" // Convertimos a String para trim seguro
+      const recursosBien = data.filter(recurso =>
+          recurso.tipo === "Bien"
       );
 
       // Filtra las Categorías
       const categoriasFiltrados = filtro === "todos"
-        ? recursosUbicacionNoNull
-        : recursosUbicacionNoNull.filter(recurso => recurso.categoria.toLowerCase() === filtro);
+        ? recursosBien
+        : recursosBien.filter(recurso => recurso.categoria.toLowerCase() === filtro);
 
       categoriasFiltrados.forEach((recurso) => {
         const columna = document.createElement("tr");
 
-          const id = document.createElement("td");
-                id.textContent = recurso.id;
-                id.className = "px-6 py-4 whitespace-nowrap text-sm font-medium";
+          const codigo= document.createElement("td");
+                codigo.textContent = recurso.codigo;
+                 codigo.className = "px-6 py-4 whitespace-nowrap text-sm font-medium";
         const nombre = document.createElement("td");
         nombre.textContent = recurso.nombre;
         nombre.className = "px-6 py-4 whitespace-nowrap text-sm font-medium";
@@ -864,14 +889,11 @@ function listarBienes() {
         descripcion.textContent = recurso.descripcion || 'N/A';
         descripcion.className = "px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate max-w-xs";
         const condicion = document.createElement("td");
-        // codigo es el campo que representa la 'condicion'
-        condicion.textContent = recurso.codigo;
+        condicion.textContent = recurso.condicion;
         condicion.className = "px-6 py-4 whitespace-nowrap text-sm text-gray-500";
-
         const ubicacion = document.createElement("td");
         ubicacion.textContent = recurso.ubicacion;
         ubicacion.className = "px-6 py-4 whitespace-nowrap text-sm text-gray-500";
-
         const acciones = document.createElement("td");
         acciones.className = "px-6 py-4 whitespace-nowrap text-sm font-medium";
 
@@ -881,9 +903,10 @@ function listarBienes() {
          document.getElementById("modificar-bien-id").value = recurso.id;
          document.getElementById("modificar-bien-nombre").value = recurso.nombre;
          document.getElementById("modificar-bien-cat").value = recurso.categoria.toLowerCase();
-         document.getElementById("modificar-bien-cond").value = recurso.codigo;
+         document.getElementById("modificar-bien-cond").value = recurso.condicion;
          document.getElementById("modificar-bien-ubi").value = recurso.ubicacion;
          document.getElementById("modificar-bien-desc").value = recurso.descripcion;
+         document.getElementById("modificar-bien-cod").value = recurso.codigo;
        });
        editar.className = "text-blue-600 hover:text-blue-900 mr-3";
        const editarIcon = document.createElement("i");
@@ -912,7 +935,7 @@ function listarBienes() {
         eliminarIcon.className = "fas fa-trash";
         eliminar.appendChild(eliminarIcon);
 
-        columna.appendChild(id);
+        columna.appendChild(codigo);
         columna.appendChild(nombre);       // 1. Nombre
         columna.appendChild(categoria);    // 2. Categoría
         columna.appendChild(descripcion);  // 3. Descripción
@@ -929,18 +952,24 @@ function listarBienes() {
     });
 }
 
-
 //Funciones para recurso
 function crearRecurso() {
+  const minimoInput = document.getElementById("registro-rec-min").value;
+
+  // Convertimos el string a un número entero (o 0 si está vacío)
+  const minimoValido = minimoInput ? parseInt(minimoInput) : 0;
+
   const recurso = {
     nombre: document.getElementById("registro-rec-nombre").value,
     categoria: document.getElementById("registro-rec-cat").value.toUpperCase(),
-    codigo: " ",
-    cantidad: " ",
-    minimo: document.getElementById("registro-rec-min").value,
-    ubicacion: " ",
+    codigo: "",
+    cantidad: 0,
+    minimo: minimoValido, // Usamos el valor validado/convertido
+    ubicacion: "",
     descripcion: document.getElementById("registro-rec-desc").value,
     estado: true,
+    condicion: "", // Puedes dejarlo vacío o asignar un valor por defecto si es necesario
+    tipo: "Insumo",
   };
 
   fetch("http://localhost:8080/api/recursos", {
@@ -948,23 +977,53 @@ function crearRecurso() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(recurso),
   })
-    .then((response) => response.json())
-    .then((data) => reloadPage())
-    .catch((error) => console.error("Error al crear insumo:", error));
+    // 🆕 Mejor manejo de errores (similar al que usamos para modificar)
+    .then((response) => {
+        if (!response.ok) {
+            // Si hay error, intentamos leer el mensaje específico del servidor
+            return response.json()
+                .then(err => {
+                    throw new Error(err.message || 'Error desconocido del servidor');
+                })
+                .catch(() => {
+                    // Si no es JSON (ej. si el backend falló internamente), leemos el texto
+                    return response.text().then(text => {
+                        throw new Error(text || 'Error de red/servidor');
+                    });
+                });
+        }
+        return response.json();
+    })
+    .then((data) => {
+      alert("Insumo registrado exitosamente.");
+      reloadPage();
+    })
+    .catch((error) => {
+      console.error("Fallo al crear insumo:", error);
+      // Muestra el mensaje de error específico (incluyendo posibles errores del backend como 'código duplicado')
+      alert("Error al guardar insumo: " + (error.message || "Verifique la consola para detalles."));
+    });
 }
 
 function modificarRecurso() {
+  const recursoId = document.getElementById("modificar-rec-id").value;
+
+  // 💡 Capturar valores numéricos de forma segura: convierte a número o usa 0
+  const cantidadVal = document.getElementById("modificar-rec-cant").value;
+  const minimoVal = document.getElementById("modificar-rec-min").value;
+
   const recurso = {
     nombre: document.getElementById("modificar-rec-nombre").value,
     categoria: document.getElementById("modificar-rec-cat").value.toUpperCase(),
-    codigo: " ",
-    cantidad: document.getElementById("modificar-rec-cant").value,
-    minimo: document.getElementById("modificar-rec-min").value,
-   // ubicacion: document.getElementById("modificar-rec-ubicacion").value,
+    cantidad: cantidadVal ? parseInt(cantidadVal) : 0,
+    minimo: minimoVal ? parseInt(minimoVal) : 0,
+    ubicacion: " ", // Mantener si no hay input
     descripcion: document.getElementById("modificar-rec-desc").value,
     estado: true,
+    condicion: " ",
+    tipo: "Insumo"
   };
-  const recursoId = document.getElementById("modificar-rec-id").value;
+
   fetch("http://localhost:8080/api/recursos/" + recursoId, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
@@ -1475,7 +1534,7 @@ function eliminarUsuario(idUsuario) {
 let filaEditando = null; // Guarda la fila que se está editando
 
 // === MOSTRAR FORMULARIO ===
-function showResourceForm(formId) {
+/*function showResourceForm(formId) {
     document.getElementById(formId).classList.remove("hidden");
 
     // Si estamos editando, cambiar el título y el texto del botón
@@ -1488,6 +1547,10 @@ function showResourceForm(formId) {
             '<i class="fas fa-plus-circle mr-2 text-blue-600"></i> Registrar Solicitante';
         document.getElementById("btn-guardar").textContent = "Guardar";
     }
+}*/
+function showResourceForm(idForm) {
+  // Solo encuentra el elemento por ID y remueve la clase "hidden"
+  document.getElementById(idForm).classList.remove("hidden");
 }
 
 // === OCULTAR FORMULARIO ===
