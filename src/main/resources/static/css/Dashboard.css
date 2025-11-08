@@ -8,6 +8,11 @@
 .alert {
   animation: fadeIn 0.5s;
 }
+
+.bg-white {
+  margin-bottom: 30px;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

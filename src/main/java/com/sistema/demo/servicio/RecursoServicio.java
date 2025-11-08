@@ -132,7 +132,6 @@ public class RecursoServicio {
     public List<Recurso> buscarPorCodigo(String codigo) {
         return recursoRepositorio.findByCodigoContainingIgnoreCase(codigo);
     }
-
     public List<Recurso> buscarPorCategoria(Categoria categoria) {
         return recursoRepositorio.findByCategoria(categoria);
     }

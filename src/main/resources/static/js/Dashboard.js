@@ -11,7 +11,8 @@ document.addEventListener("DOMContentLoaded", function () {
   obtenerInsumosSelect();
   mostrarFormulario();
   listarUsuarios();
-
+  listarCategoriasBienes();
+  listarCategoriasInsumos();
 });
 
 document.addEventListener("click", function (event) {
@@ -1757,3 +1758,233 @@ function registrarMovimiento() {
         })
         .catch((error) => console.error("Error al registrar movimiento:", error));
 }
+
+function crearCategoria() {
+  const nombreInput = document.getElementById("registro-cat-nombre");
+  const tipoSelect = document.getElementById("registro-cat-tipo");
+
+  if (!nombreInput || !tipoSelect) {
+    alert("Formulario de categoría incompleto en el HTML.");
+    return;
+  }
+
+  const nombre = nombreInput.value.trim();
+  const tipoTexto = tipoSelect.options[tipoSelect.selectedIndex].text.trim();
+
+  if (!nombre) {
+    alert("El nombre de la categoría es obligatorio.");
+    return;
+  }
+  if (!tipoTexto || tipoTexto.toLowerCase().includes("seleccione")) {
+    alert("Seleccione un tipo válido (Bien o Insumo).");
+    return;
+  }
+
+  // Mapear texto del select al enum que espera el backend
+  let tipoEnum;
+  if (/insumo/i.test(tipoTexto)) tipoEnum = "INSUMO";
+  else if (/bien/i.test(tipoTexto)) tipoEnum = "BIEN";
+  else {
+    alert("Tipo de categoría inválido.");
+    return;
+  }
+
+  const categoria = {
+    nombre: nombre,
+    tipo: tipoEnum
+  };
+
+  fetch("http://localhost:8080/api/categorias", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(categoria)
+  })
+    .then((response) => {
+      if (!response.ok) {
+        return response.text().then((txt) => {
+          throw new Error(txt || `HTTP ${response.status}`);
+        });
+      }
+      return response.json();
+    })
+    .then((data) => {
+      alert("Categoría creada correctamente.");
+      // limpiar formulario y cerrar
+      nombreInput.value = "";
+      tipoSelect.selectedIndex = 0;
+      if (typeof hideResourceForm === "function") hideResourceForm("form-nueva-categoria");
+      // refrescar lista / selects si existen las funciones
+      if (typeof listarCategorias === "function") listarCategorias();
+      else reloadPage();
+      if (typeof actualizarSelectsCategorias === "function") actualizarSelectsCategorias();
+    })
+    .catch((err) => {
+      console.error("Error al crear categoría:", err);
+      alert("Error al crear categoría: " + (err.message || "Revisa la consola"));
+    });
+}
+
+// Lista categorías de tipo BIEN en <tbody id="tabla-categorias-bienes">
+function listarCategoriasBienes() {
+  fetch("http://localhost:8080/api/categorias")
+    .then((res) => {
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    })
+    .then((cats) => {
+      const tabla = document.getElementById("tabla-categorias-bienes");
+      if (!tabla) {
+        console.warn("No se encontró #tabla-categorias-bienes");
+        return;
+      }
+      tabla.innerHTML = "";
+      const bienes = (Array.isArray(cats) ? cats : []).filter(c => c.tipo === "BIEN");
+      console.log("Categorías de bienes:", bienes);
+      if (bienes.length === 0) {
+        tabla.innerHTML = `<tr><td colspan="3" class="px-6 py-4 text-sm text-gray-500">No hay categorías de bienes.</td></tr>`;
+        return;
+      }
+      bienes.forEach(cat => {
+        const tr = document.createElement("tr");
+
+        const tdNombre = document.createElement("td");
+        tdNombre.className = "px-6 py-4 whitespace-nowrap text-sm font-medium";
+        tdNombre.textContent = cat.nombre || "";
+
+        const tdTipo = document.createElement("td");
+        tdTipo.className = "px-6 py-4 whitespace-nowrap text-sm text-gray-500";
+        tdTipo.textContent = "Bien";
+
+        const tdAcc = document.createElement("td");
+        tdAcc.className = "px-6 py-4 whitespace-nowrap text-sm";
+
+        const btnEdit = document.createElement("button");
+        btnEdit.className = "text-blue-600 hover:text-blue-900 mr-3";
+        btnEdit.innerHTML = '<i class="fas fa-edit"></i>';
+        btnEdit.addEventListener("click", () => {
+          const idInput = document.getElementById("modificar-cat-id");
+          const nombreInput = document.getElementById("modificar-cat-nombre");
+          const tipoSelect = document.getElementById("modificar-cat-tipo");
+          if (idInput) idInput.value = cat.id;
+          if (nombreInput) nombreInput.value = cat.nombre;
+          if (tipoSelect) tipoSelect.value = cat.tipo;
+          showResourceForm("form-modificar-categoria");
+        });
+
+        const btnDel = document.createElement("button");
+        btnDel.className = "text-red-600 hover:text-red-900";
+        btnDel.innerHTML = '<i class="fas fa-trash"></i>';
+        btnDel.addEventListener("click", () => {
+          if (!confirm(`¿Eliminar categoría "${cat.nombre}"?`)) return;
+          fetch(`http://localhost:8080/api/categorias/${cat.id}`, { method: "DELETE" })
+            .then(r => {
+              if (!r.ok) return r.text().then(t => { throw new Error(t || r.status); });
+              listarCategoriasBienes();
+              actualizarSelectsCategorias && typeof actualizarSelectsCategorias === "function" && actualizarSelectsCategorias();
+            })
+            .catch(err => {
+              console.error("Error eliminar categoría:", err);
+              alert("No se pudo eliminar la categoría. Revisa la consola.");
+            });
+        });
+
+        tdAcc.appendChild(btnEdit);
+        tdAcc.appendChild(btnDel);
+
+        tr.appendChild(tdNombre);
+        tr.appendChild(tdTipo);
+        tr.appendChild(tdAcc);
+        tabla.appendChild(tr);
+      });
+    })
+    .catch(err => {
+      console.error("Error listarCategoriasBienes:", err);
+      const tabla = document.getElementById("tabla-categorias-bienes");
+      if (tabla) tabla.innerHTML = `<tr><td colspan="3" class="px-6 py-4 text-sm text-red-600">Error cargando categorías.</td></tr>`;
+    });
+}
+
+// Lista categorías de tipo INSUMO en <tbody id="tabla-categorias-insumos">
+function listarCategoriasInsumos() {
+  fetch("http://localhost:8080/api/categorias")
+    .then((res) => {
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    })
+    .then((cats) => {
+      const tabla = document.getElementById("tabla-categorias-insumos");
+      if (!tabla) {
+        console.warn("No se encontró #tabla-categorias-insumos");
+        return;
+      }
+      tabla.innerHTML = "";
+      const insumos = (Array.isArray(cats) ? cats : []).filter(c => c.tipo === "INSUMO");
+      if (insumos.length === 0) {
+        tabla.innerHTML = `<tr><td colspan="3" class="px-6 py-4 text-sm text-gray-500">No hay categorías de insumos.</td></tr>`;
+        return;
+      }
+      insumos.forEach(cat => {
+        const tr = document.createElement("tr");
+
+        const tdNombre = document.createElement("td");
+        tdNombre.className = "px-6 py-4 whitespace-nowrap text-sm font-medium";
+        tdNombre.textContent = cat.nombre || "";
+
+        const tdTipo = document.createElement("td");
+        tdTipo.className = "px-6 py-4 whitespace-nowrap text-sm text-gray-500";
+        tdTipo.textContent = "Insumo";
+
+        const tdAcc = document.createElement("td");
+        tdAcc.className = "px-6 py-4 whitespace-nowrap text-sm";
+
+        const btnEdit = document.createElement("button");
+        btnEdit.className = "text-blue-600 hover:text-blue-900 mr-3";
+        btnEdit.innerHTML = '<i class="fas fa-edit"></i>';
+        btnEdit.addEventListener("click", () => {
+          const idInput = document.getElementById("modificar-cat-id");
+          const nombreInput = document.getElementById("modificar-cat-nombre");
+          const tipoSelect = document.getElementById("modificar-cat-tipo");
+          if (idInput) idInput.value = cat.id;
+          if (nombreInput) nombreInput.value = cat.nombre;
+          if (tipoSelect) tipoSelect.value = cat.tipo;
+          showResourceForm("form-modificar-categoria");
+        });
+
+        const btnDel = document.createElement("button");
+        btnDel.className = "text-red-600 hover:text-red-900";
+        btnDel.innerHTML = '<i class="fas fa-trash"></i>';
+        btnDel.addEventListener("click", () => {
+          if (!confirm(`¿Eliminar categoría "${cat.nombre}"?`)) return;
+          fetch(`http://localhost:8080/api/categorias/${cat.id}`, { method: "DELETE" })
+            .then(r => {
+              if (!r.ok) return r.text().then(t => { throw new Error(t || r.status); });
+              listarCategoriasInsumos();
+              actualizarSelectsCategorias && typeof actualizarSelectsCategorias === "function" && actualizarSelectsCategorias();
+            })
+            .catch(err => {
+              console.error("Error eliminar categoría:", err);
+              alert("No se pudo eliminar la categoría. Revisa la consola.");
+            });
+        });
+
+        tdAcc.appendChild(btnEdit);
+        tdAcc.appendChild(btnDel);
+
+        tr.appendChild(tdNombre);
+        tr.appendChild(tdTipo);
+        tr.appendChild(tdAcc);
+        tabla.appendChild(tr);
+      });
+    })
+    .catch(err => {
+      console.error("Error listarCategoriasInsumos:", err);
+      const tabla = document.getElementById("tabla-categorias-insumos");
+      if (tabla) tabla.innerHTML = `<tr><td colspan="3" class="px-6 py-4 text-sm text-red-600">Error cargando categorías.</td></tr>`;
+    });
+}
+
+// Llamadas iniciales para poblar las dos tablas
+document.addEventListener("DOMContentLoaded", () => {
+  listarCategoriasBienes();
+  listarCategoriasInsumos();
+});

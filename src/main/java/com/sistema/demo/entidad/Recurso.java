@@ -21,16 +21,19 @@ public class Recurso {
     private String descripcion;
     @Column(unique = true)
     private String codigo;
-    private int cantidad;
-    private int minimo;
-    private String ubicacion;
-    private String condicion; // Campo para la condición del recurso (ej: "Nuevo", "Usado", "Deteriorado")
-    private String tipo;      // Campo para el tipo de recurso (ej: "Herramienta", "Material", "Equipo")
+    private int cantidad; //no es necesario para un bien
+    private int minimo; //no se necesario para un bien
+    private String ubicacion; //Si es necesario, no para un insumo.
+    private String condicion; // Hay mas condiciones? Solo para bienes. Campo para la condición del recurso (ej: "Nuevo", "Usado", "Deteriorado")
+    private String tipo;   //????   // Campo para el tipo de recurso (ej: "Herramienta", "Material", "Equipo")
 
     private Boolean estado;
        // Campo para el tipo de recurso (ej: "Herramienta", "Material", "Equipo")
     @Enumerated(EnumType.STRING)
     private Categoria categoria;
+
+
+
 
     @JsonIgnore
     @OneToMany(mappedBy = "recurso", cascade = CascadeType.ALL, orphanRemoval = true)
