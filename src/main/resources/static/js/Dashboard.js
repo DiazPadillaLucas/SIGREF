@@ -799,7 +799,7 @@ function crearBien() {
       // Capturamos la excepción lanzada (punto 1) o un error de red.
       console.error("Fallo al crear bien:", error);
 
-      // 🆕 Muestra el mensaje específico en una ventana emergente
+      // Muestra el mensaje específico en una ventana emergente
       const errorMessage = error.message.includes("El código")
                            ? error.message
                            : "Error al intentar guardar el bien: " + error.message;
@@ -810,7 +810,7 @@ function crearBien() {
 function modificarBien() {
   // 1. Obtener el ID del Bien a modificar
   const bienId = document.getElementById("modificar-bien-id").value;
-  // 💡 Necesitamos obtener el código que ya existe del campo (oculto)
+  // Necesitamos obtener el código que ya existe del campo (oculto)
     const codigoExistente = document.getElementById("modificar-bien-cod").value;
 
   // 2. Construir el objeto con los datos del formulario Bienes
@@ -829,7 +829,6 @@ function modificarBien() {
   };
 
   // 3. Llamada a la API usando el método PUT
-  // 💡 ERROR CORREGIDO: Se agregaron las comillas invertidas (` `)
   fetch(`http://localhost:8080/api/recursos/${bienId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
@@ -848,7 +847,7 @@ function modificarBien() {
    })
    .then((data) => reloadPage())
    .catch((error) => {
-       // 4. Capturamos el error (ya sea de red o el que lanzamos en el punto 2)
+
        console.error("Fallo al modificar bien:", error.message);
        alert("Fallo al modificar: " + (error.message || "Error desconocido.")); // Muestra el mensaje de error al usuario
    });
@@ -978,7 +977,7 @@ function crearRecurso() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(recurso),
   })
-    // 🆕 Mejor manejo de errores (similar al que usamos para modificar)
+    //  Mejor manejo de errores (similar al que usamos para modificar)
     .then((response) => {
         if (!response.ok) {
             // Si hay error, intentamos leer el mensaje específico del servidor
@@ -1009,7 +1008,7 @@ function crearRecurso() {
 function modificarRecurso() {
   const recursoId = document.getElementById("modificar-rec-id").value;
 
-  // 💡 Capturar valores numéricos de forma segura: convierte a número o usa 0
+  // Capturar valores numéricos de forma segura: convierte a número o usa 0
   const cantidadVal = document.getElementById("modificar-rec-cant").value;
   const minimoVal = document.getElementById("modificar-rec-min").value;
 
@@ -1531,162 +1530,266 @@ function eliminarUsuario(idUsuario) {
           .catch((err) => console.error("Error al dar de baja usuario:", err));
     }
 }
-//----------Gestion Solicitante-----------
-let filaEditando = null; // Guarda la fila que se está editando
+
+
+//----------Gestion Solicitante------------------------------------------
+// Variable global para guardar el ID del solicitante que se está editando
+let solicitanteIdEditando = null;
+
+// URL base del API para Solicitantes
+const API_URL = "http://localhost:8080/api/solicitantes";
+
+// --- Funciones de Utilidad y Gestión de Vistas ---
+
+// Función asumida para recargar la lista de datos
+function reloadPage() {
+    listarSolicitantes();
+}
 
 // === MOSTRAR FORMULARIO ===
-/*function showResourceForm(formId) {
+function showResourceForm(formId) {
     document.getElementById(formId).classList.remove("hidden");
-
-    // Si estamos editando, cambiar el título y el texto del botón
-    if (filaEditando) {
-        document.getElementById("form-titulo").innerHTML =
-            '<i class="fas fa-edit mr-2 text-blue-600"></i> Editar Solicitante';
-        document.getElementById("btn-guardar").textContent = "Actualizar";
-    } else {
-        document.getElementById("form-titulo").innerHTML =
-            '<i class="fas fa-plus-circle mr-2 text-blue-600"></i> Registrar Solicitante';
-        document.getElementById("btn-guardar").textContent = "Guardar";
-    }
-}*/
-function showResourceForm(idForm) {
-  // Solo encuentra el elemento por ID y remueve la clase "hidden"
-  document.getElementById(idForm).classList.remove("hidden");
 }
 
 // === OCULTAR FORMULARIO ===
 function hideResourceForm(formId) {
-    const form = document.getElementById(formId);
-    form.classList.add("hidden");
-
-    // Solo limpiamos si NO estamos editando
-    if (!filaEditando) {
-        limpiarFormulario();
+    document.getElementById(formId).classList.add("hidden");
+    // Limpiar el ID de edición al cerrar el formulario de modificar
+    if (formId === "form-modificar-solicitante") {
+        solicitanteIdEditando = null;
     }
-}
-
-// === CREAR O EDITAR SOLICITANTE ===
-function crearSolicitante() {
-    const dni = document.getElementById("solicitante-dni").value.trim();
-    const nombre = document.getElementById("solicitante-nombre").value.trim();
-    const puesto = document.getElementById("solicitante-puesto").value.trim();
-
-    if (!dni || !nombre || !puesto) {
-        alert("Por favor, completa todos los campos.");
-        return;
-    }
-
-    const nuevoSolicitante = { dni, nombre, puesto };
-
-    if (filaEditando) {
-        // Actualizamos los datos en la fila que se está editando
-        filaEditando.cells[0].textContent = nuevoSolicitante.dni;
-        filaEditando.cells[1].textContent = nuevoSolicitante.nombre;
-        filaEditando.cells[2].textContent = nuevoSolicitante.puesto;
-
-        // Restauramos el modo de registro
-        filaEditando = null;
-    } else {
-        // Agregamos un nuevo solicitante
-        agregarSolicitanteATabla(nuevoSolicitante);
-    }
-
     limpiarFormulario();
-    hideResourceForm("form-nuevo-solicitante"); // Esto cierra la ventana correctamente
 }
 
-// === AGREGAR NUEVA FILA A LA TABLA ===
-function agregarSolicitanteATabla(solicitante) {
-    const tabla = document.getElementById("tabla-solicitantes");
-    const fila = document.createElement("tr");
-
-    fila.innerHTML = `
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${solicitante.dni}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${solicitante.nombre}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${solicitante.puesto}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-center">
-            <button onclick="editarSolicitante(this)" class="text-blue-600 hover:text-blue-800 mr-3">
-                <i class="fas fa-edit"></i>
-            </button>
-            <button onclick="eliminarSolicitante(this)" class="text-red-600 hover:text-red-800">
-                <i class="fas fa-trash"></i>
-            </button>
-        </td>
-    `;
-
-    tabla.appendChild(fila);
-}
-
-// === ELIMINAR SOLICITANTE ===
-function eliminarSolicitante(boton) {
-    if (confirm("¿Deseas eliminar este solicitante?")) {
-        boton.closest("tr").remove();
-    }
-}
-// Llamar cuando quieres abrir el modal en MODO "NUEVO" (no edición)
-function abrirNuevoSolicitante() {
-    // Salimos del modo edición (si hubiera uno activo)
-    filaEditando = null;
-
-    // Limpiamos los campos para un nuevo registro
-    limpiarFormulario();
-
-    // Mostramos el formulario (showResourceForm usa filaEditando para ajustar título/botón)
-    showResourceForm("form-nuevo-solicitante");
-}
-
-// === EDITAR SOLICITANTE EXISTENTE ===
-function editarSolicitante(boton) {
-    const fila = boton.closest("tr");
-    const celdas = fila.querySelectorAll("td");
-
-    const dni = celdas[0].textContent;
-    const nombre = celdas[1].textContent;
-    const puesto = celdas[2].textContent;
-
-    document.getElementById("solicitante-dni").value = dni;
-    document.getElementById("solicitante-nombre").value = nombre;
-    document.getElementById("solicitante-puesto").value = puesto;
-
-    filaEditando = fila;
-    showResourceForm("form-nuevo-solicitante");
-}
-
-// === LIMPIAR FORMULARIO ===
+// === LIMPIAR FORMULARIO (de nuevo) ===
 function limpiarFormulario() {
     document.getElementById("solicitante-dni").value = "";
     document.getElementById("solicitante-nombre").value = "";
     document.getElementById("solicitante-puesto").value = "";
 }
 
+// === FUNCIÓN PARA ABRIR EN MODO NUEVO ===
+window.abrirNuevoSolicitante = function() {
+    solicitanteIdEditando = null;
+    limpiarFormulario();
+
+    document.getElementById("form-modificar-solicitante").classList.add("hidden");
+
+    showResourceForm("form-nuevo-solicitante");
+}
+
+// --- CRUD Solicitantes ---
+
+// Inicialización
+document.addEventListener('DOMContentLoaded', listarSolicitantes);
+
+// === LISTAR SOLICITANTES (GET) ===
+function listarSolicitantes() {
+    fetch(API_URL)
+        .then((response) => {
+            if (!response.ok) throw new Error("Error al obtener solicitantes");
+            return response.json();
+        })
+        .then((data) => {
+            const tabla = document.getElementById("tabla-solicitantes");
+            tabla.innerHTML = "";
+
+            data.forEach((solicitante) => {
+                const fila = crearFilaSolicitante(solicitante);
+                tabla.appendChild(fila);
+            });
+        })
+        .catch((error) => console.error("Error al obtener solicitantes:", error));
+}
+
+// === CREAR FILA DE TABLA ===
+function crearFilaSolicitante(solicitante) {
+    const columna = document.createElement("tr");
+
+    const dni = document.createElement("td");
+    dni.textContent = solicitante.dni;
+    dni.className = "px-6 py-4 whitespace-nowrap text-sm text-gray-700";
+
+    const nombre = document.createElement("td");
+    nombre.textContent = solicitante.nombre;
+    nombre.className = "px-6 py-4 whitespace-nowrap text-sm text-gray-700";
+
+    const puesto = document.createElement("td");
+    puesto.textContent = solicitante.puesto;
+    puesto.className = "px-6 py-4 whitespace-nowrap text-sm text-gray-700";
+
+    const acciones = document.createElement("td");
+    acciones.className = "px-6 py-4 whitespace-nowrap text-center";
+
+    // Botón editar
+    const editar = document.createElement("button");
+    editar.addEventListener("click", function () {
+        editarSolicitante(solicitante);
+    });
+    editar.className = "text-blue-600 hover:text-blue-800 mr-3";
+    const editarIcon = document.createElement("i");
+    editarIcon.className = "fas fa-edit";
+    editar.appendChild(editarIcon);
+
+    // Botón eliminar (dar de baja lógica)
+    const eliminar = document.createElement("button");
+    eliminar.className = "text-red-600 hover:text-red-800";
+    eliminar.addEventListener("click", function () {
+        if (solicitante.id) {
+             eliminarSolicitante(solicitante.id);
+        } else {
+             console.error("El solicitante no tiene ID para eliminar.");
+        }
+    });
+    const eliminarIcon = document.createElement("i");
+    eliminarIcon.className = "fas fa-trash";
+    eliminar.appendChild(eliminarIcon);
+
+    acciones.appendChild(editar);
+    acciones.appendChild(eliminar);
+
+    columna.appendChild(dni);
+    columna.appendChild(nombre);
+    columna.appendChild(puesto);
+    columna.appendChild(acciones);
+
+    return columna;
+}
+
+
+// === CREAR SOLICITANTE (POST) ===
+window.crearSolicitante = function() {
+    const solicitante = {
+        dni: document.getElementById("solicitante-dni").value.trim(),
+        nombre: document.getElementById("solicitante-nombre").value.trim(),
+        puesto: document.getElementById("solicitante-puesto").value.trim(),
+    };
+
+    if (!solicitante.dni || !solicitante.nombre || !solicitante.puesto) {
+        alert("Por favor, completa todos los campos.");
+        return;
+    }
+
+    fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(solicitante),
+    })
+        .then((res) => {
+            if (!res.ok) throw new Error("Error al crear solicitante");
+            return res.json();
+        })
+        .then(() => {
+            hideResourceForm("form-nuevo-solicitante");
+            reloadPage();
+            alert("Solicitante creado exitosamente.");
+        })
+        .catch((err) => console.error("Error al crear solicitante:", err));
+}
+
+
+// === EDITAR SOLICITANTE (Llenar formulario de MODIFICACIÓN) ===
+function editarSolicitante(solicitante) {
+    solicitanteIdEditando = solicitante.id;
+
+    document.getElementById("modificar-solicitante-dni").value = solicitante.dni;
+    document.getElementById("modificar-solicitante-nombre").value = solicitante.nombre;
+    document.getElementById("modificar-solicitante-puesto").value = solicitante.puesto;
+
+    document.getElementById("form-nuevo-solicitante").classList.add("hidden");
+
+    showResourceForm("form-modificar-solicitante");
+}
+
+
+// === MODIFICAR SOLICITANTE (PUT) ===
+window.modificarSolicitante = function() {
+    if (!solicitanteIdEditando) {
+        console.error("No hay ID de solicitante para modificar.");
+        return;
+    }
+
+    const solicitante = {
+        dni: document.getElementById("modificar-solicitante-dni").value.trim(),
+        nombre: document.getElementById("modificar-solicitante-nombre").value.trim(),
+        puesto: document.getElementById("modificar-solicitante-puesto").value.trim(),
+    };
+
+    if (!solicitante.dni || !solicitante.nombre || !solicitante.puesto) {
+        alert("Por favor, completa todos los campos de modificación.");
+        return;
+    }
+
+    fetch(`${API_URL}/${solicitanteIdEditando}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(solicitante)
+    })
+        .then(response => {
+            if (!response.ok) throw new Error("Error en la modificación");
+            return response.json();
+        })
+        .then(() => {
+            hideResourceForm("form-modificar-solicitante");
+            reloadPage();
+            alert("Solicitante modificado exitosamente.");
+        })
+        .catch(error => console.error("Error al modificar solicitante:", error));
+}
+
+
+// === ELIMINAR SOLICITANTE (CORREGIDO PARA USAR DELETE) ===
+function eliminarSolicitante(idSolicitante) {
+    if (confirm("¿Estás seguro de dar de baja este solicitante?")) {
+        fetch(`http://localhost:8080/api/solicitantes/${idSolicitante}`, {
+            // Se usa DELETE porque es el único método implementado en tu SolicitanteControlador
+            method: "DELETE",
+        })
+        .then((res) => {
+             if (!res.ok) {
+                 // Esto capturará cualquier error, incluido si DELETE falla por alguna razón
+                 throw new Error(`Error HTTP ${res.status}: ${res.statusText}`);
+             }
+             // Si el servidor responde con éxito (ej: 200 OK, 204 No Content), recargamos
+             reloadPage();
+        })
+        .catch((err) => {
+            console.error("Error al dar de baja solicitante:", err);
+            alert(`Error al dar de baja el solicitante: ${err.message}.`);
+        });
+    }
+}
+
+
+// --- Validación de DNI (Se mantiene) ---
 document.addEventListener('DOMContentLoaded', () => {
-  const dniInput = document.getElementById('solicitante-dni');
-  if (!dniInput) return; // si no existe el campo, no hacer nada
+    const dniInputs = [
+        document.getElementById('solicitante-dni'),
+        document.getElementById('modificar-solicitante-dni')
+    ].filter(input => input);
 
-  // Permitir solo números al escribir
-  dniInput.addEventListener('keypress', (e) => {
-    const char = e.key;
-    if (!/[0-9]/.test(char) && e.key !== 'Backspace') {
-      e.preventDefault();
-    }
-  });
-
-  // Evitar pegar texto no numérico
-  dniInput.addEventListener('paste', (e) => {
-    const pasted = (e.clipboardData || window.clipboardData).getData('text');
-    if (!/^\d+$/.test(pasted)) {
-      e.preventDefault();
-    }
-  });
-
-  // Si el usuario arrastra o suelta texto, limpiar cualquier carácter inválido
-  dniInput.addEventListener('input', (e) => {
-    e.target.value = e.target.value.replace(/[^0-9]/g, '');
-  });
+    dniInputs.forEach(dniInput => {
+        dniInput.addEventListener('keypress', (e) => {
+            const char = e.key;
+            if (!/[0-9]/.test(char) && e.key !== 'Backspace') {
+                e.preventDefault();
+            }
+        });
+        dniInput.addEventListener('paste', (e) => {
+            const pasted = (e.clipboardData || window.clipboardData).getData('text');
+            if (!/^\d+$/.test(pasted)) {
+                e.preventDefault();
+            }
+        });
+        dniInput.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        });
+    });
 });
 
 
-// Agregar nuevo Movimiento
+
+// Agregar nuevo Movimiento----------------------
 function registrarMovimiento() {
 
     let tipo, cantidad, motivo, nombreSolicitante, destino, nombreRecurso;
@@ -1825,7 +1928,7 @@ function crearCategoria() {
     });
 }
 
-// Lista categorías de tipo BIEN en <tbody id="tabla-categorias-bienes">
+// Lista categorías de tipo BIEN
 function listarCategoriasBienes() {
   fetch("http://localhost:8080/api/categorias")
     .then((res) => {
@@ -1989,6 +2092,7 @@ document.addEventListener("DOMContentLoaded", () => {
   listarCategoriasBienes();
   listarCategoriasInsumos();
 });
+
 
 // Gestión de Solicitudes de Bienes--------------------------------------------------
 
