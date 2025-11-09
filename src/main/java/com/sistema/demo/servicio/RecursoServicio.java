@@ -151,5 +151,15 @@ public class RecursoServicio {
         // Necesita un método findByTipoContainingIgnoreCase en el Repositorio
         return recursoRepositorio.findByTipoContainingIgnoreCase(tipo);
     }
+    // En RecursoServicio.java
+
+    // ... (después de buscarPorTipo)
+    public List<Recurso> buscarPorTipoYEstado(String tipo, Boolean estado) {
+        // 1. Necesita el método findByTipoContainingIgnoreCaseAndEstado en el Repositorio.
+        // O puedes usar stream si la base de datos es pequeña:
+
+        return recursoRepositorio.findByTipoContainingIgnoreCaseAndEstado(tipo, estado);
+    }
+// ...
 }
 

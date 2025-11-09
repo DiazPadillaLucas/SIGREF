@@ -24,11 +24,33 @@ public class RecursoControlador {
         return ResponseEntity.ok(recursos);
     }
 
+    // En RecursoControlador.java
+
+    // Reemplaza el método mostrarActivos() con este:
     @GetMapping("/activos")
-    private ResponseEntity<?> mostrarActivos(){
-        List<Recurso> recursos = recursoServicio.mostrarRecursosActivos();
+    private ResponseEntity<?> mostrarActivos(@RequestParam(required = false) String tipo){
+        List<Recurso> recursos;
+
+        // Si se pasa el parámetro 'tipo' (ej: ?tipo=BIEN)
+        if (tipo != null && !tipo.isEmpty()) {
+            // Debemos buscar por tipo Y verificar que estén activos
+            // Como no tienes un findByTipoAndEstado(true), filtramos manualmente o ajustamos el servicio.
+
+            // Opción segura: Si se filtra, asumimos que el servicio devuelve solo ese tipo
+            // Y luego filtramos por activos en el servicio si es necesario, o pedimos que lo haga.
+
+            // Mejor opción: Implementar la lógica de activos/tipo en el Servicio (ver abajo)
+            recursos = recursoServicio.buscarPorTipoYEstado(tipo.toUpperCase(), true);
+
+        } else {
+            // Si no hay filtro de tipo, solo muestra todos los recursos activos
+            recursos = recursoServicio.mostrarRecursosActivos(); // Este método ya existe y devuelve por estado=true
+        }
+
         return ResponseEntity.ok(recursos);
     }
+
+// ... El resto del controlador se mantiene igual
 
     @GetMapping("/contar/todosLosRecursos")
     private ResponseEntity<?> contarTodos(){

@@ -39,8 +39,8 @@ public class Recurso {
     private List<Movimiento> movimientos;
     // Relación Muchos a Muchos (a través de la entidad intermedia)
     @JsonIgnore
-    @OneToMany(mappedBy = "recurso", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<SolicitudRecurso> solicitudesAsociadas;
+    @ManyToMany(mappedBy = "bienesSolicitados")
+    private Set<Solicitud> solicitudes;
 
 
 }

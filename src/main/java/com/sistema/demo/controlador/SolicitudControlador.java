@@ -21,7 +21,6 @@ public class SolicitudControlador {
     public ResponseEntity<List<Solicitud>> listar() {
         return ResponseEntity.ok(solicitudServicio.listar());
     }
-
     @GetMapping("/{id}")
     public ResponseEntity<?> obtener(@PathVariable Long id) {
         try {
@@ -37,7 +36,16 @@ public class SolicitudControlador {
             Solicitud creada = solicitudServicio.crearSolicitud(solicitud);
             return ResponseEntity.status(HttpStatus.CREATED).body(creada);
         } catch (IllegalArgumentException | EntityNotFoundException e) {
+            // Errores 400 por validación de solicitante o bien
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            // NUEVA CAPTURA PARA EL ERROR DE DUPLICIDAD (409 Conflict)
+            // Buscamos el mensaje para ver si es el nro_tramite
+            if (e.getMessage() != null && e.getMessage().contains("UK_nro_tramite")) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Ya existe una solicitud con el número de trámite ingresado. Por favor, ingrese un valor único.");
+            }
+            // Si es otro error de integridad, devolvemos un 400
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error de integridad de datos: " + e.getMostSpecificCause().getMessage());
         }
     }
 

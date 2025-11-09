@@ -15,6 +15,9 @@ document.addEventListener("DOMContentLoaded", function () {
   listarCategoriasInsumos();
   cargarCategoriasDinamicamente("registro-bien-cat", "Bien");
   cargarCategoriasDinamicamente("registro-rec-cat", "Insumo");
+  cargarBienesDisponibles()
+  listarSolicitudes()
+  cargarSolicitantesDisponibles()
 });
 
 document.addEventListener("click", function (event) {
@@ -1940,7 +1943,46 @@ function eliminarSolicitante(idSolicitante) {
         });
     }
 }
+function cargarSolicitantesDisponibles() {
+    const selectSolicitante = document.getElementById("registro-solcBi-solicitabien");
 
+    // Si ya se cargaron (más de 1 opción contando el placeholder), no recargar
+    if (selectSolicitante.options && selectSolicitante.options.length > 1) return;
+
+    // Mostrar estado de carga
+    selectSolicitante.innerHTML = '<option value="" disabled selected>Cargando solicitantes...</option>';
+
+    fetch('http://localhost:8080/api/solicitantes')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("HTTP error! status: " + response.status);
+            }
+            return response.json();
+        })
+        .then(solicitantes => {
+            selectSolicitante.innerHTML = '<option value="" disabled selected>Seleccione un Solicitante</option>';
+
+            if (solicitantes.length === 0) {
+                 selectSolicitante.innerHTML = '<option value="" disabled selected>No hay Solicitantes disponibles</option>';
+                 return;
+            }
+
+            // Rellena con los Solicitantes (asumiendo que tienen 'id' y 'nombre'/'apellido' o similar)
+            solicitantes.forEach(solicitante => {
+                const option = document.createElement("option");
+                // Muestra el nombre completo o un identificador
+                option.textContent = solicitante.nombre + " " + solicitante.apellido; // AJUSTAR SEGÚN LA ESTRUCTURA DE TU ENTIDAD SOLICITANTE
+                // El valor es el ID del Solicitante (que el Backend espera)
+                option.value = solicitante.id;
+                selectSolicitante.appendChild(option);
+            });
+            console.log(`Solicitantes cargados (${solicitantes.length} encontrados).`);
+        })
+        .catch(error => {
+            console.error("Fallo al cargar Solicitantes:", error);
+            selectSolicitante.innerHTML = '<option value="" disabled selected>Error al cargar solicitantes</option>';
+        });
+}
 
 // --- Validación de DNI (Se mantiene) ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -2219,55 +2261,173 @@ function hideResourceForm(formId) {
     const form = document.getElementById(formId);
     if (form) form.classList.add("hidden");
 }
+// Asume que RECURSOS_API_URL está definida (ej: "http://localhost:8080/api/recursos")
 
-// Crear una nueva solicitud
+function cargarBienesDisponibles() {
+    const selectBien = document.getElementById("registro-solcBi-nombien");
+
+    // Si ya se cargaron (más de 1 opción contando el placeholder), no recargar
+    if (selectBien.options && selectBien.options.length > 1) return;
+
+    // Asumiendo que RECURSOS_API_URL está definida globalmente (ej: "http://localhost:8080/api/recursos")
+
+    // 1. CORRECCIÓN: Usamos 'BIEN' en mayúsculas y la URL correcta
+    const urlConFiltro = `${RECURSOS_API_URL}/activos?tipo=Bien`;
+
+    // 2. CORRECCIÓN: Usamos la variable correctamente nombrada 'urlConFiltro'
+    fetch(urlConFiltro)
+        .then(response => {
+            if (!response.ok) {
+                // Si el servidor devuelve un error (4xx/5xx), lanza el error HTTP
+                throw new Error("HTTP error! status: " + response.status);
+            }
+            return response.json();
+        })
+        .then(bienes => {
+            // Limpia y establece la opción por defecto
+            selectBien.innerHTML = '<option value="" disabled selected>Seleccione un Bien</option>';
+
+            if (bienes.length === 0) {
+                 selectBien.innerHTML = '<option value="" disabled selected>No hay Bienes disponibles</option>';
+                 return;
+            }
+            // Rellena con los Bienes
+            bienes.forEach(bien => {
+                const option = document.createElement("option");
+                // Muestra el nombre y el código
+                option.textContent = bien.nombre + " (Cód: " + bien.codigo + ")";
+                // El valor es el ID del Recurso
+                option.value = bien.id;
+                selectBien.appendChild(option);
+            });
+            console.log(`Bienes cargados (${bienes.length} encontrados).`);
+        })
+        .catch(error => {
+            // Muestra un error visible en el select y en la consola
+            console.error("Fallo al cargar Bienes. Verifique el endpoint /api/recursos/activos?tipo=BIEN:", error);
+            selectBien.innerHTML = '<option value="" disabled selected>Error al cargar bienes</option>';
+        });
+}
+
 function crearSolicitudBien() {
     const numeroT = document.getElementById("registro-solcBi-numeroT").value.trim();
     const area = document.getElementById("registro-solcBi-Area").value.trim();
-    const bien = document.getElementById("registro-solcBi-nombien").value.trim();
-    const solicitante = document.getElementById("registro-solcBi-solicitabien").value.trim();
+    //const bienId = document.getElementById("registro-solcBi-nombien").value;
+    // En la función crearSolicitudBien()
+    const bienId = document.getElementById("registro-solcBi-nombien").value;
+    // CLAVE: Captura el ID del Solicitante del nuevo <select>
+    const solicitanteId = document.getElementById("registro-solcBi-solicitabien").value;
+
     const fecha = document.getElementById("registro-solcBi-fecha").value.trim();
 
-    if (!numeroT || !area || !bien || !solicitante || !fecha) {
+    // 1. Validaciones
+    if (!numeroT || !area || !bienId || !solicitanteId || !fecha) { // Usamos solicitanteId aquí
         alert("Complete todos los campos antes de guardar.");
         return;
     }
+// ...
+const nuevaSolicitud = {
+    nroTramite: numeroT,
+    area: area,
+    fechaSolicitud: fecha,
+    solicitante: { id: parseInt(solicitanteId) },
 
-    if (solicitudesBienes.some(s => s.numeroT === numeroT)) {
-        alert("Ya existe una solicitud con ese número de trámite.");
-        return;
+    // CLAVE: Enviamos un array de objetos Recurso con solo el ID
+    bienesSolicitados: [
+        { id: parseInt(bienId) }
+    ]
+};
+    // 3. Integración con el SolicitudControlador (POST)
+    fetch("http://localhost:8080/api/solicitudes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(nuevaSolicitud),
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(errorText => {
+                throw new Error(`Error ${response.status}: ${errorText || 'Error al procesar la solicitud.'}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert("Solicitud registrada correctamente.");
+        // Después de crear, refresca la lista/página
+        listarSolicitudes();
+        hideResourceForm("form-nueva-solicitudBienes");
+        window.location.reload();
+    })
+    .catch(error => {
+        console.error("Fallo al crear solicitud de Bien:", error);
+        alert("Error al guardar la solicitud: " + error.message);
+    });
+}
+function listarSolicitudes() {
+    const tablaSolicitudes = document.getElementById("tabla-solicitudes-bienes"); // Asegúrate de que este ID exista
+    if (!tablaSolicitudes) return;
+
+    fetch("http://localhost:8080/api/solicitudes")
+        .then(response => response.json())
+        .then(solicitudes => {
+            tablaSolicitudes.innerHTML = ''; // Limpiar tabla
+
+            solicitudes.forEach(solicitud => {
+                const columna = document.createElement("tr");
+
+                // --- Extracción del Bien (el primer recurso asociado) ---
+                let nombreBien = 'N/A';
+                if (solicitud.recursosAsociados && solicitud.recursosAsociados.size > 0) {
+                    // Como asumimos una Solicitud de Bien simple (un solo recurso), tomamos el primero
+                    const primerRecursoAsociado = solicitud.recursosAsociados.values().next().value;
+                    if (primerRecursoAsociado && primerRecursoAsociado.recurso) {
+                         nombreBien = primerRecursoAsociado.recurso.nombre;
+                    }
+                }
+                // Formato de fecha
+                const fecha = new Date(solicitud.fechaSolicitud).toLocaleDateString();
+
+                columna.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">${solicitud.nroTramite}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${solicitud.area}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">${nombreBien}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${solicitud.solicitante.nombre}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${fecha}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="mostrarFormularioEditarSolicitud(${solicitud.id})" class="text-blue-600 hover:text-blue-900 mr-3">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="eliminarSolicitud(${solicitud.id})" class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tablaSolicitudes.appendChild(columna);
+            });
+        })
+        .catch(error => console.error("Error al listar solicitudes:", error));
+}
+function eliminarSolicitud(id) {
+    if (confirm("¿Estás seguro de eliminar la solicitud con ID " + id + "?")) {
+        fetch(`http://localhost:8080/api/solicitudes/${id}`, {
+            method: "DELETE",
+        })
+        .then(response => {
+            if (response.ok) {
+                alert("Solicitud eliminada correctamente.");
+                listarSolicitudes(); // Refresca la tabla
+            } else {
+                throw new Error("Fallo en la eliminación.");
+            }
+        })
+        .catch(error => {
+            console.error("Error al eliminar solicitud:", error);
+            alert("Hubo un error al eliminar la solicitud.");
+        });
     }
-
-    const nuevaSolicitud = {
-        id: Date.now(),
-        numeroT,
-        area,
-        bien,
-        solicitante,
-        fecha
-    };
-
-    solicitudesBienes.push(nuevaSolicitud);
-    guardarEnLocalStorage();
-    renderTablaSolicitudes();
-    limpiarFormulario("registro");
-    hideResourceForm("form-nueva-solicitudBienes");
-    alert("Solicitud registrada correctamente.");
 }
 
-// Cargar datos en el formulario de modificación
-function editarSolicitud(id) {
-    const solicitud = solicitudesBienes.find(s => s.id === id);
-    if (!solicitud) return;
 
-    document.getElementById("modificar-solcBi-numt").value = solicitud.numeroT;
-    document.getElementById("modificar-solcBi-area").value = solicitud.area;
-    document.getElementById("modificar-solcBi-nombien").value = solicitud.bien;
-    document.getElementById("modificar-solcBi-solicitabien").value = solicitud.solicitante;
-    document.getElementById("modificar-solcBi-fecha").value = solicitud.fecha;
-
-    showResourceForm("form-modificar-solicitudBienes");
-}
 
 // Modificar una solicitud existente
 function modificarSolicitudBien() {

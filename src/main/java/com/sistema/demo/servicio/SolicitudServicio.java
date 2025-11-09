@@ -1,17 +1,22 @@
 package com.sistema.demo.servicio;
 
-import com.sistema.demo.entidad.*;
 import com.sistema.demo.repositorio.RecursoRepositorio;
 import com.sistema.demo.repositorio.SolicitudRepositorio;
-import com.sistema.demo.repositorio.SolicitudRecursoRepositorio;
 import com.sistema.demo.repositorio.SolicitanteRepositorio;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import jakarta.persistence.EntityManager;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import com.sistema.demo.entidad.Solicitud;
+import com.sistema.demo.entidad.Solicitante;
+import com.sistema.demo.entidad.Recurso;
+
+
 
 @Service
 public class SolicitudServicio {
@@ -26,7 +31,7 @@ public class SolicitudServicio {
     private RecursoRepositorio recursoRepositorio;
 
     @Autowired
-    private SolicitudRecursoRepositorio solicitudRecursoRepositorio;
+
 
     public java.util.List<Solicitud> listar() {
         return solicitudRepositorio.findAll();
@@ -36,10 +41,11 @@ public class SolicitudServicio {
         return solicitudRepositorio.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Solicitud no encontrada: " + id));
     }
-
+    @Autowired
+    private EntityManager entityManager; // <-- Inyectar EntityManager
     @Transactional
     public Solicitud crearSolicitud(Solicitud solicitud) {
-        // validar solicitante
+        // 1. VALIDACIÓN y ASIGNACIÓN DE SOLICITANTE
         if (solicitud.getSolicitante() == null || solicitud.getSolicitante().getId() == null) {
             throw new IllegalArgumentException("Solicitante requerido con id");
         }
@@ -47,39 +53,35 @@ public class SolicitudServicio {
                 .orElseThrow(() -> new EntityNotFoundException("Solicitante no encontrado: " + solicitud.getSolicitante().getId()));
         solicitud.setSolicitante(solicitante);
 
-        // extraer recursos asociados (no persistidos aún)
-        Set<SolicitudRecurso> recursos = solicitud.getRecursosAsociados();
-        solicitud.setRecursosAsociados(new HashSet<>()); // guardar solicitud primero sin relaciones
+        // 1. EXTRAER los Bienes/Recursos entrantes (que ahora son un Set<Recurso>)
+        Set<Recurso> bienesEntrantes = solicitud.getBienesSolicitados();
 
+        // Dejamos la colección vacía temporalmente para evitar la cascada con objetos 'detached'
+        solicitud.setBienesSolicitados(new HashSet<>());
+
+        // Guardar la Solicitud principal
         Solicitud savedSolicitud = solicitudRepositorio.save(solicitud);
 
-        if (recursos != null) {
-            Set<SolicitudRecurso> guardados = new HashSet<>();
-            for (SolicitudRecurso sr : recursos) {
-                if (sr.getRecurso() == null || sr.getRecurso().getId() == null) {
-                    throw new IllegalArgumentException("Recurso con id requerido en SolicitudRecurso");
-                }
-                Recurso recurso = recursoRepositorio.findById(sr.getRecurso().getId())
-                        .orElseThrow(() -> new EntityNotFoundException("Recurso no encontrado: " + sr.getRecurso().getId()));
+        // 2. BUSCAR y adjuntar los Recursos gestionados
+        if (bienesEntrantes != null && !bienesEntrantes.isEmpty()) {
+            Set<Recurso> bienesGestionados = new HashSet<>();
+            for (Recurso bien : bienesEntrantes) {
 
-                // crear clave compuesta y linkear
-                SolicitudRecursoId id = new SolicitudRecursoId(savedSolicitud.getId(), recurso.getId());
-                sr.setId(id);
-                sr.setSolicitud(savedSolicitud);
-                sr.setRecurso(recurso);
+                // Busca la entidad Recurso completa para adjuntarla
+                Recurso recurso = recursoRepositorio.findById(bien.getId())
+                        .orElseThrow(() -> new EntityNotFoundException("Bien no encontrado: " + bien.getId()));
 
-                // Persistir cada relación
-                SolicitudRecurso srSaved = solicitudRecursoRepositorio.save(sr);
-                guardados.add(srSaved);
+                bienesGestionados.add(recurso);
             }
-            savedSolicitud.setRecursosAsociados(guardados);
-            // opcional: actualizar la solicitud con las relaciones cargadas
-            savedSolicitud = solicitudRepositorio.save(savedSolicitud);
+
+            // 3. Asignar la colección de Bienes gestionados a la Solicitud
+            savedSolicitud.setBienesSolicitados(bienesGestionados);
+
+            // El @Transactional guarda la colección automáticamente aquí.
         }
 
         return savedSolicitud;
     }
-
     @Transactional
     public Solicitud actualizar(Long id, Solicitud actualizado) {
         Solicitud existente = obtenerPorId(id);

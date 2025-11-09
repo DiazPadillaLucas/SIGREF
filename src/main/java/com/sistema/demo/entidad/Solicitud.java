@@ -37,7 +37,12 @@ public class Solicitud {
     // Relación Muchos a Muchos: La tabla intermedia la manejaremos con un Set
     // Nota: Aunque JPA puede manejar la tabla intermedia automáticamente,
     // es mejor crear la entidad intermedia explícitamente para añadir atributos (como cantidad de recurso).
-    @JsonIgnore
-    @OneToMany(mappedBy = "solicitud", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<SolicitudRecurso> recursosAsociados;
+    @ManyToMany
+    @JoinTable(
+            name = "solicitud_recurso", // JPA creará y gestionará esta tabla por sí mismo
+            joinColumns = @JoinColumn(name = "solicitud_id"),
+            inverseJoinColumns = @JoinColumn(name = "recurso_id")
+    )
+    private Set<Recurso> bienesSolicitados; // Cambiamos el nombre para reflejar el objeto final
+
 }
