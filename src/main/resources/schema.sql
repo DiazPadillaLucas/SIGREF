@@ -15,20 +15,26 @@ CREATE TABLE usuario (
 
 -- Asume que la tabla de enumeración 'Categoria' existe o será manejada por la aplicación.
 
-CREATE TABLE Recurso (
-    id BIGINT NOT NULL AUTO_INCREMENT,
+-- Script de Creación de la Tabla 'recurso'
+
+CREATE TABLE recurso (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+
     nombre VARCHAR(255) NOT NULL,
-    descripcion VARCHAR(500),
-    codigo VARCHAR(50) NOT NULL,
-    cantidad INT NOT NULL,
-    minimo INT NOT NULL,
-    ubicacion VARCHAR(255),
-    condicion VARCHAR(50),
-    tipo VARCHAR(50),
-    estado BOOLEAN NOT NULL,
-    categoria VARCHAR(50) NOT NULL,
-    PRIMARY KEY (id),
-    CONSTRAINT UQ_Recurso_Codigo UNIQUE (codigo)
+    codigo VARCHAR(255) NOT NULL UNIQUE, -- Se asume que el código es único para Bienes/Insumos
+    cantidad INT NOT NULL,              -- Cantidad en inventario
+    minimo INT NOT NULL,                -- Stock mínimo
+    tipo_recurso VARCHAR(255) NOT NULL, -- Indica si es 'BIEN' o 'INSUMO'
+
+    descripcion VARCHAR(255) NULL,
+    ubicacion VARCHAR(255) NULL,
+    estado TINYINT(1) NULL,             -- Booleano (1=Activo, 0=Baja)
+    condicion VARCHAR(255) NULL,        -- Ej: 'Disponible', 'En reparacion'
+    categoria_id BIGINT NOT NULL,       -- Debe coincidir con el tipo de la PK de la tabla categoria
+    CONSTRAINT fk_recurso_categoria
+        FOREIGN KEY (categoria_id)
+        REFERENCES categoria(id)
+        -- ON DELETE RESTRICT o NO ACTION es común para preservar la integridad
 );
 
 CREATE TABLE movimiento (
