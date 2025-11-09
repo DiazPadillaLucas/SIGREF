@@ -2494,6 +2494,47 @@ function showConfirmationModal(message) {
 
 
 // Gestión de Solicitudes de Insumos --------------------------------------------------
+// --- INICIO: FUNCIONES DE MENSAJERÍA (Reemplazo de alert/confirm) ---
+
+// Placeholder para un sistema de notificaciones no bloqueante
+function showMessage(message, type = 'info') {
+    const box = document.getElementById('message-box');
+    if (!box) {
+        console.warn(`Mensaje (${type}): ${message} - Necesitas añadir un contenedor #message-box en tu HTML.`);
+        // Fallback simple si el HTML no tiene #message-box
+        alert(`[${type.toUpperCase()}] ${message}`);
+        return;
+    }
+
+    let colorClass = 'bg-blue-500', iconClass = 'fa-info-circle';
+    if (type === 'success') { colorClass = 'bg-green-500'; iconClass = 'fa-check-circle'; }
+    if (type === 'error') { colorClass = 'bg-red-500'; iconClass = 'fa-times-circle'; }
+
+    const notification = document.createElement('div');
+    notification.className = `flex items-center ${colorClass} text-white text-sm font-bold px-4 py-3 rounded shadow-lg mb-2 transform transition-transform duration-300 ease-out translate-x-full`;
+    notification.innerHTML = `<i class="fas ${iconClass} mr-2"></i><span>${message}</span>`;
+
+    box.appendChild(notification);
+    setTimeout(() => {
+        notification.classList.remove('translate-x-full');
+        notification.classList.add('translate-x-0');
+    }, 10);
+    setTimeout(() => {
+        notification.classList.remove('translate-x-0');
+        notification.classList.add('translate-x-full');
+        notification.addEventListener('transitionend', () => notification.remove());
+    }, 4000);
+}
+
+// Reemplazo de window.confirm() con un log y asumiendo 'true' para el entorno Immersive
+function showConfirmationModal(message) {
+    console.warn(`\n--- ATENCIÓN: CONFIRMACIÓN REQUERIDA ---\n"${message}"\nSe asumirá "Sí" para continuar. Implementar modal UI de confirmación.\n---------------------------------------\n`);
+    return true;
+}
+// --- FIN: FUNCIONES DE MENSAJERÍA ---
+
+
+// Gestión de Solicitudes de Insumos --------------------------------------------------
 
 // Datos almacenados en localStorage
 let solicitudesInsumos = JSON.parse(localStorage.getItem("solicitudesInsumos")) || [];
@@ -2710,11 +2751,7 @@ function editarSolicitudInsumos(id) {
     const solicitud = solicitudesInsumos.find(s => s.id === id);
     if (!solicitud) return;
 
-    // Si ya está aceptada, no permitir edición
-    if (solicitud.estado === 'Aceptada') {
-        showMessage("No se puede editar una solicitud que ya ha sido ACEPTADA.", 'error');
-        return;
-    }
+    // *** REQUERIMIENTO DEL USUARIO: Se permite editar incluso si ya está ACEPTADA. ***
 
     // Asegúrate de que el formulario de modificación exista en tu HTML
     const idField = document.getElementById("modificar-insumo-id");
@@ -2829,6 +2866,7 @@ function modificarSolicitudInsumos() {
 // ===================================
 
 function eliminarSolicitudInsumos(id) {
+    // *** REQUERIMIENTO DEL USUARIO: Se permite eliminar incluso si ya está ACEPTADA. ***
     if (!showConfirmationModal("¿Desea eliminar esta solicitud? Esta acción es irreversible.")) return;
 
     solicitudesInsumos = solicitudesInsumos.filter(s => s.id !== id);
@@ -2900,18 +2938,16 @@ function renderTablaSolicitudesInsumos() {
         btnVer.title = "Ver Solicitud";
         btnVer.onclick = () => verSolicitudInsumos(s.id);
 
-        // 2. Botón de Editar
+        // 2. Botón de Editar (AZUL - SIEMPRE ACTIVO)
         const btnEditar = document.createElement("button");
-        btnEditar.innerHTML = `<i class="fas fa-edit ${isAccepted ? 'text-gray-400' : 'text-blue-600 hover:text-blue-800'} text-lg"></i>`;
-        btnEditar.title = isAccepted ? "Solicitud Aceptada" : "Editar";
-        btnEditar.disabled = isAccepted;
+        btnEditar.innerHTML = `<i class="fas fa-edit text-blue-600 hover:text-blue-800 text-lg"></i>`;
+        btnEditar.title = "Editar";
         btnEditar.onclick = () => editarSolicitudInsumos(s.id);
 
-        // 3. Botón de Eliminar
+        // 3. Botón de Eliminar (ROJO - SIEMPRE ACTIVO)
         const btnEliminar = document.createElement("button");
-        btnEliminar.innerHTML = `<i class="fas fa-trash ${isAccepted ? 'text-gray-400' : 'text-red-600 hover:text-red-800'} text-lg"></i>`;
-        btnEliminar.title = isAccepted ? "Solicitud Aceptada" : "Eliminar";
-        btnEliminar.disabled = isAccepted;
+        btnEliminar.innerHTML = `<i class="fas fa-trash text-red-600 hover:text-red-800 text-lg"></i>`;
+        btnEliminar.title = "Eliminar";
         btnEliminar.onclick = () => eliminarSolicitudInsumos(s.id);
 
         colAcciones.appendChild(btnVer);
@@ -2949,17 +2985,6 @@ function limpiarFormularioSolicitudInsumos() {
     }
 }
 
-// ==============================
-// LÓGICA DE CARGA DE CATEGORÍAS (Desactivada ya que no es parte del flujo de Solicitudes)
-// ==============================
-
-/*
-function cargarCategoriasDinamicamente() {
-    // Lógica omitida ya que el enfoque está en Solicitudes con localStorage
-    // Si la necesitaras, reinstala las funciones y el API_BASE_URL.
-    console.log("Carga de Categorías Dinámicas omitida. Enfocando en Solicitudes (localStorage).");
-}
-*/
 
 // Inicialización de Eventos y Carga de Datos
 document.addEventListener('DOMContentLoaded', () => {
@@ -2972,7 +2997,7 @@ document.addEventListener('DOMContentLoaded', () => {
         agregarInsumo("contenedor-insumos");
     }
 
-    // Si se necesita inicializar el campo de fecha:
-    // document.getElementById("registro-insumo-fecha").value = new Date().toISOString().substring(0, 10);
 });
+
+
 
