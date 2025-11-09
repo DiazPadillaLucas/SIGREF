@@ -13,6 +13,8 @@ document.addEventListener("DOMContentLoaded", function () {
   listarUsuarios();
   listarCategoriasBienes();
   listarCategoriasInsumos();
+  cargarCategoriasDinamicamente("registro-bien-cat", "Bien");
+  cargarCategoriasDinamicamente("registro-rec-cat", "Insumo");
 });
 
 document.addEventListener("click", function (event) {
@@ -680,7 +682,7 @@ function listarRecursos() {
         nombre.className = "px-6 py-4 whitespace-nowrap text-sm font-medium";
 
         const categoria = document.createElement("td");
-        categoria.textContent = recurso.categoria;
+        categoria.textContent = recurso.categoria.nombre;
         categoria.className =
           "px-6 py-4 whitespace-nowrap text-sm text-gray-500";
 
@@ -696,22 +698,68 @@ function listarRecursos() {
         acciones.className = "px-6 py-4 whitespace-nowrap text-sm font-medium";
 
         const editar = document.createElement("button");
+
         editar.addEventListener("click", function () {
+          // 1. Mostrar el formulario de modificación de Insumo
           showResourceForm("form-modificar-recurso");
+
+          // Obtiene el ID de la categoría actual del Insumo
+          const categoriaIdActual = recurso.categoria ? recurso.categoria.id : null;
+
+          // 2. Asignar campos INMUTABLES y EDITABLES del Insumo
           document.getElementById("modificar-rec-id").value = recurso.id;
-          document.getElementById("modificar-rec-nombre").value =
-            recurso.nombre;
-          document.getElementById("modificar-rec-cat").value =
-            recurso.categoria.toLowerCase();
-          //document.getElementById("modificar-rec-cod").value = recurso.codigo;
-          document.getElementById("modificar-rec-cant").value =
-            recurso.cantidad;
+          document.getElementById("modificar-rec-nombre").value = recurso.nombre;
+          // Estos campos no tienen ID en tu segundo código, puedes ignorarlos o revisar sus IDs si existen.
+          // document.getElementById("modificar-rec-cod").value = recurso.codigo;
+          // document.getElementById("modificar-rec-ubicacion").value = recurso.ubicacion;
+
+          document.getElementById("modificar-rec-cant").value = recurso.cantidad;
           document.getElementById("modificar-rec-min").value = recurso.minimo;
-          //document.getElementById("modificar-rec-ubicacion").value =
-          //  recurso.ubicacion;
-          document.getElementById("modificar-rec-desc").value =
-            recurso.descripcion;
+          document.getElementById("modificar-rec-desc").value = recurso.descripcion;
+
+          // --- LÓGICA DE CARGA Y PRESELECCIÓN DE CATEGORÍA ---
+          const selectCategoriaModificar = document.getElementById("modificar-rec-cat");
+          selectCategoriaModificar.innerHTML = '<option value="" disabled selected>Cargando categorías...</option>';
+
+          // Usamos el filtro 'INSUMO' para obtener solo las categorías de insumos
+          const urlConFiltro = `${CATEGORIAS_API_URL}?tipo=INSUMO`;
+
+          fetch(urlConFiltro)
+              .then(response => {
+                  if (!response.ok) {
+                      throw new Error("HTTP error! status: " + response.status);
+                  }
+                  return response.json();
+              })
+              .then(categorias => {
+                  selectCategoriaModificar.innerHTML = '<option value="" disabled>Seleccione una Categoría</option>';
+
+                  if (categorias.length === 0) {
+                      selectCategoriaModificar.innerHTML = '<option value="" disabled selected>No hay categorías disponibles</option>';
+                      return;
+                  }
+
+                  categorias.forEach(categoria => {
+                      const option = document.createElement("option");
+                      option.textContent = categoria.nombre;
+                      option.value = categoria.id;
+
+                      // LÓGICA DE SELECCIÓN: Si coincide con el ID actual, lo marca como seleccionado
+                      if (String(categoria.id) === String(categoriaIdActual)) {
+                          option.selected = true;
+                      }
+
+                      selectCategoriaModificar.appendChild(option);
+                  });
+              })
+              .catch(error => {
+                  console.error("Fallo al cargar categorías de edición (INSUMO):", error);
+                  selectCategoriaModificar.innerHTML = '<option value="" disabled selected>Error al cargar</option>';
+              });
+          // --------------------------------------------------
         });
+
+        // Creación y asignación del ícono y clases
         editar.className = "text-blue-600 hover:text-blue-900 mr-3";
         const editarIcon = document.createElement("i");
         editarIcon.className = "fas fa-edit";
@@ -1052,21 +1100,25 @@ function listarBienes() {
 //Funciones para recurso
 function crearRecurso() {
   const minimoInput = document.getElementById("registro-rec-min").value;
-
-  // Convertimos el string a un número entero (o 0 si está vacío)
   const minimoValido = minimoInput ? parseInt(minimoInput) : 0;
 
+  // ¡IMPORTANTE! El ID del select de Insumo debe ser "registro-rec-cat", no "registro-bien-cat".
+  // Revisa que este ID corresponda al select de Insumos.
+  const categoriaId = document.getElementById("registro-rec-cat").value;
+
+  // ... (El objeto 'recurso' es correcto, asumiendo que el ID del select es el correcto) ...
   const recurso = {
-    nombre: document.getElementById("registro-rec-nombre").value,
-    categoria: document.getElementById("registro-rec-cat").value.toUpperCase(),
-    codigo: "",
-    cantidad: 0,
-    minimo: minimoValido, // Usamos el valor validado/convertido
-    ubicacion: "",
-    descripcion: document.getElementById("registro-rec-desc").value,
-    estado: true,
-    condicion: "", // Puedes dejarlo vacío o asignar un valor por defecto si es necesario
-    tipo: "Insumo",
+      nombre: document.getElementById("registro-rec-nombre").value,
+      // Asegúrate de que el ID sea un número válido antes de enviar
+      categoria: { id: parseInt(categoriaId) },
+      codigo: "",
+      cantidad: 0,
+      minimo: minimoValido,
+      ubicacion: "",
+      descripcion: document.getElementById("registro-rec-desc").value,
+      estado: true,
+      condicion: "",
+      tipo: "Insumo", // Asegúrate que este valor coincida con tu Enum (Insumo vs INSUMO)
   };
 
   fetch("http://localhost:8080/api/recursos", {
@@ -1074,21 +1126,17 @@ function crearRecurso() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(recurso),
   })
-    //  Mejor manejo de errores (similar al que usamos para modificar)
+    // 1. Manejo del Status Code
     .then((response) => {
         if (!response.ok) {
-            // Si hay error, intentamos leer el mensaje específico del servidor
-            return response.json()
-                .then(err => {
-                    throw new Error(err.message || 'Error desconocido del servidor');
-                })
-                .catch(() => {
-                    // Si no es JSON (ej. si el backend falló internamente), leemos el texto
-                    return response.text().then(text => {
-                        throw new Error(text || 'Error de red/servidor');
-                    });
-                });
+            // Si hay un error (4xx o 5xx), leemos el cuerpo de la respuesta (el error)
+            // Usamos .text() porque el Backend (Java) a veces envía errores como texto plano en 500.
+            return response.text().then(errorText => {
+                // Creamos un nuevo error que cae en el .catch
+                throw new Error(`Error ${response.status}: ${errorText || 'Error sin mensaje del servidor.'}`);
+            });
         }
+        // 2. Si es exitoso (2xx), leemos el JSON
         return response.json();
     })
     .then((data) => {
@@ -1097,21 +1145,22 @@ function crearRecurso() {
     })
     .catch((error) => {
       console.error("Fallo al crear insumo:", error);
-      // Muestra el mensaje de error específico (incluyendo posibles errores del backend como 'código duplicado')
+      // Muestra el mensaje de error (ej: "Error 500: Propiedad 'categoria' no puede ser nula")
       alert("Error al guardar insumo: " + (error.message || "Verifique la consola para detalles."));
     });
 }
-
 function modificarRecurso() {
   const recursoId = document.getElementById("modificar-rec-id").value;
 
   // Capturar valores numéricos de forma segura: convierte a número o usa 0
   const cantidadVal = document.getElementById("modificar-rec-cant").value;
   const minimoVal = document.getElementById("modificar-rec-min").value;
+  const categoriaId = document.getElementById("modificar-rec-cat").value;
+
 
   const recurso = {
     nombre: document.getElementById("modificar-rec-nombre").value,
-    categoria: document.getElementById("modificar-rec-cat").value.toUpperCase(),
+    categoria: { id: parseInt(categoriaId) },
     cantidad: cantidadVal ? parseInt(cantidadVal) : 0,
     minimo: minimoVal ? parseInt(minimoVal) : 0,
     ubicacion: " ", // Mantener si no hay input
@@ -1127,8 +1176,20 @@ function modificarRecurso() {
     body: JSON.stringify(recurso),
   })
     .then((response) => response.json())
-    .then((data) => reloadPage())
-    .catch((error) => console.error("Error al modificar recurso:", error));
+    .then((data) => {
+           alert("Insumo modificado exitosamente.");
+
+           // Ocultamos el formulario y recargamos
+           if (typeof hideResourceForm === 'function') {
+               hideResourceForm('form-modificar-rec');
+           }
+           if (typeof reloadPage === 'function') {
+               reloadPage();
+           } else {
+               location.reload();
+           }
+       })
+    .catch((error) => console.error("Error al modificar insumo:", error));
 }
 
 function generarReporteMovimientoPDF(movimientos) {
@@ -2730,36 +2791,48 @@ const CATEGORIAS_API_URL = "http://localhost:8080/api/categorias";
 
 // -------------------------------------------------------------------
 
-function cargarCategoriasDinamicamente() {
-    const selectCategoria = document.getElementById("registro-bien-cat");
+/**
+ * Carga categorías dinámicamente en uno o más elementos <select>.
+ * @param {string} selectId El ID del elemento <select> (ej: "registro-bien-cat").
+ * @param {string} tipoFiltro El tipo de categoría a filtrar (ej: "Bien", "Insumo").
+ */
+function cargarCategoriasDinamicamente(selectId, tipoFiltro) {
+    // 1. Obtiene el elemento select usando el ID
+    const selectCategoria = document.getElementById(selectId);
 
-    // Si la función ya se ejecutó y hay opciones, salimos.
+    if (!selectCategoria) {
+        console.error(`Error: No se encontró el elemento con ID: ${selectId}`);
+        return;
+    }
+
+    // Si la función ya se ejecutó y hay opciones (más de 1, contando el 'Seleccione...'), salimos.
+    // Esto previene recargas innecesarias.
     if (selectCategoria.options && selectCategoria.options.length > 1) return;
 
     // Asumimos que CATEGORIAS_API_URL está definida globalmente
-    const urlConFiltro = `${CATEGORIAS_API_URL}?tipo=Bien`;
+    // La URL ahora usa el tipoFiltro pasado como argumento
+    const urlConFiltro = `${CATEGORIAS_API_URL}?tipo=${tipoFiltro}`;
 
-    // 1. Muestra estado de carga
+    // 2. Muestra estado de carga
     selectCategoria.innerHTML = '<option value="" disabled selected>Cargando categorías...</option>';
 
     fetch(urlConFiltro)
         .then(response => {
             if (!response.ok) {
-                // Si el servidor devuelve un error HTTP, lanzamos una excepción
                 throw new Error("HTTP error! status: " + response.status);
             }
             return response.json();
         })
         .then(categorias => {
-            // 2. Limpia y establece la opción por defecto
+            // 3. Limpia y establece la opción por defecto
             selectCategoria.innerHTML = '<option value="" disabled selected>Seleccione una Categoría</option>';
 
             if (categorias.length === 0) {
-                 console.warn("No se encontraron categorías de tipo BIEN.");
+                 console.warn(`No se encontraron categorías de tipo ${tipoFiltro}.`);
                  selectCategoria.innerHTML = '<option value="" disabled selected>No hay categorías disponibles</option>';
                  return;
             }
-            // 3. Rellena con las categorías filtradas
+            // 4. Rellena con las categorías
             categorias.forEach(categoria => {
                 const option = document.createElement("option");
                 option.textContent = categoria.nombre;
@@ -2767,13 +2840,13 @@ function cargarCategoriasDinamicamente() {
                 option.value = categoria.id;
                 selectCategoria.appendChild(option);
             });
-            console.log(`Categorías de tipo BIEN cargadas (${categorias.length} encontradas).`);
+            console.log(`Categorías de tipo ${tipoFiltro} cargadas (${categorias.length} encontradas).`);
         })
         .catch(error => {
-            // 4. Manejo del error: Usamos el texto "BIEN" directamente para evitar ReferenceError
-            console.error("Fallo al cargar categorías:", error);
+            // 5. Manejo del error
+            console.error(`Fallo al cargar categorías de tipo ${tipoFiltro}:`, error);
             selectCategoria.innerHTML = '<option value="" disabled selected>Error al cargar</option>';
-            alert(`Error de conexión al cargar las categorías (BIEN). Verifique el servidor.`);
+            alert(`Error de conexión al cargar las categorías (${tipoFiltro}). Verifique el servidor.`);
         });
 }
 
