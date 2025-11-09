@@ -2200,7 +2200,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-// Gestión de Solicitudes de Bienes--------------------------------------------------
+// Gestión de Solicitudes de Bienes --------------------------------------------------
 
 // Datos almacenados en localStorage
 let solicitudesBienes = JSON.parse(localStorage.getItem("solicitudesBienes")) || [];
@@ -2244,7 +2244,8 @@ function crearSolicitudBien() {
         area,
         bien,
         solicitante,
-        fecha
+        fecha,
+        estado: "pendiente" // Estado nuevo
     };
 
     solicitudesBienes.push(nuevaSolicitud);
@@ -2304,6 +2305,40 @@ function eliminarSolicitud(id) {
     renderTablaSolicitudes();
 }
 
+// -------------------- VER DETALLE (OJITO) --------------------
+
+let solicitudSeleccionadaBien = null;
+
+function verDetalleSolicitudBien(id) {
+    const solicitud = solicitudesBienes.find(s => s.id === id);
+    if (!solicitud) return;
+
+    solicitudSeleccionadaBien = solicitud;
+
+    // Llenar campos
+    document.getElementById("ver-solcBi-numt").value = solicitud.numeroT;
+    document.getElementById("ver-solcBi-area").value = solicitud.area;
+    document.getElementById("ver-solcBi-nombien").value = solicitud.bien;
+    document.getElementById("ver-solcBi-solicitabien").value = solicitud.solicitante;
+    document.getElementById("ver-solcBi-fecha").value = solicitud.fecha;
+
+    // Mostrar formulario de ver
+    showResourceForm("form-ver-solicitudBienes");
+}
+
+// Aceptar solicitud desde el formulario de visualización
+function aceptarSolicitudBien() {
+    if (!solicitudSeleccionadaBien) return;
+
+    solicitudSeleccionadaBien.estado = "aceptada";
+
+    guardarEnLocalStorage();
+    renderTablaSolicitudes();
+    hideResourceForm("form-ver-solicitudBienes");
+
+    alert("Solicitud aceptada correctamente.");
+}
+
 // Renderizar tabla con las solicitudes
 function renderTablaSolicitudes() {
     const tbody = document.getElementById("tabla-solicitudesBienes");
@@ -2324,6 +2359,11 @@ function renderTablaSolicitudes() {
 
     solicitudesBienes.forEach(s => {
         const fila = document.createElement("tr");
+
+        // Marcar aceptada
+        if (s.estado === "aceptada") {
+            fila.classList.add("bg-green-100");
+        }
 
         const colNum = document.createElement("td");
         colNum.textContent = s.numeroT;
@@ -2348,7 +2388,15 @@ function renderTablaSolicitudes() {
         const colAcciones = document.createElement("td");
         colAcciones.classList.add("px-6", "py-3", "text-sm", "flex", "space-x-4");
 
-        // Botón Editar (ícono)
+        // Botón Ver (ojito)
+        const btnVer = document.createElement("button");
+        btnVer.innerHTML = `<i class="fas fa-eye text-gray-700 hover:text-black text-lg"></i>`;
+        btnVer.title = "Ver detalles";
+        btnVer.onclick = function() {
+            verDetalleSolicitudBien(s.id);
+        };
+
+        // Botón Editar
         const btnEditar = document.createElement("button");
         btnEditar.innerHTML = `<i class="fas fa-edit text-blue-600 hover:text-blue-800 text-lg"></i>`;
         btnEditar.title = "Editar";
@@ -2356,7 +2404,7 @@ function renderTablaSolicitudes() {
             editarSolicitud(s.id);
         };
 
-        // Botón Eliminar (ícono)
+        // Botón Eliminar
         const btnEliminar = document.createElement("button");
         btnEliminar.innerHTML = `<i class="fas fa-trash text-red-600 hover:text-red-800 text-lg"></i>`;
         btnEliminar.title = "Eliminar";
@@ -2364,6 +2412,7 @@ function renderTablaSolicitudes() {
             eliminarSolicitud(s.id);
         };
 
+        colAcciones.appendChild(btnVer);
         colAcciones.appendChild(btnEditar);
         colAcciones.appendChild(btnEliminar);
 
