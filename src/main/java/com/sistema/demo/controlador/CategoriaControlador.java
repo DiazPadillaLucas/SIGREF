@@ -18,7 +18,14 @@ public class CategoriaControlador {
     private CategoriaServicio categoriaServicio;
 
     @GetMapping
-    public ResponseEntity<List<Categoria>> listar() {
+    public ResponseEntity<List<Categoria>> listar(
+            @RequestParam(required = false) String tipo) {
+
+        if (tipo != null && !tipo.isEmpty()) {
+            // CORRECCIÓN: Llamas a toUpperCase() sobre el String 'tipo' antes de pasarlo.
+            return ResponseEntity.ok(categoriaServicio.listarCategoriasPorTipo(tipo.toUpperCase()));
+        }
+
         return ResponseEntity.ok(categoriaServicio.listarCategorias());
     }
 

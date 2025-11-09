@@ -757,49 +757,65 @@ function reloadPage() {
   // Recargar la página para reflejar los cambios
   window.location.reload();
 }
-// funciones para bien
+/**
+ * Función que maneja el registro del nuevo Bien.
+ */
 function crearBien() {
+  // Obtener valores y asegurar que el campo categoría funciona con el select
+ const nombre = document.getElementById("registro-bien-nombre").value;
+   const categoriaId = document.getElementById("registro-bien-cat").value; // Obtiene el ID (String)
+   const codigo = document.getElementById("registro-bien-cod").value;
+   const ubicacion = document.getElementById("registro-bien-ubi").value;
+   const descripcion = document.getElementById("registro-bien-desc").value;
+
+   // VALIDACIÓN BÁSICA DEL FORMULARIO
+   if (!nombre || !categoriaId || !codigo || !ubicacion) {
+       // Usamos categoriaId en lugar de la variable no definida 'categoria'
+       alert("Por favor, complete todos los campos obligatorios (Nombre, Código, Categoría y Ubicación).");
+       return;
+   }
   const bien = {
-    nombre: document.getElementById("registro-bien-nombre").value,
-    categoria: document.getElementById("registro-bien-cat").value.toUpperCase(),
-    codigo: document.getElementById("registro-bien-cod").value,
-    cantidad: 0, // Asegurado como número para evitar errores de tipo
-    minimo: 0,   // Asegurado como número para evitar errores de tipo
-    ubicacion: document.getElementById("registro-bien-ubi").value,
-    descripcion: document.getElementById("registro-bien-desc").value,
+    nombre: nombre,
+    categoria: { id: parseInt(categoriaId) },
+    codigo: codigo,
+    cantidad: 0,
+    minimo: 0,
+    ubicacion: ubicacion,
+    descripcion: descripcion,
     estado: true,
     condicion: "Disponible",
     tipo: "Bien",
   };
 
-  fetch("http://localhost:8080/api/recursos", {
+  fetch(RECURSOS_API_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(bien),
   })
     .then((response) => {
       if (!response.ok) {
-        // El servidor devolvió un error (ej. 400 Bad Request por código duplicado).
-        // Leemos el cuerpo del error para obtener el mensaje específico de Java.
         return response.json().then((err) => {
-          // Si el servidor devolvió un cuerpo JSON, usamos ese mensaje.
-          // El formato exacto del mensaje del servidor varía, pero 'message' es común.
-          // Aquí capturamos el mensaje del backend que dice 'El código ya está registrado...'
-          throw new Error(err.message || err.error || err.statusText);
+          throw new Error(err.message || err.error || response.statusText);
         });
       }
       return response.json();
     })
-    .then((data) => {
-      // Éxito
-      alert("Bien registrado exitosamente.");
-      reloadPage();
-    })
+   .then((data) => {
+       alert("Bien registrado exitosamente.");
+       setTimeout(() => {
+           if (typeof reloadPage === 'function') {
+               reloadPage();
+           } else {
+               location.reload();
+           }
+           if (typeof hideResourceForm === 'function') {
+               hideResourceForm('form-nuevo-bien');
+           }
+       }, 500); // Espera 500ms
+   })
     .catch((error) => {
-      // Capturamos la excepción lanzada (punto 1) o un error de red.
       console.error("Fallo al crear bien:", error);
 
-      // Muestra el mensaje específico en una ventana emergente
       const errorMessage = error.message.includes("El código")
                            ? error.message
                            : "Error al intentar guardar el bien: " + error.message;
@@ -807,54 +823,82 @@ function crearBien() {
       alert(errorMessage);
     });
 }
+// Función corregida: modificarBien()
 function modificarBien() {
-  // 1. Obtener el ID del Bien a modificar
   const bienId = document.getElementById("modificar-bien-id").value;
-  // Necesitamos obtener el código que ya existe del campo (oculto)
-    const codigoExistente = document.getElementById("modificar-bien-cod").value;
+  const codigoExistente = document.getElementById("modificar-bien-cod").value;
 
-  // 2. Construir el objeto con los datos del formulario Bienes
+  // Obtener el ID numérico del select de modificación.
+  const categoriaId = document.getElementById("modificar-bien-cat").value;
+
+  // Obtener otros campos
+  const nombre = document.getElementById("modificar-bien-nombre").value;
+  const ubicacion = document.getElementById("modificar-bien-ubi").value;
+  const descripcion = document.getElementById("modificar-bien-desc").value;
+
+  // Validación: Nombre y Ubicación son obligatorios
+  if (!nombre || !ubicacion) {
+      alert("Por favor, complete al menos Nombre y Ubicación.");
+      return;
+  }
+
+  // CONSTRUCCIÓN DEL OBJETO CON LOS CAMPOS OBLIGATORIOS PARA LA ACTUALIZACIÓN
   const bien = {
-    nombre: document.getElementById("modificar-bien-nombre").value,
-    categoria: document.getElementById("modificar-bien-cat").value.toUpperCase(),
-
+    // Campos que el usuario puede cambiar:
+    nombre: nombre,
     condicion: document.getElementById("modificar-bien-cond").value,
-    ubicacion: document.getElementById("modificar-bien-ubi").value,
-    descripcion: document.getElementById("modificar-bien-desc").value,
+    ubicacion: ubicacion,
+    descripcion: descripcion,
+
+    // Campos inmutables/esenciales que deben enviarse:
+    categoria: { id: parseInt(categoriaId) }, // La categoría no se edita, pero se envía su ID original
+    codigo: codigoExistente, // El código no se edita
+
+    // Otros campos que no se tocan, pero deben ser enviados si el backend los requiere
+    // Si la cantidad y mínimo son gestionados por movimientos, el backend debería ignorarlos
+    // o deberías obtener sus valores originales al cargar el formulario.
+    // Los quitamos temporalmente para evitar el Bad Request, dejando que el backend mantenga los valores.
+    // cantidad: 0, // <--- ELIMINADO
+    // minimo: 0, // <--- ELIMINADO
+
+    // Campos de estado
     estado: true,
-    codigo: codigoExistente,
-    cantidad: 0,
-    minimo: 0,
     tipo: "Bien",
   };
-
   // 3. Llamada a la API usando el método PUT
-  fetch(`http://localhost:8080/api/recursos/${bienId}`, {
+  fetch(`http://localhost:8080/api/recursos/${bienId}`,
+  {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(bien),
   })
    .then((response) => {
        if (!response.ok) {
-           // 1. Si el estado NO es OK (ej. 400, 500), leemos el cuerpo de la respuesta (que contiene el error del backend)
            return response.json().then(err => {
-               // 2. Lanzamos un nuevo error con el mensaje real del backend (si existe)
                throw new Error(err.message || 'Error desconocido del servidor');
            });
        }
-       // 3. Si es OK (200), devolvemos el JSON de la respuesta
        return response.json();
    })
-   .then((data) => reloadPage())
-   .catch((error) => {
+   .then((data) => {
+       alert("Bien modificado exitosamente.");
 
+       // Ocultamos el formulario y recargamos
+       if (typeof hideResourceForm === 'function') {
+           hideResourceForm('form-modificar-bien');
+       }
+       if (typeof reloadPage === 'function') {
+           reloadPage();
+       } else {
+           location.reload();
+       }
+   })
+   .catch((error) => {
        console.error("Fallo al modificar bien:", error.message);
-       alert("Fallo al modificar: " + (error.message || "Error desconocido.")); // Muestra el mensaje de error al usuario
+       alert("Fallo al modificar: " + (error.message || "Error desconocido."));
    });
 }
 
-
-// --- La función listarBienes() NO TENÍA ERRORES DE SINTAXIS ---
 function listarBienes() {
   const filtro = document.getElementById("filtroCategoria").value;
 
@@ -865,13 +909,18 @@ function listarBienes() {
       tabla.innerHTML = "";
 
       const recursosBien = data.filter(recurso =>
-          recurso.tipo === "Bien"
+          recurso.tipo && recurso.tipo === "Bien"
       );
 
-      // Filtra las Categorías
+      // Filtra las Categorías (por nombre)
       const categoriasFiltrados = filtro === "todos"
         ? recursosBien
-        : recursosBien.filter(recurso => recurso.categoria.toLowerCase() === filtro);
+        : recursosBien.filter(recurso =>
+            // CORRECCIÓN 2: El filtro verifica la existencia de recurso.categoria.nombre
+            // y lo compara con el filtro en minúsculas.
+            recurso.categoria && recurso.categoria.nombre &&
+            recurso.categoria.nombre.toLowerCase() === filtro
+        );
 
       categoriasFiltrados.forEach((recurso) => {
         const columna = document.createElement("tr");
@@ -882,9 +931,15 @@ function listarBienes() {
         const nombre = document.createElement("td");
         nombre.textContent = recurso.nombre;
         nombre.className = "px-6 py-4 whitespace-nowrap text-sm font-medium";
+
+        // **********************************************
+        // CORRECCIÓN 3: MOSTRAR EL NOMBRE DE LA CATEGORÍA
+        // **********************************************
         const categoria = document.createElement("td");
-        categoria.textContent = recurso.categoria;
+        // Muestra el nombre, o 'N/A' si la categoría es null (seguridad)
+        categoria.textContent = recurso.categoria ? recurso.categoria.nombre : 'N/A';
         categoria.className ="px-6 py-4 whitespace-nowrap text-sm text-gray-500";
+
         const descripcion = document.createElement("td");
         descripcion.textContent = recurso.descripcion || 'N/A';
         descripcion.className = "px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate max-w-xs";
@@ -897,21 +952,65 @@ function listarBienes() {
         const acciones = document.createElement("td");
         acciones.className = "px-6 py-4 whitespace-nowrap text-sm font-medium";
 
-       const editar = document.createElement("button");
-       editar.addEventListener("click", function () {
-         showResourceForm("form-modificar-bien");
-         document.getElementById("modificar-bien-id").value = recurso.id;
-         document.getElementById("modificar-bien-nombre").value = recurso.nombre;
-         document.getElementById("modificar-bien-cat").value = recurso.categoria.toLowerCase();
-         document.getElementById("modificar-bien-cond").value = recurso.condicion;
-         document.getElementById("modificar-bien-ubi").value = recurso.ubicacion;
-         document.getElementById("modificar-bien-desc").value = recurso.descripcion;
-         document.getElementById("modificar-bien-cod").value = recurso.codigo;
-       });
-       editar.className = "text-blue-600 hover:text-blue-900 mr-3";
-       const editarIcon = document.createElement("i");
-       editarIcon.className = "fas fa-edit";
-       editar.appendChild(editarIcon);
+      const editar = document.createElement("button");
+             editar.addEventListener("click", function () {
+               showResourceForm("form-modificar-bien");
+
+               const categoriaIdActual = recurso.categoria ? recurso.categoria.id : null;
+
+               // 1. Asigna campos INMUTABLES y EDITABLES (esto es lo primero)
+               document.getElementById("modificar-bien-id").value = recurso.id;
+               document.getElementById("modificar-bien-cod").value = recurso.codigo;
+               document.getElementById("modificar-bien-nombre").value = recurso.nombre;
+               document.getElementById("modificar-bien-cond").value = recurso.condicion;
+               document.getElementById("modificar-bien-ubi").value = recurso.ubicacion;
+               document.getElementById("modificar-bien-desc").value = recurso.descripcion;
+
+               // 2. LÓGICA DE CARGA Y PRESELECCIÓN DE CATEGORÍA PARA EDICIÓN
+               const selectCategoriaModificar = document.getElementById("modificar-bien-cat");
+               selectCategoriaModificar.innerHTML = '<option value="" disabled selected>Cargando categorías...</option>';
+
+               const urlConFiltro = `${CATEGORIAS_API_URL}?tipo=BIEN`;
+
+               fetch(urlConFiltro)
+                   .then(response => {
+                       if (!response.ok) {
+                           throw new Error("HTTP error! status: " + response.status);
+                       }
+                       return response.json();
+                   })
+                   .then(categorias => {
+                       selectCategoriaModificar.innerHTML = '<option value="" disabled>Seleccione una Categoría</option>';
+
+                       if (categorias.length === 0) {
+                           selectCategoriaModificar.innerHTML = '<option value="" disabled selected>No hay categorías disponibles</option>';
+                           return;
+                       }
+
+                       categorias.forEach(categoria => {
+                           const option = document.createElement("option");
+                           option.textContent = categoria.nombre;
+                           option.value = categoria.id;
+
+                           // LÓGICA DE SELECCIÓN: Si coincide con el ID actual, lo marca como seleccionado
+                           if (String(categoria.id) === String(categoriaIdActual)) {
+                               option.selected = true;
+                           }
+
+                           selectCategoriaModificar.appendChild(option);
+                       });
+                   })
+                   .catch(error => {
+                       console.error("Fallo al cargar categorías de edición:", error);
+                       selectCategoriaModificar.innerHTML = '<option value="" disabled selected>Error al cargar</option>';
+                   });
+             });
+
+             // 3. CREACIÓN Y ASIGNACIÓN DEL ÍCONO Y CLASES (Restaurado)
+             editar.className = "text-blue-600 hover:text-blue-900 mr-3";
+             const editarIcon = document.createElement("i");
+             editarIcon.className = "fas fa-edit"; // Ícono de Font Awesome
+             editar.appendChild(editarIcon);
 
          const eliminar = document.createElement("button");
                 eliminar.className = "text-red-600 hover:text-red-900";
@@ -945,8 +1044,6 @@ function listarBienes() {
 
         acciones.appendChild(editar);
         acciones.appendChild(eliminar);
-
-
         tabla.appendChild(columna);
       });
     });
@@ -2624,6 +2721,64 @@ function limpiarFormularioSolicitudInsumos() {
 
 // Inicialización
 document.addEventListener("DOMContentLoaded", renderTablaSolicitudesInsumos);
+
+
+
+// URL base del API.
+const RECURSOS_API_URL = "http://localhost:8080/api/recursos";
+const CATEGORIAS_API_URL = "http://localhost:8080/api/categorias";
+
+// -------------------------------------------------------------------
+
+function cargarCategoriasDinamicamente() {
+    const selectCategoria = document.getElementById("registro-bien-cat");
+
+    // Si la función ya se ejecutó y hay opciones, salimos.
+    if (selectCategoria.options && selectCategoria.options.length > 1) return;
+
+    // Asumimos que CATEGORIAS_API_URL está definida globalmente
+    const urlConFiltro = `${CATEGORIAS_API_URL}?tipo=Bien`;
+
+    // 1. Muestra estado de carga
+    selectCategoria.innerHTML = '<option value="" disabled selected>Cargando categorías...</option>';
+
+    fetch(urlConFiltro)
+        .then(response => {
+            if (!response.ok) {
+                // Si el servidor devuelve un error HTTP, lanzamos una excepción
+                throw new Error("HTTP error! status: " + response.status);
+            }
+            return response.json();
+        })
+        .then(categorias => {
+            // 2. Limpia y establece la opción por defecto
+            selectCategoria.innerHTML = '<option value="" disabled selected>Seleccione una Categoría</option>';
+
+            if (categorias.length === 0) {
+                 console.warn("No se encontraron categorías de tipo BIEN.");
+                 selectCategoria.innerHTML = '<option value="" disabled selected>No hay categorías disponibles</option>';
+                 return;
+            }
+            // 3. Rellena con las categorías filtradas
+            categorias.forEach(categoria => {
+                const option = document.createElement("option");
+                option.textContent = categoria.nombre;
+                // Usamos el ID numérico que el backend espera
+                option.value = categoria.id;
+                selectCategoria.appendChild(option);
+            });
+            console.log(`Categorías de tipo BIEN cargadas (${categorias.length} encontradas).`);
+        })
+        .catch(error => {
+            // 4. Manejo del error: Usamos el texto "BIEN" directamente para evitar ReferenceError
+            console.error("Fallo al cargar categorías:", error);
+            selectCategoria.innerHTML = '<option value="" disabled selected>Error al cargar</option>';
+            alert(`Error de conexión al cargar las categorías (BIEN). Verifique el servidor.`);
+        });
+}
+
+// Inicialización: Carga las categorías al cargar la página.
+document.addEventListener('DOMContentLoaded', cargarCategoriasDinamicamente);
 
 
 

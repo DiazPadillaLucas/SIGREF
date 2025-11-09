@@ -102,3 +102,17 @@ CREATE TABLE solicitud_recurso (
     FOREIGN KEY (solicitud_id) REFERENCES solicitud(id) ON DELETE CASCADE,
     FOREIGN KEY (recurso_id) REFERENCES recurso(id) ON DELETE CASCADE
 );
+
+CREATE TABLE categoria (
+    -- id: @Id y @GeneratedValue(strategy = GenerationType.IDENTITY)
+    -- Usa SERIAL para PostgreSQL o INT con AUTO_INCREMENT para MySQL/MariaDB
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+
+    -- nombre: @Column(nullable = false, unique = true)
+    -- Se recomienda un VARCHAR con longitud adecuada
+    nombre VARCHAR(100) NOT NULL UNIQUE,
+
+    -- tipo: @Enumerated(EnumType.STRING) y @Column(nullable = false)
+    -- Almacena el valor del Enum como texto (STRING)
+    tipo VARCHAR(50) NOT NULL
+);

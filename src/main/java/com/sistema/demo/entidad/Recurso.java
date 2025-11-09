@@ -1,6 +1,5 @@
 package com.sistema.demo.entidad;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.sistema.demo.entidad.enums.Categoria;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,13 +24,13 @@ public class Recurso {
     private int minimo; //no se necesario para un bien
     private String ubicacion; //Si es necesario, no para un insumo.
     private String condicion; // Hay mas condiciones? Solo para bienes. Campo para la condición del recurso (ej: "Nuevo", "Usado", "Deteriorado")
-    private String tipo;   //????   // Campo para el tipo de recurso (ej: "Herramienta", "Material", "Equipo")
-
+    @Column(name = "tipo_recurso", nullable = false)
+    private String tipo; // Esta variable almacena "Bien" o "Insumo"
     private Boolean estado;
-       // Campo para el tipo de recurso (ej: "Herramienta", "Material", "Equipo")
-    @Enumerated(EnumType.STRING)
-    private Categoria categoria;
 
+       @ManyToOne
+       @JoinColumn(name = "categoria_id", nullable = false)
+    private com.sistema.demo.entidad.Categoria categoria;
 
 
 
