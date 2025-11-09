@@ -15,12 +15,12 @@ public class Movimiento {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String nombre_solicitante;
-    private String destino;
+    //private String nombre_solicitante;
+    //private String destino;
     private Date fecha;
-    private String tipo;
+   // private String tipo;
     private int cantidad;
-    private String motivo;
+    private String observaciones;
 
     @ManyToOne
     @JoinColumn(name = "usuario_id")

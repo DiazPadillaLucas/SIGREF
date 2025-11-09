@@ -22,7 +22,6 @@ document.addEventListener("click", function (event) {
     cerrarSesion();
   }
 });
-
 function validarSesion() {
   const user = localStorage.getItem("usuarioLogueado");
   if (!user) {
@@ -32,141 +31,165 @@ function validarSesion() {
   document.getElementById("rolUS").textContent = usuario.rol;
   document.getElementById("nombreUS").textContent = usuario.nombreUsuario;
 }
-
+//----------------------------------------
+// CONTROL DE INGRESOS DE INSUMOS
+//----------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
-  const selectTipo = document.getElementById("filtroTipo");
-  const inputFecha = document.getElementById("filtroFecha"); // asegúrate de que exista en el HTML
+
+  const inputFecha = document.getElementById("filtroFecha");
   const tabla = document.getElementById("tabla-movimientos");
 
-  if (selectTipo) selectTipo.addEventListener("change", listarMovimientos);
   if (inputFecha) inputFecha.addEventListener("change", listarMovimientos);
 
-  // Normaliza una fecha que venga en varios formatos -> "yyyy-mm-dd" o null
+  // Normaliza fecha a yyyy-mm-dd
   function normalizeDate(raw) {
-    if (!raw && raw !== 0) return null;
-    // si ya es Date
-    if (raw instanceof Date) return isNaN(raw) ? null : raw.toISOString().slice(0,10);
+    if (!raw) return null;
     const s = String(raw).trim();
-    // ISO o ISO con hora
-    const isoMatch = s.match(/^(\d{4}-\d{2}-\d{2})/);
-    if (isoMatch) return isoMatch[1];
-    // dd-mm-yyyy o dd/mm/yyyy
-    const dmy = s.match(/^(\d{2})[-\/](\d{2})[-\/](\d{4})$/);
-    if (dmy) return `${dmy[3]}-${dmy[2]}-${dmy[1]}`;
-    // timestamp o texto parseable por Date
-    const dd = new Date(s);
-    if (!isNaN(dd)) return dd.toISOString().slice(0,10);
-    return null;
+    if (s.includes("T")) return s.split("T")[0];
+    return s;
   }
 
+  //----------------------------------------
+  // LISTAR MOVIMIENTOS
+  //----------------------------------------
   async function listarMovimientos() {
     try {
-      if (!tabla) {
-        console.warn('No se encontró #tabla-movimientos');
-        return;
-      }
+      if (!tabla) return;
 
-      const filtro = (selectTipo?.value ?? 'todos').toLowerCase();
       const filtroFecha = inputFecha?.value ?? '';
 
-      console.log('listarMovimientos -> filtro:', filtro, 'filtroFecha:', filtroFecha);
-      tabla.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-sm">Cargando movimientos...</td></tr>`;
+      tabla.innerHTML = `
+        <tr>
+          <td colspan="6" class="px-6 py-4 text-sm">Cargando movimientos...</td>
+        </tr>
+      `;
 
       const resp = await fetch("http://localhost:8080/api/movimientos");
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      const dataRaw = await resp.json();
-      console.log('movimientos recibidos:', dataRaw);
+      if (!resp.ok) throw new Error("HTTP " + resp.status);
 
-      // soporta pageable { content: [...] } o array directo
-      const data = Array.isArray(dataRaw) ? dataRaw : (Array.isArray(dataRaw?.content) ? dataRaw.content : []);
-      if (!data.length) {
-        tabla.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-sm text-gray-500">No hay movimientos registrados.</td></tr>`;
+      // ✅ backend devuelve una lista pura, así que es directo
+      const movimientos = await resp.json();
+
+      if (!movimientos.length) {
+        tabla.innerHTML = `
+          <tr>
+            <td colspan="6" class="px-6 py-4 text-sm text-gray-500">No hay ingresos registrados.</td>
+          </tr>
+        `;
         return;
       }
 
-      // Filtrado único que combina tipo + fecha
-      const movimientosFiltrados = data.filter(mov => {
-        const tipoMov = String(mov?.tipo ?? mov?.type ?? '').toLowerCase();
-        const tipoOk = filtro === 'todos' || tipoMov === filtro;
-
-        const rawFecha = mov?.fecha ?? mov?.fechaMovimiento ?? mov?.date;
-        const fechaMov = normalizeDate(rawFecha);
-        const fechaOk = !filtroFecha || (fechaMov && fechaMov === filtroFecha);
-
-        // para debug:
-        // console.log({ rawFecha, fechaMov, tipoMov, tipoOk, fechaOk });
-
-        return tipoOk && fechaOk;
+      // Filtrar por fecha exacta
+      const filtrados = movimientos.filter(mov => {
+        const fecha = normalizeDate(mov.fecha);
+        return !filtroFecha || fecha === filtroFecha;
       });
 
-      if (!movimientosFiltrados.length) {
-        tabla.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-sm text-gray-500">No hay movimientos para ese filtro.</td></tr>`;
-        console.log('Movimientos filtrados: []');
+      if (!filtrados.length) {
+        tabla.innerHTML = `
+          <tr>
+            <td colspan="6" class="px-6 py-4 text-sm text-gray-500">
+              No hay ingresos para ese día.
+            </td>
+          </tr>
+        `;
         return;
       }
 
-      // Renderizar filas
-      tabla.innerHTML = '';
-      movimientosFiltrados.forEach(movimiento => {
-        const columna = document.createElement("tr");
+      // Render tabla
+      tabla.innerHTML = "";
+      filtrados.forEach(mov => {
+        const fecha = normalizeDate(mov.fecha);
+        const fechaTexto = fecha ? fecha.split("-").reverse().join("-") : "";
 
-        // Fecha formateada dd-mm-yyyy
-        const fechaNormalized = normalizeDate(movimiento.fecha ?? movimiento.fechaMovimiento ?? movimiento.date);
-        let fechaTexto = '';
-        if (fechaNormalized) {
-          const [y,m,d] = fechaNormalized.split('-');
-          fechaTexto = `${d}-${m}-${y}`;
-        }
+        const fila = document.createElement("tr");
+        fila.innerHTML = `
+          <td class="px-6 py-2 whitespace-nowrap text-sm text-gray-500">${fechaTexto}</td>
+          <td class="px-6 py-2 whitespace-nowrap text-sm font-medium">${mov?.recurso?.nombre ?? ''}</td>
+          <td class="px-6 py-2 whitespace-nowrap text-sm text-gray-500">${mov?.cantidad ?? ''}</td>
+          <td class="px-6 py-2 whitespace-nowrap text-sm text-gray-500">${mov?.observaciones ?? ''}</td>
+          <td class="px-6 py-2 whitespace-nowrap text-sm text-gray-500">${mov?.generadoPor?.nombreUsuario ?? ''}</td>
+        `;
 
-        const tdFecha = document.createElement("td");
-        tdFecha.textContent = fechaTexto;
-        tdFecha.className = "px-6 py-2 whitespace-nowrap text-sm text-gray-500";
-
-        const tdInsumo = document.createElement("td");
-        tdInsumo.textContent = movimiento?.recurso?.nombre ?? movimiento?.recurso ?? '';
-        tdInsumo.className = "px-6 py-2 whitespace-nowrap text-sm font-medium";
-
-        const tdTipo = document.createElement("td");
-        tdTipo.className = "px-6 py-2 whitespace-nowrap text-sm text-gray-500";
-        const spanTipo = document.createElement("span");
-        spanTipo.textContent = movimiento?.tipo ?? movimiento?.type ?? '';
-        const tipoUpper = String(spanTipo.textContent).toUpperCase();
-        if (tipoUpper === "INGRESO") spanTipo.className = "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800";
-        if (tipoUpper === "EGRESO") spanTipo.className = "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800";
-        tdTipo.appendChild(spanTipo);
-
-        const tdCantidad = document.createElement("td");
-        tdCantidad.textContent = movimiento?.cantidad ?? movimiento?.quantity ?? '';
-        tdCantidad.className = "px-6 py-2 whitespace-nowrap text-sm text-gray-500";
-
-        const tdMotivo = document.createElement("td");
-        tdMotivo.textContent = movimiento?.motivo ?? movimiento?.reason ?? '';
-        tdMotivo.className = "px-6 py-2 whitespace-nowrap text-sm text-gray-500";
-
-        const tdUsuario = document.createElement("td");
-        tdUsuario.textContent = movimiento?.generadoPor?.nombreUsuario ?? movimiento?.usuario ?? movimiento?.user ?? '';
-        tdUsuario.className = "px-6 py-2 whitespace-nowrap text-sm text-gray-500";
-
-        columna.appendChild(tdFecha);
-        columna.appendChild(tdInsumo);
-        columna.appendChild(tdTipo);
-        columna.appendChild(tdCantidad);
-        columna.appendChild(tdMotivo);
-        columna.appendChild(tdUsuario);
-
-        tabla.appendChild(columna);
+        tabla.appendChild(fila);
       });
 
-      console.log('Movimientos mostrados:', movimientosFiltrados.length);
     } catch (err) {
-      console.error('Error listarMovimientos:', err);
-      tabla.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-sm text-red-600">Error cargando movimientos. Revisa la consola.</td></tr>`;
+      console.error("Error listarMovimientos:", err);
+      tabla.innerHTML = `
+        <tr>
+          <td colspan="6" class="px-6 py-4 text-sm text-red-600">
+            Error cargando ingresos.
+          </td>
+        </tr>
+      `;
     }
   }
 
-  // carga inicial
   listarMovimientos();
 });
+
+
+//----------------------------------------
+// REGISTRAR NUEVO MOVIMIENTO
+//----------------------------------------
+function registrarMovimiento() {
+
+  const cantidad = parseInt(document.getElementById("cantidadMovimientoIngreso").value);
+  const nombreRecurso = document.getElementById("insumoMovimientoIngreso").value;
+  const observaciones = document.getElementById("observacionesMovimientoIngreso").value;
+  const fechaElegida = document.getElementById("fechaMovimientoIngreso").value;
+
+  const usuarioId = JSON.parse(localStorage.getItem("usuarioLogueado")).id;
+
+  fetch("http://localhost:8080/api/recursos/activos")
+    .then(r => r.json())
+    .then(recursos => {
+      const recurso = recursos.find(r => r.nombre === nombreRecurso);
+
+      if (!recurso) {
+        alert("No se encontró el recurso seleccionado.");
+        return;
+      }
+
+      // ✅ Spring acepta yyyy-MM-dd perfectamente (lo anotaste con JsonFormat)
+      const fechaFinal = fechaElegida ? fechaElegida : new Date().toISOString().split("T")[0];
+
+      const movimiento = {
+        fecha: fechaFinal,
+        cantidad,
+        observaciones,
+        generadoPor: { id: usuarioId },
+        recurso: { id: recurso.id }
+      };
+
+      console.log("Movimiento a registrar:", movimiento);
+
+      return fetch(
+        "http://localhost:8080/api/movimientos/registrar?idUsuario=" + usuarioId + "&idRecurso=" + recurso.id,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(movimiento)
+        }
+      );
+    })
+    .then(response => {
+      if (response && response.ok) {
+        alert("Ingreso registrado correctamente.");
+        reloadPage();
+      } else {
+        alert("El ingreso no es válido.");
+        reloadPage();
+      }
+    })
+    .catch(err => console.error("Error al registrar ingreso:", err));
+}
+
+
+
+
+
 
 /* Función para listar categorías en la tabla
 function listarCategorias() {
@@ -1944,81 +1967,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
-
-
-
-// Agregar nuevo Movimiento----------------------
-function registrarMovimiento() {
-
-    let tipo, cantidad, motivo, nombreSolicitante, destino, nombreRecurso;
-
-    if (!document.getElementById("form-ingreso").classList.contains("hidden")) {
-
-        tipo = "INGRESO";
-        cantidad = parseInt(document.getElementById("cantidadMovimientoIngreso").value);
-        motivo = document.getElementById("motivoMovimientoIngreso").value;
-        nombreRecurso = document.getElementById("insumoMovimientoIngreso").value;
-        nombreSolicitante = "--";
-        destino = "--"; // Si no hay campo destino en ingreso, déjalo vacío o agrega uno
-
-    } else {
-
-        tipo = "EGRESO";
-        cantidad = parseInt(document.getElementById("cantidadMovimientoEgreso").value);
-        motivo = document.getElementById("motivoMovimientoEgreso").value;
-        nombreRecurso = document.getElementById("insumoMovimientoEgreso").value;
-        nombreSolicitante = document.getElementById("nombreSolicitanteMovimientoEgreso").value;
-        destino = document.getElementById("areaDestinoMovimientoEgreso").value;
-    }
-
-
-
-    const usuarioId = JSON.parse(localStorage.getItem("usuarioLogueado")).id;
-
-
-    fetch("http://localhost:8080/api/recursos/activos")
-        .then((response) => response.json())
-        .then((recursos) => {
-            const recurso = recursos.find(r => r.nombre === nombreRecurso);
-            if (!recurso) {
-                alert("No se encontró el recurso seleccionado.");
-                return;
-            }
-
-
-
-      // Obtener la fecha actual en la zona horaria de Argentina en formato ISO completo
-      const fecha= new Date().toLocaleString('sv-SE', { timeZone: 'America/Argentina/Buenos_Aires' }).replace(' ', 'T');
-      // Si el backend espera un Date completo, enviar el string ISO (yyyy-MM-ddTHH:mm:ss)
-      const movimiento = {
-        fecha: fecha,
-        tipo: tipo,
-        cantidad: cantidad,
-        nombre_solicitante: nombreSolicitante,
-        destino: destino,
-        motivo: motivo,
-        generadoPor: { id: usuarioId },
-        recurso: { id: recurso.id }
-      };
-
-      console.log("Movimiento a registrar:", movimiento);
-      return fetch("http://localhost:8080/api/movimientos/registrar?idUsuario="+ usuarioId + "&idRecurso="+recurso.id, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(movimiento),
-            });
-        })
-        .then((response) => {
-            if (response && response.ok) {
-                alert("Movimiento registrado correctamente.");
-                reloadPage();
-            }else{
-              alert("Movimiento no valido.");
-              reloadPage();
-            }
-        })
-        .catch((error) => console.error("Error al registrar movimiento:", error));
-}
 
 
 function crearCategoria() {

@@ -40,11 +40,9 @@ CREATE TABLE recurso (
 CREATE TABLE movimiento (
                             id BIGINT AUTO_INCREMENT PRIMARY KEY,
                             fecha DATE,
-                            tipo VARCHAR(50),
+                           -- tipo VARCHAR(50),
                             cantidad INT,
-                            nombre_solicitante VARCHAR(255),
-                            destino VARCHAR(255),
-                            motivo VARCHAR(255),
+                            observaciones VARCHAR(255),
                             usuario_id BIGINT,
                             recurso_id BIGINT,
                             CONSTRAINT fk_mov_usuario FOREIGN KEY (usuario_id) REFERENCES usuario(id),
