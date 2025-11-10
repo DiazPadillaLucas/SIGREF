@@ -2167,6 +2167,40 @@ function cargarBienesDisponibles() {
         });
 }
 
+//-------------------- VER DETALLE (OJITO) --------------------
+
+let solicitudSeleccionadaBien = null;
+
+function verDetalleSolicitudBien(id) {
+    const solicitud = solicitudesBienes.find(s => s.id === id);
+    if (!solicitud) return;
+
+    solicitudSeleccionadaBien = solicitud;
+
+    // Llenar campos
+    document.getElementById("ver-solcBi-numt").value = solicitud.numeroT;
+    document.getElementById("ver-solcBi-area").value = solicitud.area;
+    document.getElementById("ver-solcBi-nombien").value = solicitud.bien;
+    document.getElementById("ver-solcBi-solicitabien").value = solicitud.solicitante;
+    document.getElementById("ver-solcBi-fecha").value = solicitud.fecha;
+
+    // Mostrar formulario de ver
+    showResourceForm("form-ver-solicitudBienes");
+}
+
+// Aceptar solicitud desde el formulario de visualización
+function aceptarSolicitudBien() {
+    if (!solicitudSeleccionadaBien) return;
+
+    solicitudSeleccionadaBien.estado = "aceptada";
+
+    guardarEnLocalStorage();
+    renderTablaSolicitudes();
+    hideResourceForm("form-ver-solicitudBienes");
+
+    alert("Solicitud aceptada correctamente.");
+}
+
 function crearSolicitudBien() {
     const numeroT = document.getElementById("registro-solcBi-numeroT").value.trim();
     const area = document.getElementById("registro-solcBi-Area").value.trim();
@@ -2366,6 +2400,14 @@ function renderTablaSolicitudes() {
         const colAcciones = document.createElement("td");
         colAcciones.classList.add("px-6", "py-3", "text-sm", "flex", "space-x-4");
 
+        // Botón Ver (ojito)
+        const btnVer = document.createElement("button");
+        btnVer.innerHTML = `<i class="fas fa-eye text-gray-700 hover:text-black text-lg"></i>`;
+        btnVer.title = "Ver detalles";
+        btnVer.onclick = function() {
+        verDetalleSolicitudBien(s.id);
+                };
+
         // Botón Editar (ícono)
         const btnEditar = document.createElement("button");
         btnEditar.innerHTML = `<i class="fas fa-edit text-blue-600 hover:text-blue-800 text-lg"></i>`;
@@ -2446,27 +2488,43 @@ function hideResourceForm(formId) {
 // Agregar o eliminar insumos del formulario
 // ==============================
 
-function agregarInsumo(contenedorId = "contenedor-insumos") {
+function agregarInsumo(contenedorId) {
     const contenedor = document.getElementById(contenedorId);
     if (!contenedor) return;
 
-    const nuevoInsumo = document.createElement("div");
-    nuevoInsumo.classList.add("grid", "grid-cols-1", "md:grid-cols-3", "gap-4", "items-end", "insumo-item");
+    const nuevoRecurso = document.createElement("div");
+    nuevoRecurso.classList.add("grid", "grid-cols-1", "md:grid-cols-3", "gap-4", "items-end", "insumo-item");
 
-    nuevoInsumo.innerHTML = `
+    const extraerTipo = (cont) => {
+        return cont.replace("contenedor-", "");
+    }
+    const tipo = extraerTipo(contenedorId) === "bienes" ? "Bien" : "Insumo";
+    if(tipo==="Insumo"){
+     nuevoRecurso.innerHTML = `
+            <div>
+                <label class="block text-gray-700 mb-2">Nombre del ${tipo}</label>
+                <input type="text" class="input-insumo-nombre w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ej: Papel A4" />
+            </div>
+            <div>
+                <label class="block text-gray-700 mb-2">Cantidad</label>
+                <input type="number" min="1" class="input-insumo-cantidad w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ej: 10" />
+            </div>
+            <button type="button" class="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600" onclick="eliminarInsumo(this)">
+                <i class="fas fa-trash"></i>
+            </button>
+        `;
+    }else{
+
+    nuevoRecurso.innerHTML = `
         <div>
-            <label class="block text-gray-700 mb-2">Nombre del Insumo</label>
+            <label class="block text-gray-700 mb-2">Nombre del ${tipo}</label>
             <input type="text" class="input-insumo-nombre w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ej: Papel A4" />
-        </div>
-        <div>
-            <label class="block text-gray-700 mb-2">Cantidad</label>
-            <input type="number" min="1" class="input-insumo-cantidad w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ej: 10" />
         </div>
         <button type="button" class="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600" onclick="eliminarInsumo(this)">
             <i class="fas fa-trash"></i>
         </button>
-    `;
-    contenedor.appendChild(nuevoInsumo);
+    `; }
+    contenedor.appendChild(nuevoRecurso);
 }
 
 function eliminarInsumo(btn) {
@@ -2818,6 +2876,10 @@ function cargarCategoriasDinamicamente(selectId, tipoFiltro) {
 
 // Inicialización: Carga las categorías al cargar la página.
 document.addEventListener('DOMContentLoaded', cargarCategoriasDinamicamente);
+
+
+
+
 
 
 
