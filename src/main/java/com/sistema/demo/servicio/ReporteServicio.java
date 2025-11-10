@@ -80,9 +80,12 @@ public class ReporteServicio {
             case "stock_minimo":
                 List<Recurso> stockMinimo = recursoRepositorio.findAll().stream()
                         .filter(r -> r.getCantidad() <= r.getMinimo())
+                        // 🌟 CONDICIÓN 1: Filtrar solo por el tipo "Insumo" 🌟
+                        .filter(r -> "Insumo".equalsIgnoreCase(r.getTipo()))
+                        // 🌟 CONDICIÓN 2: Filtrar donde el estado sea igual a 1 🌟
+                        .filter(r -> r.getEstado() == true)
                         .toList();
                 return stockMinimo;
-
             default:
                 throw new IllegalArgumentException("Tipo de reporte no válido. Debe ser 'prestamos', 'inventario' o 'stock_minimo'.");
         }

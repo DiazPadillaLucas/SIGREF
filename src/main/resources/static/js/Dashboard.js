@@ -15,10 +15,12 @@ document.addEventListener("DOMContentLoaded", function () {
   listarCategoriasInsumos();
   cargarCategoriasDinamicamente("registro-bien-cat", "Bien");
   cargarCategoriasDinamicamente("registro-rec-cat", "Insumo");
+  cargarCategoriasDinamicamente("catRepMin", "Insumo");
   cargarBienesDisponibles()
   listarSolicitudes()
   cargarSolicitantesDisponibles()
    cargarInsumosDinamicos()
+
 });
 
 document.addEventListener("click", function (event) {
@@ -1160,183 +1162,139 @@ function generarReporteMovimientoPDF(movimientos) {
   }
 }
 
-async function generarReporteStockMinimoPDF(recursos) {
+function generarReporteMovimientoPDF(movimientos) {
   try {
-    const categoriaSeleccionada =
-      document.getElementById("categoria").value;
-
-    if (categoriaSeleccionada === "") {
-      alert("Por favor seleccione una categoría.");
-      return;
-    }
-
-    const recursosFiltrados = recursos.filter(
-      (rec) =>
-        rec.categoria.toUpperCase() === categoriaSeleccionada.toUpperCase() &&
-        rec.estado === true
-    );
-
+    // Se asume que jspdf y autotable están cargados globalmente.
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
 
+    console.log("Función generar reporte movimiento ejecutada.");
+    doc.setFontSize(16);
+
+    // Obtener fechas del formulario (IDs: fechaInicio, fechaFin)
+    const fechaInicio = document.getElementById("fechaInicio").value; // formato YYYY-MM-DD
+    const fechaFin = document.getElementById("fechaFin").value;       // formato YYYY-MM-DD
+
+    // Aplicar filtro si hay fechas cargadas
+    let movimientosFiltrados = movimientos;
+    if (fechaInicio && fechaFin) {
+      movimientosFiltrados = movimientos.filter(mov => {
+        // La fecha puede venir en 'fecha' o 'fechaGeneracion'. Se usa 'fecha' como preferencia.
+        const fechaBase = mov.fecha || mov.fechaGeneracion;
+        if (!fechaBase) return false; // Ignorar si no hay campo de fecha
+
+        // Tomar solo la parte de la fecha (YYYY-MM-DD)
+        const fechaMov = fechaBase.split("T")[0];
+
+        return fechaMov >= fechaInicio && fechaMov <= fechaFin;
+      });
+    }
+
+    // Preparar fecha de generación del reporte
     const hoy = new Date();
     const yyyy = hoy.getFullYear();
     const mm = String(hoy.getMonth() + 1).padStart(2, "0");
     const dd = String(hoy.getDate()).padStart(2, "0");
-    const fechaHoy = `${dd}/${mm}/${yyyy}`;
+    const fechaHoy=`${dd}/${mm}/${yyyy}`;
 
-    if (recursosFiltrados.length === 0) {
-      alert("No hay recursos con alerta de stock mínimo en esta categoría.");
-      doc.setFontSize(12);
+    // Manejar caso de movimientos vacíos
+    if (movimientosFiltrados.length === 0) {
+      doc.text("No hay Movimientos en el rango seleccionado.", 14, 20);
       doc.text(fechaHoy, 190, 20, { align: "right" });
-      doc.text(`Categoría: ${categoriaSeleccionada}`, 14, 30);
-      doc.text("Dirigido a quien corresponda", 14, 50);
-      doc.save(`reporte_stock_minimo_${categoriaSeleccionada.toLowerCase()}.pdf`);
+      doc.save("reporte_movimiento.pdf");
       return;
     }
 
-    doc.setFontSize(16);
-    doc.text(
-      `Reporte de Stock Mínimo - Categoría: ${categoriaSeleccionada}`,
-      14,
-      20
-    );
+    // Encabezado del reporte
+    doc.text("Reporte de Movimientos de Recursos", 14, 20);
     doc.text(fechaHoy, 190, 20, { align: "right" });
 
+    // --- NUEVO TEXTO BAJO EL TÍTULO ---
+    doc.setFontSize(12);
+    doc.text("Dirigido a quien corresponda", 14, 28);
+    // ------------------------------------
+
+    // Definición de las columnas del reporte según la solicitud
     const columns = [
-      "ID",
-      "Nombre",
-      "Descripción",
-     // "Código",
+      "Fecha",
+      "Nombre de Insumo",
       "Cantidad",
-      "Mínimo",
-      "Categoría",
+      "Observaciones",
+      "Usuario que Ingresó",
     ];
 
-    const rows = recursosFiltrados.map((rec) => [
-      rec.id,
-      rec.nombre,
-      rec.descripcion,
-    //  rec.codigo,
-      rec.cantidad,
-      rec.minimo,
-      rec.categoria,
-    ]);
+    // Mapeo de datos a filas de la tabla
+    const rows = movimientosFiltrados.map(mov => {
+      // Formateo de fecha
+      const fechaBase = mov.fecha || mov.fechaGeneracion;
+      const fechaObj = new Date(fechaBase);
+      const dia = String(fechaObj.getDate()).padStart(2, "0");
+      const mes = String(fechaObj.getMonth() + 1).padStart(2, "0");
+      const anio = fechaObj.getFullYear();
+      const fechaFormateada = `${dia}-${mes}-${anio}`;
 
+      // Extracción del Nombre de Usuario
+      const nombreUsuario = mov.generadoPor && mov.generadoPor.nombre
+                            ? mov.generadoPor.nombre
+                            : 'Desconocido';
+
+      // Extracción del Nombre del Recurso
+      const nombreInsumo = mov.recurso && mov.recurso.nombre ? mov.recurso.nombre : 'Insumo N/A';
+
+      return [
+        fechaFormateada,
+        nombreInsumo,
+        mov.cantidad,
+        mov.observaciones || '', // Asegurar que sea una cadena vacía si es nulo
+        nombreUsuario,
+      ];
+    });
+
+    // Generar la tabla con autoTable (startY ajustado a 35 para dar espacio al nuevo texto)
     doc.autoTable({
       head: [columns],
       body: rows,
-      startY: 30,
-      styles: { fontSize: 8 },
-      headStyles: { fillColor: [255, 193, 7] }, // Amarillo
+      startY: 35, // Aumentado de 30 a 35 para acomodar la nueva línea
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [41, 128, 185] },
+      columnStyles: {
+          // Ajustes para que las columnas de texto (Insumo, Observaciones) se adapten
+          1: { cellWidth: 'auto' }, // Nombre de Insumo
+          3: { cellWidth: 'auto' }, // Observaciones
+      }
     });
 
-    // Texto final
+    // Código eliminado: Texto final "Generado en base a..."
+    /*
     const finalY = doc.lastAutoTable.finalY + 10;
     doc.setFontSize(12);
-    doc.text("Dirigido a quien corresponda", 14, finalY);
+    doc.text("Generado en base a los movimientos registrados en el sistema.", 14, finalY);
+    */
 
-    doc.save(`reporte_stock_minimo_${categoriaSeleccionada.toLowerCase()}.pdf`);
+    doc.save("reporte_movimiento_actualizado.pdf");
   } catch (error) {
-    console.error("Error generando el PDF:", error);
-  }
-}
-
-
-
-async function generarReporteInventarioPDF(recursos) {
-  try {
-    const categoriaSeleccionada =
-      document.getElementById("filtro-categoria").value;
-
-    if (categoriaSeleccionada === "") {
-      alert("Por favor seleccione una categoría.");
-      return;
-    }
-
-    const recursosFiltrados = recursos.filter(
-      (rec) =>
-        rec.categoria.toUpperCase() === categoriaSeleccionada.toUpperCase() && rec.estado === true
-    );
-     const hoy = new Date();
-            const yyyy = hoy.getFullYear();
-            const mm = String(hoy.getMonth() + 1).padStart(2, "0"); // meses empiezan en 0
-            const dd = String(hoy.getDate()).padStart(2, "0");
-            const fechaHoy=`${dd}/${mm}/${yyyy}`;
-
-    if (recursosFiltrados.length === 0) {
-      alert("No hay recursos registrados para esta categoría.");
-      doc.text(fechaHoy, 190, 20, { align: "right" }); // fecha a la derecha
-      return;
-    }
-
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    doc.setFontSize(16);
-    doc.text(`Reporte de Inventario - Categoría: ${categoriaSeleccionada}`, 14, 20);
-    doc.text(fechaHoy, 190, 20, { align: "right" }); // fecha a la derecha
-
-    const columns = [
-      "ID",
-      "Nombre",
-      "Cantidad",
-      "Mínimo",
-     // "Ubicación",
-     // "Estado",
-    ];
-    const rows = recursosFiltrados.map((rec) => [
-      rec.id,
-      rec.nombre,
-      rec.cantidad,
-      rec.minimo,
-   //   rec.ubicacion,
-    //  rec.estado ? "Activo" : "Inactivo",
-    ]);
-
-    doc.autoTable({
-      head: [columns],
-      body: rows,
-      startY: 30,
-      styles: { fontSize: 8 },
-      headStyles: { fillColor: [46, 204, 113] }, // Verde
-    });
-    // Texto final
-        const finalY = doc.lastAutoTable.finalY + 10;
-        doc.setFontSize(12);
-        doc.text("Dirigido a quien corresponda", 14, finalY);
-
-    doc.save(`reporte_inventario_${categoriaSeleccionada.toLowerCase()}.pdf`);
-  } catch (error) {
-    console.error("Error generando el PDF:", error);
+    console.error("Error al generar el PDF. Revise la carga de jspdf y jspdf-autotable:", error);
   }
 }
 
 function generarReporte(tipo) {
   const usuarioId = JSON.parse(localStorage.getItem("usuarioLogueado")).id;
 
-  fetch(
-    "http://localhost:8080/api/reportes/generar?tipo=" +
-      tipo +
-      "&idUsuario=" +
-      usuarioId,
-    {
-      method: "POST",
-    }
-  )
+  let url = "http://localhost:8080/api/reportes/generar?tipo=" + tipo + "&idUsuario=" + usuarioId;
+  fetch(url, {
+    method: "POST",
+  })
     .then((response) => response.json())
     .then((data) => {
       switch (tipo) {
         case "stock_minimo":
+          // Pasar solo los datos ya filtrados por el backend
           generarReporteStockMinimoPDF(data);
           break;
         case "inventario":
-          generarReporteInventarioPDF(data);
-          break;
+        // ...
         case "movimiento":
-          generarReporteMovimientoPDF(data);
-          break;
-
+        generarReporteMovimientoPDF(data);
         default:
           break;
       }
@@ -1360,7 +1318,7 @@ function hideResourceForm(idForm){
 
 // Obtener insumos para listarlos en select
 function obtenerInsumosSelect(){
-  fetch("http://localhost:8080/api/recursos/activos")
+  fetch('http://localhost:8080/api/recursos/activos')
       .then((response) => response.json())
       .then((data) => {
         const selects = document.getElementsByClassName("insumo-selec-movimiento");
