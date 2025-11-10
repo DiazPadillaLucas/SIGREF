@@ -177,9 +177,20 @@ public class MovimientoServicio {
         movimiento.setGeneradoPor(usuario);
         movimiento.setRecurso(recurso);
 
-        // Aquí puedes ajustar la lógica de cantidad si aplica (por ejemplo, actualizar stock)
-        // Si los movimientos solo se registran sin afectar cantidades, no necesitas modificar el recurso
+        // 🚨 1. LÓGICA PARA ACTUALIZAR EL STOCK (SUMA) 🚨
+        int cantidadMovimiento = movimiento.getCantidad();
 
+        // Aseguramos que solo sumamos si la cantidad es positiva (es decir, un Ingreso)
+        // El frontend ya garantiza que la cantidad sea positiva, pero es una buena práctica validarlo.
+        if (cantidadMovimiento > 0) {
+            // Sumamos la cantidad del movimiento a la cantidad actual del Recurso
+            recurso.setCantidad(recurso.getCantidad() + cantidadMovimiento);
+
+            // Guardamos el Recurso con la nueva cantidad (stock actualizado)
+            recursoRepositorio.save(recurso);
+        }
+
+        // 2. Guardar el registro del movimiento
         return movimientoRepositorio.save(movimiento);
     }
 

@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
   cargarBienesDisponibles()
   listarSolicitudes()
   cargarSolicitantesDisponibles()
+   cargarInsumosDinamicos()
 });
 
 document.addEventListener("click", function (event) {
@@ -133,12 +134,44 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
+function cargarInsumosDinamicos() {
+   const datalist = document.getElementById("insumosDatalist");
+   // Limpiamos las opciones previas
+   datalist.innerHTML = '';
+
+   fetch("http://localhost:8080/api/recursos/activos")
+     .then(r => r.json())
+     .then(recursos => {
+       // 🟢 FILTRO CONFIRMADO: Usamos exactamente el filtro que funciona en listarRecursos()
+       const insumos = recursos.filter(r => r.tipo === "Insumo");
+
+       insumos.forEach(insumo => {
+         const option = document.createElement('option');
+         // Aseguramos que el insumo tenga nombre para evitar opciones vacías
+         if (insumo.nombre) {
+            option.value = insumo.nombre;
+            datalist.appendChild(option);
+         }
+       });
+
+       console.log(`Cargados ${insumos.length} insumos dinámicamente.`);
+     })
+     .catch(err => console.error("Error al cargar insumos:", err));
+}
+
+// Llama a esta función cuando la página se carga o cuando abres el formulario de egreso
+// Ejemplo: window.onload = cargarInsumosDinamicos;
+// O si es un modal: al abrir el modal de egreso, llamas a cargarInsumosDinamicos().
+
 //----------------------------------------
 // REGISTRAR NUEVO MOVIMIENTO
-//----------------------------------------
+//---------------------------------------
 function registrarMovimiento() {
 
-  const cantidad = parseInt(document.getElementById("cantidadMovimientoIngreso").value);
+  // 1. Obtener la cantidad ingresada y asegurar que sea POSITIVA para el INGRESO (INCREMENTO)
+  // Usamos Math.abs() para garantizar que la cantidad sea siempre positiva y se SUME al stock.
+  const cantidad = Math.abs(parseInt(document.getElementById("cantidadMovimientoIngreso").value));
+
   const nombreRecurso = document.getElementById("insumoMovimientoIngreso").value;
   const observaciones = document.getElementById("observacionesMovimientoIngreso").value;
   const fechaElegida = document.getElementById("fechaMovimientoIngreso").value;
@@ -148,26 +181,32 @@ function registrarMovimiento() {
   fetch("http://localhost:8080/api/recursos/activos")
     .then(r => r.json())
     .then(recursos => {
-      const recurso = recursos.find(r => r.nombre === nombreRecurso);
+
+      // 2. Buscar y FILTRAR por Insumo (usando el filtro confirmado)
+      const recurso = recursos.find(r => r.nombre === nombreRecurso && r.tipo === "Insumo");
 
       if (!recurso) {
-        alert("No se encontró el recurso seleccionado.");
+        alert("No se encontró el insumo seleccionado o no es un insumo válido.");
         return;
       }
 
-      // ✅ Spring acepta yyyy-MM-dd perfectamente (lo anotaste con JsonFormat)
+      // ✅ Spring acepta yyyy-MM-dd
       const fechaFinal = fechaElegida ? fechaElegida : new Date().toISOString().split("T")[0];
 
       const movimiento = {
         fecha: fechaFinal,
-        cantidad,
+        cantidad, // Esta cantidad es positiva (Ingreso)
         observaciones,
         generadoPor: { id: usuarioId },
         recurso: { id: recurso.id }
       };
 
-      console.log("Movimiento a registrar:", movimiento);
+      console.log("Movimiento de Ingreso a registrar:", movimiento);
 
+      // 3. Llamada al endpoint para registrar y actualizar stock
+      // Tu backend DEBE estar configurado en el endpoint de "registrar" para:
+      // a) Crear el registro de movimiento.
+      // b) SUMAR la cantidad al stock del recurso con id = recurso.id.
       return fetch(
         "http://localhost:8080/api/movimientos/registrar?idUsuario=" + usuarioId + "&idRecurso=" + recurso.id,
         {
@@ -179,205 +218,16 @@ function registrarMovimiento() {
     })
     .then(response => {
       if (response && response.ok) {
-        alert("Ingreso registrado correctamente.");
+        alert("Ingreso y stock actualizado correctamente.");
         reloadPage();
       } else {
-        alert("El ingreso no es válido.");
+        alert("El ingreso no es válido. (Verifica permisos o cantidad)");
         reloadPage();
       }
     })
     .catch(err => console.error("Error al registrar ingreso:", err));
 }
 
-
-
-
-
-
-/* Función para listar categorías en la tabla
-function listarCategorias() {
-  console.log("Cargando categorías...");
-  fetch("http://localhost:8080/api/categorias")
-    .then(response => {
-      if (!response.ok) throw new Error('Error HTTP: ' + response.status);
-      return response.json();
-    })
-    .then(data => {
-      console.log("Categorías recibidas:", data);
-      const tabla = document.getElementById("tabla-categorias");
-      if (!tabla) {
-        console.error("No se encontró #tabla-categorias");
-        return;
-      }
-      tabla.innerHTML = ""; // Limpia la tabla
-
-      // Filtrar si hay un filtro aplicado (usa el select de la sección)
-      const filtro = document.getElementById("filtroCategoria").value.toLowerCase();
-      const categoriasFiltradas = filtro === "todos" ? data : data.filter(cat => cat.nombre.toLowerCase() === filtro);
-
-      categoriasFiltradas.forEach(categoria => {
-        const columna = document.createElement("tr");
-
-        const id = document.createElement("td");
-        id.textContent = categoria.id;
-        id.style = "display: none;";
-        id.id = "id-categoria-" + categoria.id;
-
-        const codigo = document.createElement("td");
-        codigo.textContent = categoria.id;  // Usa ID como código; ajusta si tienes un campo 'codigo'
-        codigo.className = "px-6 py-3 whitespace-nowrap text-sm text-gray-500";
-
-        const nombre = document.createElement("td");
-        nombre.textContent = categoria.nombre;
-        nombre.className = "px-6 py-3 whitespace-nowrap text-sm font-medium";
-
-        const acciones = document.createElement("td");
-        acciones.className = "px-6 py-3 whitespace-nowrap text-sm font-medium";
-
-        const editar = document.createElement("button");
-        editar.addEventListener("click", function () {
-          showResourceForm("form-modificar-categoria");
-          document.getElementById("modificar-cat-id").value = categoria.id;
-          document.getElementById("modificar-cat-nombre").value = categoria.nombre;
-        });
-        editar.className = "text-blue-600 hover:text-blue-900 mr-3";
-        const editarIcon = document.createElement("i");
-        editarIcon.className = "fas fa-edit";
-        editar.appendChild(editarIcon);
-
-        const eliminar = document.createElement("button");
-        eliminar.className = "text-red-600 hover:text-red-900";
-        eliminar.addEventListener("click", function () {
-          if (confirm("¿Estás seguro de dar de baja esta categoría?")) {
-            fetch("http://localhost:8080/api/categorias/" + categoria.id + "/darDeBaja", {
-              method: "PATCH",
-            })
-              .then(() => reloadPage())
-              .catch(error => console.error("Error al dar de baja la categoría:", error));
-          }
-        });
-        const eliminarIcon = document.createElement("i");
-        eliminarIcon.className = "fas fa-trash";
-        eliminar.appendChild(eliminarIcon);
-
-        columna.appendChild(id);
-        columna.appendChild(codigo);
-        columna.appendChild(nombre);
-        columna.appendChild(acciones);
-        acciones.appendChild(editar);
-        acciones.appendChild(eliminar);
-
-        tabla.appendChild(columna);
-      });
-    })
-    .catch(error => console.error("Error listarCategorias:", error));
-}
-
-// Función para crear una nueva categoría
-function crearCategoria() {
-  console.log("Entrando a crearCategoria");
-  const nombre = document.getElementById("registro-rec-nombre").value.trim();  // Usa el ID actual del HTML
-  console.log("Nombre de categoría:", nombre);
-  if (!nombre) {
-    alert("El nombre de la categoría es obligatorio.");
-    return;
-  }
-
-  const categoria = { nombre: nombre };
-
-  fetch("http://localhost:8080/api/categorias", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(categoria),
-  })
-    .then(response => {
-      if (response.ok) {
-        alert("Categoría creada exitosamente.");
-        document.getElementById("registro-rec-nombre").value = "";  // Limpiar campo
-        hideResourceForm("form-nueva-categoria");
-        listarCategorias();  // Recargar tabla
-        actualizarSelectsCategorias();  // Actualizar selects
-      } else {
-        alert("Error al crear la categoría.");
-      }
-    })
-    .catch(error => console.error("Error crearCategoria:", error));
-}
-
-// Función para modificar una categoría
-function modificarCategoria() {
-  console.log("Entrando a modificarCategoria");
-  const id = document.getElementById("modificar-cat-id").value;
-  const nombre = document.getElementById("modificar-cat-nombre").value.trim();
-  console.log("ID:", id, "Nombre:", nombre);
-  if (!nombre) {
-    alert("El nombre de la categoría es obligatorio.");
-    return;
-  }
-
-  const categoria = { nombre: nombre };
-
-  fetch("http://localhost:8080/api/categorias/" + id, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(categoria),
-  })
-    .then(response => {
-      if (response.ok) {
-        alert("Categoría modificada exitosamente.");
-        hideResourceForm("form-modificar-categoria");
-        listarCategorias();
-        actualizarSelectsCategorias();
-      } else {
-        alert("Error al modificar la categoría.");
-      }
-    })
-    .catch(error => console.error("Error modificarCategoria:", error));
-}
-
-// Función para actualizar los selects de categorías en toda la app
-function actualizarSelectsCategorias() {
-  console.log("Actualizando selects de categorías...");
-  fetch("http://localhost:8080/api/categorias")
-    .then(response => response.json())
-    .then(categorias => {
-      console.log("Categorías para selects:", categorias);
-      const selects = [
-        "registro-rec-cat",    // Formulario nuevo insumo
-        "modificar-rec-cat",   // Formulario modificar insumo
-        "filtroCategoria",     // Filtro en sección de insumos y categorías
-        "filtro-categoria"     // Filtro en reportes (si aplica)
-      ];
-
-      selects.forEach(id => {
-        const select = document.getElementById(id);
-        if (select) {
-          select.innerHTML = '<option value="">Seleccione...</option>';  // Opción por defecto
-          categorias.forEach(cat => {
-            const option = document.createElement("option");
-            option.value = cat.nombre.toLowerCase();  // Value en minúsculas para consistencia
-            option.textContent = cat.nombre;
-            select.appendChild(option);
-          });
-        }
-      });
-    })
-    .catch(error => console.error("Error actualizarSelectsCategorias:", error));
-}
-
-// Agregar eventos y llamadas iniciales en DOMContentLoaded
-document.addEventListener("DOMContentLoaded", function () {
-  // ... (tu código existente aquí)
-
-  // Agregar listener para el filtro de categorías en la sección
-  const filtroCat = document.getElementById("filtroCategoria");
-  if (filtroCat) filtroCat.addEventListener("change", listarCategorias);
-
-  // Llamadas iniciales para categorías
-  listarCategorias();
-  actualizarSelectsCategorias();
-});
-*/
 function showSection(sectionId) {
   // Ocultar todas las secciones antes de mostrar la seleccionada
 
@@ -1125,26 +975,40 @@ function listarBienes() {
 
 //Funciones para recurso
 function crearRecurso() {
+  const nombreRecurso = document.getElementById("registro-rec-nombre").value;
+  const categoriaId = document.getElementById("registro-rec-cat").value; // Este es el ID de la categoría
+
+  // 🛑 1. VALIDACIÓN DEL NOMBRE 🛑
+  if (!nombreRecurso || nombreRecurso.trim() === "") {
+    alert("El nombre del insumo no puede estar en blanco.");
+    return;
+  }
+
+  // 🛑 2. VALIDACIÓN DE LA CATEGORÍA 🛑
+  // Asumo que el valor vacío es 0 o una cadena vacía si no se selecciona nada.
+  // Ajusta '0' si tu opción por defecto es otra.
+  if (!categoriaId || categoriaId === "" || parseInt(categoriaId) === 0) {
+    alert("Debe seleccionar una categoría para el insumo.");
+    return;
+  }
+
+
+  // Continuamos si las validaciones pasan
   const minimoInput = document.getElementById("registro-rec-min").value;
   const minimoValido = minimoInput ? parseInt(minimoInput) : 0;
+  const descripcion = document.getElementById("registro-rec-desc").value;
 
-  // ¡IMPORTANTE! El ID del select de Insumo debe ser "registro-rec-cat", no "registro-bien-cat".
-  // Revisa que este ID corresponda al select de Insumos.
-  const categoriaId = document.getElementById("registro-rec-cat").value;
-
-  // ... (El objeto 'recurso' es correcto, asumiendo que el ID del select es el correcto) ...
   const recurso = {
-      nombre: document.getElementById("registro-rec-nombre").value,
-      // Asegúrate de que el ID sea un número válido antes de enviar
-      categoria: { id: parseInt(categoriaId) },
+      nombre: nombreRecurso.trim(),
+      categoria: { id: parseInt(categoriaId) }, // Aquí usamos el ID validado
       codigo: "",
       cantidad: 0,
       minimo: minimoValido,
       ubicacion: "",
-      descripcion: document.getElementById("registro-rec-desc").value,
+      descripcion: descripcion,
       estado: true,
       condicion: "",
-      tipo: "Insumo", // Asegúrate que este valor coincida con tu Enum (Insumo vs INSUMO)
+      tipo: "Insumo",
   };
 
   fetch("http://localhost:8080/api/recursos", {
@@ -1152,17 +1016,12 @@ function crearRecurso() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(recurso),
   })
-    // 1. Manejo del Status Code
     .then((response) => {
         if (!response.ok) {
-            // Si hay un error (4xx o 5xx), leemos el cuerpo de la respuesta (el error)
-            // Usamos .text() porque el Backend (Java) a veces envía errores como texto plano en 500.
             return response.text().then(errorText => {
-                // Creamos un nuevo error que cae en el .catch
                 throw new Error(`Error ${response.status}: ${errorText || 'Error sin mensaje del servidor.'}`);
             });
         }
-        // 2. Si es exitoso (2xx), leemos el JSON
         return response.json();
     })
     .then((data) => {
@@ -1171,7 +1030,6 @@ function crearRecurso() {
     })
     .catch((error) => {
       console.error("Fallo al crear insumo:", error);
-      // Muestra el mensaje de error (ej: "Error 500: Propiedad 'categoria' no puede ser nula")
       alert("Error al guardar insumo: " + (error.message || "Verifique la consola para detalles."));
     });
 }
