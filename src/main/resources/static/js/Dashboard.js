@@ -2325,6 +2325,8 @@ function crearSolicitudBien() {
         alert("Complete todos los campos antes de guardar.");
         return;
     }
+
+    console.log("solicitanteId seleccionado:", solicitanteId);
 // ...
 const nuevaSolicitud = {
     nroTramite: numeroT,
@@ -2588,16 +2590,22 @@ function hideResourceForm(formId) {
 // Agregar o eliminar insumos del formulario
 // ==============================
 
-function agregarInsumo(contenedorId = "contenedor-insumos") {
+function agregarInsumo(contenedorId) {
     const contenedor = document.getElementById(contenedorId);
     if (!contenedor) return;
 
-    const nuevoInsumo = document.createElement("div");
-    nuevoInsumo.classList.add("grid", "grid-cols-1", "md:grid-cols-3", "gap-4", "items-end", "insumo-item");
+    const tipoContenedor = (contenedorId) => {
+           return contenedorId.replace("contenedor-", "");
+    }
 
-    nuevoInsumo.innerHTML = `
+    const tipo = tipoContenedor(contenedorId) === "bienes" ? "Bien" : "Insumo";
+
+    const nuevoRecurso = document.createElement("div");
+    nuevoRecurso.classList.add("grid", "grid-cols-1", "md:grid-cols-3", "gap-4", "items-end", "insumo-item");
+
+    nuevoRecurso.innerHTML = `
         <div>
-            <label class="block text-gray-700 mb-2">Nombre del Insumo</label>
+            <label class="block text-gray-700 mb-2">Nombre del ${tipo}</label>
             <input type="text" class="input-insumo-nombre w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ej: Papel A4" />
         </div>
         <div>
@@ -2608,7 +2616,7 @@ function agregarInsumo(contenedorId = "contenedor-insumos") {
             <i class="fas fa-trash"></i>
         </button>
     `;
-    contenedor.appendChild(nuevoInsumo);
+    contenedor.appendChild(nuevoRecurso);
 }
 
 function eliminarInsumo(btn) {
