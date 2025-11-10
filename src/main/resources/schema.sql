@@ -78,12 +78,11 @@ CREATE TABLE solicitante (
 -- Creación de la tabla SOLICITUD
 CREATE TABLE solicitud (
     id BIGINT NOT NULL AUTO_INCREMENT,
-
-    nro_tramite VARCHAR(255) NOT NULL, -- @Column(unique = true, nullable = false)
+    nro_tramite VARCHAR(255) NOT NULL,
     area VARCHAR(255),
-    fecha_solicitud DATE NOT NULL, -- @Temporal(TemporalType.DATE) y @Column(nullable = false)
-
-    solicitante_id BIGINT NOT NULL, -- Clave foránea a Solicitante
+    fecha_solicitud DATE NOT NULL,
+    estado VARCHAR(50) NOT NULL DEFAULT 'PENDIENTE', -- Nuevo campo estado
+    solicitante_id BIGINT NOT NULL,
 
     PRIMARY KEY (id),
     UNIQUE KEY UK_nro_tramite (nro_tramite), -- Restricción de unicidad para nroTramite

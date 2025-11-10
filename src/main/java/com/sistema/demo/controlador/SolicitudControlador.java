@@ -21,6 +21,7 @@ public class SolicitudControlador {
     public ResponseEntity<List<Solicitud>> listar() {
         return ResponseEntity.ok(solicitudServicio.listar());
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> obtener(@PathVariable Long id) {
         try {
@@ -42,10 +43,12 @@ public class SolicitudControlador {
             // NUEVA CAPTURA PARA EL ERROR DE DUPLICIDAD (409 Conflict)
             // Buscamos el mensaje para ver si es el nro_tramite
             if (e.getMessage() != null && e.getMessage().contains("UK_nro_tramite")) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("Ya existe una solicitud con el número de trámite ingresado. Por favor, ingrese un valor único.");
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                        "Ya existe una solicitud con el número de trámite ingresado. Por favor, ingrese un valor único.");
             }
             // Si es otro error de integridad, devolvemos un 400
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error de integridad de datos: " + e.getMostSpecificCause().getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error de integridad de datos: " + e.getMostSpecificCause().getMessage());
         }
     }
 
@@ -66,5 +69,12 @@ public class SolicitudControlador {
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
+    }
+
+    @PutMapping("/{id}/estado")
+    public ResponseEntity<Solicitud> actualizarEstado(@PathVariable Long id, @RequestParam String estado) {
+        Solicitud solicitudActualizada = solicitudServicio.actualizarEstado(id, estado);
+        return solicitudActualizada != null ? ResponseEntity.ok(solicitudActualizada)
+                : ResponseEntity.notFound().build();
     }
 }

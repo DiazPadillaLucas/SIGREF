@@ -16,8 +16,6 @@ import com.sistema.demo.entidad.Solicitud;
 import com.sistema.demo.entidad.Solicitante;
 import com.sistema.demo.entidad.Recurso;
 
-
-
 @Service
 public class SolicitudServicio {
 
@@ -32,7 +30,6 @@ public class SolicitudServicio {
 
     @Autowired
 
-
     public java.util.List<Solicitud> listar() {
         return solicitudRepositorio.findAll();
     }
@@ -41,8 +38,10 @@ public class SolicitudServicio {
         return solicitudRepositorio.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Solicitud no encontrada: " + id));
     }
+
     @Autowired
     private EntityManager entityManager; // <-- Inyectar EntityManager
+
     @Transactional
     public Solicitud crearSolicitud(Solicitud solicitud) {
         // 1. VALIDACIÓN y ASIGNACIÓN DE SOLICITANTE
@@ -50,13 +49,15 @@ public class SolicitudServicio {
             throw new IllegalArgumentException("Solicitante requerido con id");
         }
         Solicitante solicitante = solicitanteRepositorio.findById(solicitud.getSolicitante().getId())
-                .orElseThrow(() -> new EntityNotFoundException("Solicitante no encontrado: " + solicitud.getSolicitante().getId()));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Solicitante no encontrado: " + solicitud.getSolicitante().getId()));
         solicitud.setSolicitante(solicitante);
 
         // 1. EXTRAER los Bienes/Recursos entrantes (que ahora son un Set<Recurso>)
         Set<Recurso> bienesEntrantes = solicitud.getBienesSolicitados();
 
-        // Dejamos la colección vacía temporalmente para evitar la cascada con objetos 'detached'
+        // Dejamos la colección vacía temporalmente para evitar la cascada con objetos
+        // 'detached'
         solicitud.setBienesSolicitados(new HashSet<>());
 
         // Guardar la Solicitud principal
@@ -82,18 +83,29 @@ public class SolicitudServicio {
 
         return savedSolicitud;
     }
+
     @Transactional
     public Solicitud actualizar(Long id, Solicitud actualizado) {
         Solicitud existente = obtenerPorId(id);
         existente.setNroTramite(actualizado.getNroTramite());
         existente.setArea(actualizado.getArea());
         existente.setFechaSolicitud(actualizado.getFechaSolicitud());
-        // no manejo aquí la actualización de relaciones complejas (podemos agregarlo si hace falta)
+        // no manejo aquí la actualización de relaciones complejas (podemos agregarlo si
+        // hace falta)
         return solicitudRepositorio.save(existente);
     }
 
     public void eliminar(Long id) {
         Solicitud existente = obtenerPorId(id);
         solicitudRepositorio.delete(existente);
+    }
+
+    public Solicitud actualizarEstado(Long id, String nuevoEstado) {
+        Solicitud solicitud = solicitudRepositorio.findById(id).orElse(null);
+        if (solicitud != null) {
+            solicitud.setEstado(nuevoEstado);
+            return solicitudRepositorio.save(solicitud);
+        }
+        return null;
     }
 }

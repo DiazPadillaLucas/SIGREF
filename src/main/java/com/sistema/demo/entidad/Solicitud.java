@@ -29,6 +29,9 @@ public class Solicitud {
 
     private String area;
 
+    @Column(nullable = false)
+    private String estado = "PENDIENTE"; // Valores posibles: PENDIENTE, ACEPTADA, RECHAZADA
+
     // La fecha de la solicitud, sin autogenerar
     @Temporal(TemporalType.DATE)
     @Column(nullable = false)
@@ -36,13 +39,11 @@ public class Solicitud {
 
     // Relación Muchos a Muchos: La tabla intermedia la manejaremos con un Set
     // Nota: Aunque JPA puede manejar la tabla intermedia automáticamente,
-    // es mejor crear la entidad intermedia explícitamente para añadir atributos (como cantidad de recurso).
+    // es mejor crear la entidad intermedia explícitamente para añadir atributos
+    // (como cantidad de recurso).
     @ManyToMany
-    @JoinTable(
-            name = "solicitud_recurso", // JPA creará y gestionará esta tabla por sí mismo
-            joinColumns = @JoinColumn(name = "solicitud_id"),
-            inverseJoinColumns = @JoinColumn(name = "recurso_id")
-    )
+    @JoinTable(name = "solicitud_recurso", // JPA creará y gestionará esta tabla por sí mismo
+            joinColumns = @JoinColumn(name = "solicitud_id"), inverseJoinColumns = @JoinColumn(name = "recurso_id"))
     private Set<Recurso> bienesSolicitados; // Cambiamos el nombre para reflejar el objeto final
 
 }
