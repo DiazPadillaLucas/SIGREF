@@ -15,6 +15,8 @@ document.addEventListener("DOMContentLoaded", function () {
   cargarCategoriasDinamicamente("registro-bien-cat", "Bien");
   cargarCategoriasDinamicamente("registro-rec-cat", "Insumo");
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
   cargarCategoriasDinamicamente("catRepMin", "Insumo");
   cargarBienesDisponibles()
   listarSolicitudes()
@@ -22,11 +24,21 @@ document.addEventListener("DOMContentLoaded", function () {
    cargarInsumosDinamicos()
 
 =======
+=======
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
   cargarBienesDisponibles();
   renderTablaSolicitudes();
   cargarSolicitantesDisponibles();
   cargarInsumosDinamicos();
   renderTablaSolicitudesInsumos()
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 });
 
@@ -1326,6 +1338,8 @@ function hideResourceForm(idForm){
 }
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 // Obtener insumos para listarlos en select
 function obtenerInsumosSelect(){
   fetch('http://localhost:8080/api/recursos/activos')
@@ -1351,6 +1365,10 @@ function obtenerInsumosSelect(){
 }
 
 
+=======
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 // Mostrar/ocultar formularios en usuarios
@@ -2889,6 +2907,7 @@ async function generarReporteStockMinimoPDF(recursos) {
         return 0;
     });
 
+<<<<<<< Updated upstream
 
     // --- Encabezado del PDF ---
     doc.setFontSize(16);
@@ -2904,6 +2923,7 @@ async function generarReporteStockMinimoPDF(recursos) {
     doc.setFontSize(12);
     doc.text("Dirigido a quien corresponda", 14, startYDirigido);
 
+<<<<<<< Updated upstream
 
     // --- Configuración de la Tabla ---
     const columns = [
@@ -2950,3 +2970,7 @@ async function generarReporteStockMinimoPDF(recursos) {
 =======
 >>>>>>> Stashed changes
 
+=======
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
