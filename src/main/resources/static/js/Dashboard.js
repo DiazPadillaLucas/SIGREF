@@ -8,19 +8,26 @@ document.addEventListener("DOMContentLoaded", function () {
   contarMovimientosHoy();
   listarRecursos();
   listarBienes();
-  obtenerInsumosSelect();
   mostrarFormulario();
   listarUsuarios();
   listarCategoriasBienes();
   listarCategoriasInsumos();
   cargarCategoriasDinamicamente("registro-bien-cat", "Bien");
   cargarCategoriasDinamicamente("registro-rec-cat", "Insumo");
+<<<<<<< Updated upstream
   cargarCategoriasDinamicamente("catRepMin", "Insumo");
   cargarBienesDisponibles()
   listarSolicitudes()
   cargarSolicitantesDisponibles()
    cargarInsumosDinamicos()
 
+=======
+  cargarBienesDisponibles();
+  renderTablaSolicitudes();
+  cargarSolicitantesDisponibles();
+  cargarInsumosDinamicos();
+  renderTablaSolicitudesInsumos()
+>>>>>>> Stashed changes
 });
 
 document.addEventListener("click", function (event) {
@@ -137,21 +144,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 function cargarInsumosDinamicos() {
-   const datalist = document.getElementById("insumosDatalist");
+   const datalist = document.getElementById("insumoMovimientoIngreso");
    // Limpiamos las opciones previas
    datalist.innerHTML = '';
 
    fetch("http://localhost:8080/api/recursos/activos")
      .then(r => r.json())
-     .then(recursos => {
+     .then(r => {
        // 🟢 FILTRO CONFIRMADO: Usamos exactamente el filtro que funciona en listarRecursos()
-       const insumos = recursos.filter(r => r.tipo === "Insumo");
-
+       const insumos = r.filter(r => r.tipo === "Insumo");
+      
+    
        insumos.forEach(insumo => {
          const option = document.createElement('option');
          // Aseguramos que el insumo tenga nombre para evitar opciones vacías
          if (insumo.nombre) {
-            option.value = insumo.nombre;
+            option.value = insumo.id;
+            option.textContent = insumo.nombre;
             datalist.appendChild(option);
          }
        });
@@ -646,7 +655,7 @@ function listarRecursos() {
         const eliminar = document.createElement("button");
         eliminar.className = "text-red-600 hover:text-red-900";
         eliminar.addEventListener("click", function () {
-          if (confirm("¿Estás seguro de dar de baja este recurso?")) {
+          if (confirm("¿Estás seguro de dar de baja el recurso?")) {
             fetch(
               "http://localhost:8080/api/recursos/" + recurso.id + "/darDeBaja",
               {
@@ -1316,6 +1325,7 @@ function hideResourceForm(idForm){
   document.getElementById(idForm).classList.add("hidden");
 }
 
+<<<<<<< Updated upstream
 // Obtener insumos para listarlos en select
 function obtenerInsumosSelect(){
   fetch('http://localhost:8080/api/recursos/activos')
@@ -1341,6 +1351,8 @@ function obtenerInsumosSelect(){
 }
 
 
+=======
+>>>>>>> Stashed changes
 // Mostrar/ocultar formularios en usuarios
 function showUserForm(action) {
   document.getElementById("form-nuevo-usuario").classList.add("hidden");
@@ -1531,7 +1543,6 @@ function eliminarUsuario(idUsuario) {
     }
 }
 
-
 //----------Gestion Solicitante------------------------------------------
 // Variable global para guardar el ID del solicitante que se está editando
 let solicitanteIdEditando = null;
@@ -1645,6 +1656,7 @@ function crearFilaSolicitante(solicitante) {
     eliminarIcon.className = "fas fa-trash";
     eliminar.appendChild(eliminarIcon);
 
+
     acciones.appendChild(editar);
     acciones.appendChild(eliminar);
 
@@ -1689,12 +1701,12 @@ window.crearSolicitante = function() {
 
 
 // === EDITAR SOLICITANTE (Llenar formulario de MODIFICACIÓN) ===
-function editarSolicitante(solicitante) {
-    solicitanteIdEditando = solicitante.id;
+function editarSolicitante(solicitud) {
+    solicitanteIdEditando = solicitud.id;
 
-    document.getElementById("modificar-solicitante-dni").value = solicitante.dni;
-    document.getElementById("modificar-solicitante-nombre").value = solicitante.nombre;
-    document.getElementById("modificar-solicitante-puesto").value = solicitante.puesto;
+    document.getElementById("modificar-solicitante-dni").value = solicitud.dni;
+    document.getElementById("modificar-solicitante-nombre").value = solicitud.nombre;
+    document.getElementById("modificar-solicitante-puesto").value = solicitud.puesto;
 
     document.getElementById("form-nuevo-solicitante").classList.add("hidden");
 
@@ -1759,14 +1771,10 @@ function eliminarSolicitante(idSolicitante) {
         });
     }
 }
+
+
 function cargarSolicitantesDisponibles() {
     const selectSolicitante = document.getElementById("registro-solcBi-solicitabien");
-
-    // Si ya se cargaron (más de 1 opción contando el placeholder), no recargar
-    if (selectSolicitante.options && selectSolicitante.options.length > 1) return;
-
-    // Mostrar estado de carga
-    selectSolicitante.innerHTML = '<option value="" disabled selected>Cargando solicitantes...</option>';
 
     fetch('http://localhost:8080/api/solicitantes')
         .then(response => {
@@ -1776,8 +1784,6 @@ function cargarSolicitantesDisponibles() {
             return response.json();
         })
         .then(solicitantes => {
-            selectSolicitante.innerHTML = '<option value="" disabled selected>Seleccione un Solicitante</option>';
-
             if (solicitantes.length === 0) {
                  selectSolicitante.innerHTML = '<option value="" disabled selected>No hay Solicitantes disponibles</option>';
                  return;
@@ -1787,11 +1793,12 @@ function cargarSolicitantesDisponibles() {
             solicitantes.forEach(solicitante => {
                 const option = document.createElement("option");
                 // Muestra el nombre completo o un identificador
-                option.textContent = solicitante.nombre + " " + solicitante.apellido; // AJUSTAR SEGÚN LA ESTRUCTURA DE TU ENTIDAD SOLICITANTE
+                option.textContent = solicitante.nombre; // AJUSTAR SEGÚN LA ESTRUCTURA DE TU ENTIDAD SOLICITANTE
                 // El valor es el ID del Solicitante (que el Backend espera)
                 option.value = solicitante.id;
                 selectSolicitante.appendChild(option);
             });
+
             console.log(`Solicitantes cargados (${solicitantes.length} encontrados).`);
         })
         .catch(error => {
@@ -1799,6 +1806,48 @@ function cargarSolicitantesDisponibles() {
             selectSolicitante.innerHTML = '<option value="" disabled selected>Error al cargar solicitantes</option>';
         });
 }
+
+function cargarBienesDisponibles() {
+    const selectBienes = document.getElementById("registro-solcBi-nomBien");
+
+    fetch('http://localhost:8080/api/recursos')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("HTTP error! status: " + response.status);
+            }
+            return response.json();
+        })
+        .then(recursos => {
+
+            const bienes = recursos.filter(recursos => recursos.tipo === "Bien");
+
+            console.log("Bienes disponibles:", bienes);
+
+            if (bienes.length === 0) {
+                 selectBienes.innerHTML = '<option value="" disabled selected>No hay bienes disponibles</option>';
+                 return;
+            }
+            
+
+            // Rellena con los Solicitantes (asumiendo que tienen 'id' y 'nombre'/'apellido' o similar)
+            bienes.forEach(bien => {
+                const option = document.createElement("option");
+                // Muestra el nombre completo o un identificador
+                option.textContent = bien.nombre; 
+                option.value = bien.id;
+                selectBienes.appendChild(option);
+            });
+
+            console.log(`Solicitantes cargados (${bienes.length} encontrados).`);
+        })
+        .catch(error => {
+            console.error("Fallo al cargar bienes:", error);
+            selectSolicitante.innerHTML = '<option value="" disabled selected>Error al cargar bienes</option>';
+        });
+}
+
+
+
 
 // --- Validación de DNI (Se mantiene) ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -1910,7 +1959,7 @@ function listarCategoriasBienes() {
       console.log("Categorías de bienes:", bienes);
       if (bienes.length === 0) {
         tabla.innerHTML = `<tr><td colspan="3" class="px-6 py-4 text-sm text-gray-500">No hay categorías de bienes.</td></tr>`;
-        return;
+               return;
       }
       bienes.forEach(cat => {
         const tr = document.createElement("tr");
@@ -2060,8 +2109,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Gestión de Solicitudes de Bienes--------------------------------------------------
 
-// Datos almacenados en localStorage
-let solicitudesBienes = JSON.parse(localStorage.getItem("solicitudesBienes")) || [];
 
 // Mostrar un formulario y ocultar los demás
 function showResourceForm(formId) {
@@ -2076,53 +2123,6 @@ function showResourceForm(formId) {
 function hideResourceForm(formId) {
     const form = document.getElementById(formId);
     if (form) form.classList.add("hidden");
-}
-// Asume que RECURSOS_API_URL está definida (ej: "http://localhost:8080/api/recursos")
-
-function cargarBienesDisponibles() {
-    const selectBien = document.getElementById("registro-solcBi-nombien");
-
-    // Si ya se cargaron (más de 1 opción contando el placeholder), no recargar
-    if (selectBien.options && selectBien.options.length > 1) return;
-
-    // Asumiendo que RECURSOS_API_URL está definida globalmente (ej: "http://localhost:8080/api/recursos")
-
-    // 1. CORRECCIÓN: Usamos 'BIEN' en mayúsculas y la URL correcta
-    const urlConFiltro = `${RECURSOS_API_URL}/activos?tipo=Bien`;
-
-    // 2. CORRECCIÓN: Usamos la variable correctamente nombrada 'urlConFiltro'
-    fetch(urlConFiltro)
-        .then(response => {
-            if (!response.ok) {
-                // Si el servidor devuelve un error (4xx/5xx), lanza el error HTTP
-                throw new Error("HTTP error! status: " + response.status);
-            }
-            return response.json();
-        })
-        .then(bienes => {
-            // Limpia y establece la opción por defecto
-            selectBien.innerHTML = '<option value="" disabled selected>Seleccione un Bien</option>';
-
-            if (bienes.length === 0) {
-                 selectBien.innerHTML = '<option value="" disabled selected>No hay Bienes disponibles</option>';
-                 return;
-            }
-            // Rellena con los Bienes
-            bienes.forEach(bien => {
-                const option = document.createElement("option");
-                // Muestra el nombre y el código
-                option.textContent = bien.nombre + " (Cód: " + bien.codigo + ")";
-                // El valor es el ID del Recurso
-                option.value = bien.id;
-                selectBien.appendChild(option);
-            });
-            console.log(`Bienes cargados (${bienes.length} encontrados).`);
-        })
-        .catch(error => {
-            // Muestra un error visible en el select y en la consola
-            console.error("Fallo al cargar Bienes. Verifique el endpoint /api/recursos/activos?tipo=BIEN:", error);
-            selectBien.innerHTML = '<option value="" disabled selected>Error al cargar bienes</option>';
-        });
 }
 
 //-------------------- VER DETALLE (OJITO) --------------------
@@ -2152,41 +2152,107 @@ function aceptarSolicitudBien() {
 
     solicitudSeleccionadaBien.estado = "aceptada";
 
-    guardarEnLocalStorage();
     renderTablaSolicitudes();
     hideResourceForm("form-ver-solicitudBienes");
 
     alert("Solicitud aceptada correctamente.");
 }
 
-function crearSolicitudBien() {
-    const numeroT = document.getElementById("registro-solcBi-numeroT").value.trim();
-    const area = document.getElementById("registro-solcBi-Area").value.trim();
-    //const bienId = document.getElementById("registro-solcBi-nombien").value;
-    // En la función crearSolicitudBien()
-    const bienId = document.getElementById("registro-solcBi-nombien").value;
-    // CLAVE: Captura el ID del Solicitante del nuevo <select>
-    const solicitanteId = document.getElementById("registro-solcBi-solicitabien").value;
 
-    const fecha = document.getElementById("registro-solcBi-fecha").value.trim();
+function crearSolicitudInsumos() {
+    const numeroT = document.getElementById("registro-insumo-numeroT").value.trim();
+    const area = document.getElementById("registro-insumo-area").value.trim();
+    const solicitanteId = solicitanteSelect.value;
+    const fecha = document.getElementById("registro-insumo-fecha").value.trim();
 
-    // 1. Validaciones
-    if (!numeroT || !area || !bienId || !solicitanteId || !fecha) { // Usamos solicitanteId aquí
+    if (!numeroT || !area || !solicitanteId || !fecha) {
         alert("Complete todos los campos antes de guardar.");
         return;
     }
-// ...
-const nuevaSolicitud = {
-    nroTramite: numeroT,
-    area: area,
-    fechaSolicitud: fecha,
-    solicitante: { id: parseInt(solicitanteId) },
 
-    // CLAVE: Enviamos un array de objetos Recurso con solo el ID
-    bienesSolicitados: [
-        { id: parseInt(bienId) }
-    ]
-};
+    if (solicitudesInsumos.some(s => s.numeroT === numeroT)) {
+        alert("Ya existe una solicitud con ese número de trámite.");
+        return;
+    }
+
+    const insumos = [];
+    document.querySelectorAll("#contenedor-insumos .insumo-item").forEach(item => {
+        const nombre = item.querySelector(".input-insumo-nombre").value.trim();
+        const cantidad = item.querySelector(".input-insumo-cantidad").value.trim();
+        if (nombre && cantidad) insumos.push({ nombre, cantidad });
+    });
+
+    if (insumos.length === 0) {
+        alert("Debe agregar al menos un insumo.");
+        return;
+    }
+      const nuevaSolicitud = {
+        nroTramite: numeroT,
+        area: area,
+        fechaSolicitud: fecha,
+        estado: "PENDIENTE",
+        solicitante: {
+            id: parseInt(solicitanteId)
+        },
+        insumosSolicitados: insumos
+    };
+
+    solicitudesInsumos.push(nuevaSolicitud);
+    guardarEnLocalStorageInsumos();
+    renderTablaSolicitudesInsumos();
+    limpiarFormularioSolicitudInsumos();
+    hideResourceForm("form-nueva-solicitudInsumos");
+    alert("Solicitud registrada correctamente.");
+}
+
+function crearSolicitudBien() {
+
+
+
+    const numeroT = document.getElementById("registro-solcBi-numeroT").value.trim();
+    const area = document.getElementById("registro-solcBi-Area").value.trim();
+    console.log("bienId seleccionado:", document.getElementById("registro-solcBi-nomBien").value);
+    // CLAVE: Captura el ID del Solicitante del nuevo
+    const solicitanteId = document.getElementById("registro-solcBi-solicitabien").value;
+    const fecha = document.getElementById("registro-solcBi-fecha").value.trim();
+
+
+
+    
+    // 1. Validaciones
+    if (!numeroT || !area || !solicitanteId || !fecha) { // Usamos solicitanteId aquí
+        alert("Complete todos los campos antes de guardar.");
+        return;
+    }
+    
+
+    const bienes = [];
+    document.querySelectorAll("#contenedor-bienes .insumo-item").forEach(item => {
+
+        const bienIds = document.getElementById("registro-solcBi-nomBien").value;
+        bienes.push(bienIds);
+    }); 
+
+    console.log("bienes seleccionados:", bienes);
+
+    if (bienes.length === 0) {
+        alert("Debe agregar al menos un bienes.");
+        return;
+    }
+        const nuevaSolicitud = {
+        nroTramite: numeroT,
+        area: area,
+        fechaSolicitud: fecha,
+        estado: "PENDIENTE", // Valor por defecto
+        solicitante: {
+            id: parseInt(solicitanteId)
+        },
+        bienesSolicitados: [
+            {
+                id: parseInt(bienes)
+            }
+        ]
+    };
     // 3. Integración con el SolicitudControlador (POST)
     fetch("http://localhost:8080/api/solicitudes", {
         method: "POST",
@@ -2206,13 +2272,14 @@ const nuevaSolicitud = {
         // Después de crear, refresca la lista/página
         listarSolicitudes();
         hideResourceForm("form-nueva-solicitudBienes");
-        window.location.reload();
+        reloadPage();
     })
     .catch(error => {
         console.error("Fallo al crear solicitud de Bien:", error);
         alert("Error al guardar la solicitud: " + error.message);
     });
 }
+
 function listarSolicitudes() {
     const tablaSolicitudes = document.getElementById("tabla-solicitudes-bienes"); // Asegúrate de que este ID exista
     if (!tablaSolicitudes) return;
@@ -2244,6 +2311,9 @@ function listarSolicitudes() {
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${solicitud.solicitante.nombre}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${fecha}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="mostrar(${solicitud.id})" class="text-blue-600 hover:text-blue-900 mr-3">
+                            <i class="fas fa-edit"></i>
+                        </button>
                         <button onclick="mostrarFormularioEditarSolicitud(${solicitud.id})" class="text-blue-600 hover:text-blue-900 mr-3">
                             <i class="fas fa-edit"></i>
                         </button>
@@ -2298,8 +2368,7 @@ function modificarSolicitudBien() {
     solicitud.solicitante = solicitante;
     solicitud.fecha = fecha;
 
-    guardarEnLocalStorage();
-    renderTablaSolicitudes();
+  
     hideResourceForm("form-modificar-solicitudBienes");
     alert("Solicitud modificada correctamente.");
 }
@@ -2310,13 +2379,12 @@ function eliminarSolicitud(id) {
     if (!confirmar) return;
 
     solicitudesBienes = solicitudesBienes.filter(s => s.id !== id);
-    guardarEnLocalStorage();
     renderTablaSolicitudes();
 }
 
 // Renderizar tabla con las solicitudes
 function renderTablaSolicitudes() {
-    const tbody = document.getElementById("tabla-solicitudesBienes");
+    const tbody = document.getElementById("tabla-solicitudes-bienes");
     if (!tbody) return;
 
     tbody.innerHTML = "";
@@ -2368,7 +2436,7 @@ function renderTablaSolicitudes() {
 
         // Botón Editar (ícono)
         const btnEditar = document.createElement("button");
-        btnEditar.innerHTML = `<i class="fas fa-edit text-blue-600 hover:text-blue-800 text-lg"></i>`;
+        btnEditar.innerHTML = `<i class="fas fa-edit text-blue-600 hover:text-blue-900 text-lg"></i>`;
         btnEditar.title = "Editar";
         btnEditar.onclick = function() {
             editarSolicitud(s.id);
@@ -2376,7 +2444,7 @@ function renderTablaSolicitudes() {
 
         // Botón Eliminar (ícono)
         const btnEliminar = document.createElement("button");
-        btnEliminar.innerHTML = `<i class="fas fa-trash text-red-600 hover:text-red-800 text-lg"></i>`;
+        btnEliminar.innerHTML = `<i class="fas fa-trash text-red-600 hover:text-red-900 text-lg"></i>`;
         btnEliminar.title = "Eliminar";
         btnEliminar.onclick = function() {
             eliminarSolicitud(s.id);
@@ -2394,11 +2462,6 @@ function renderTablaSolicitudes() {
 
         tbody.appendChild(fila);
     });
-}
-
-// Guardar datos en localStorage
-function guardarEnLocalStorage() {
-    localStorage.setItem("solicitudesBienes", JSON.stringify(solicitudesBienes));
 }
 
 // Limpiar campos del formulario
@@ -2424,8 +2487,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // Gestión de Solicitudes de Insumos --------------------------------------------------
 
-// Datos almacenados en localStorage
-let solicitudesInsumos = JSON.parse(localStorage.getItem("solicitudesInsumos")) || [];
 
 // Mostrar un formulario y ocultar los demás
 function showResourceForm(formId) {
@@ -2458,11 +2519,17 @@ function agregarInsumo(contenedorId) {
     }
     const tipo = extraerTipo(contenedorId) === "bienes" ? "Bien" : "Insumo";
     if(tipo==="Insumo"){
-     nuevoRecurso.innerHTML = `
+      clase = ""
+      nuevoRecurso.innerHTML = `
             <div>
-                <label class="block text-gray-700 mb-2">Nombre del ${tipo}</label>
-                <input type="text" class="input-insumo-nombre w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ej: Papel A4" />
-            </div>
+                  <label class="block text-gray-700 mb-2">Nombre del ${tipo}</label>
+                                <select
+                                            id="registro-solcBi-nomBien"
+                                            class="input-insumo-nombre w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            required
+                                    >
+                                    </select>
+                                </div>
             <div>
                 <label class="block text-gray-700 mb-2">Cantidad</label>
                 <input type="number" min="1" class="input-insumo-cantidad w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ej: 10" />
@@ -2485,59 +2552,12 @@ function agregarInsumo(contenedorId) {
     contenedor.appendChild(nuevoRecurso);
 }
 
+
 function eliminarInsumo(btn) {
     const item = btn.closest(".insumo-item");
     if (item) item.remove();
 }
 
-// ==============================
-// Crear una nueva solicitud
-// ==============================
-
-function crearSolicitudInsumos() {
-    const numeroT = document.getElementById("registro-insumo-numeroT").value.trim();
-    const area = document.getElementById("registro-insumo-area").value.trim();
-    const solicitante = document.getElementById("registro-insumo-solicitante").value.trim();
-    const fecha = document.getElementById("registro-insumo-fecha").value.trim();
-
-    if (!numeroT || !area || !solicitante || !fecha) {
-        alert("Complete todos los campos antes de guardar.");
-        return;
-    }
-
-    if (solicitudesInsumos.some(s => s.numeroT === numeroT)) {
-        alert("Ya existe una solicitud con ese número de trámite.");
-        return;
-    }
-
-    const insumos = [];
-    document.querySelectorAll("#contenedor-insumos .insumo-item").forEach(item => {
-        const nombre = item.querySelector(".input-insumo-nombre").value.trim();
-        const cantidad = item.querySelector(".input-insumo-cantidad").value.trim();
-        if (nombre && cantidad) insumos.push({ nombre, cantidad });
-    });
-
-    if (insumos.length === 0) {
-        alert("Debe agregar al menos un insumo.");
-        return;
-    }
-
-    const nuevaSolicitud = {
-        id: Date.now(),
-        numeroT,
-        area,
-        solicitante,
-        fecha,
-        insumos
-    };
-
-    solicitudesInsumos.push(nuevaSolicitud);
-    guardarEnLocalStorageInsumos();
-    renderTablaSolicitudesInsumos();
-    limpiarFormularioSolicitudInsumos();
-    hideResourceForm("form-nueva-solicitudInsumos");
-    alert("Solicitud registrada correctamente.");
-}
 
 // ==============================
 // Cargar datos en formulario de edición
@@ -2666,19 +2686,10 @@ function eliminarSolicitudInsumos(id) {
 function renderTablaSolicitudesInsumos() {
     const tbody = document.getElementById("tabla-solicitudesInsumos");
     if (!tbody) return;
+    
 
     tbody.innerHTML = "";
-
-    if (solicitudesInsumos.length === 0) {
-        const fila = document.createElement("tr");
-        const celda = document.createElement("td");
-        celda.colSpan = 6;
-        celda.textContent = "No hay solicitudes registradas.";
-        celda.classList.add("text-center", "py-4", "text-gray-500");
-        fila.appendChild(celda);
-        tbody.appendChild(fila);
-        return;
-    }
+    
 
     solicitudesInsumos.forEach(s => {
         const fila = document.createElement("tr");
@@ -2707,12 +2718,12 @@ function renderTablaSolicitudesInsumos() {
         colAcciones.classList.add("px-6", "py-3", "text-sm", "flex", "space-x-4");
 
         const btnEditar = document.createElement("button");
-        btnEditar.innerHTML = `<i class="fas fa-edit text-blue-600 hover:text-blue-800 text-lg"></i>`;
+        btnEditar.innerHTML = `<i class="fas fa-edit text-blue-600 hover:text-blue-900 text-lg"></i>`;
         btnEditar.title = "Editar";
         btnEditar.onclick = () => editarSolicitudInsumos(s.id);
 
         const btnEliminar = document.createElement("button");
-        btnEliminar.innerHTML = `<i class="fas fa-trash text-red-600 hover:text-red-800 text-lg"></i>`;
+        btnEliminar.innerHTML = `<i class="fas fa-trash text-red-600 hover:text-red-900 text-lg"></i>`;
         btnEliminar.title = "Eliminar";
         btnEliminar.onclick = () => eliminarSolicitudInsumos(s.id);
 
@@ -2837,6 +2848,7 @@ document.addEventListener('DOMContentLoaded', cargarCategoriasDinamicamente);
 
 
 
+<<<<<<< Updated upstream
 async function generarReporteStockMinimoPDF(recursos) {
   try {
     // 🌟 Eliminada la dependencia de document.getElementById("catRepMin") 🌟
@@ -2935,4 +2947,6 @@ async function generarReporteStockMinimoPDF(recursos) {
 }
 
 
+=======
+>>>>>>> Stashed changes
 
