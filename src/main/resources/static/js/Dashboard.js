@@ -2837,7 +2837,102 @@ document.addEventListener('DOMContentLoaded', cargarCategoriasDinamicamente);
 
 
 
+async function generarReporteStockMinimoPDF(recursos) {
+  try {
+    // 🌟 Eliminada la dependencia de document.getElementById("catRepMin") 🌟
+    // El nombre de la categoría para el título se fija en "Todas las Categorías"
+    const categoriaNombreSeleccionada = "Todas las Categorías";
 
+    const recursosFiltrados = recursos; // Datos ya filtrados
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Configuración de fecha
+    const hoy = new Date();
+    const yyyy = hoy.getFullYear();
+    const mm = String(hoy.getMonth() + 1).padStart(2, "0");
+    const dd = String(hoy.getDate()).padStart(2, "0");
+    const fechaHoy = `${dd}/${mm}/${yyyy}`;
+
+    // 🛑 Manejo de Cero Resultados
+    if (recursosFiltrados.length === 0) {
+      alert(`No hay recursos con alerta de stock mínimo en la categoría: ${categoriaNombreSeleccionada}.`);
+      doc.setFontSize(12);
+      doc.text(fechaHoy, 190, 20, { align: "right" });
+      doc.text(`Categoría: ${categoriaNombreSeleccionada}`, 14, 30);
+      doc.text("Dirigido a quien corresponda", 14, 50);
+      doc.save(`reporte_stock_minimo_${categoriaNombreSeleccionada.toLowerCase().replace(/\s/g, '_')}.pdf`);
+      return;
+    }
+
+    // 🌟 ORDENAMIENTO ALFABÉTICO POR NOMBRE 🌟
+    recursosFiltrados.sort((a, b) => {
+        // Obtenemos el nombre y aseguramos que no sea nulo antes de toLowerCase()
+        const nombreA = (a.nombre || '').toLowerCase();
+        const nombreB = (b.nombre || '').toLowerCase();
+
+        if (nombreA < nombreB) return -1;
+        if (nombreA > nombreB) return 1;
+        return 0;
+    });
+
+
+    // --- Encabezado del PDF ---
+    doc.setFontSize(16);
+    doc.text(
+      `Reporte de Stock Mínimo - ${categoriaNombreSeleccionada}`,
+      14,
+      20
+    );
+    doc.text(fechaHoy, 190, 20, { align: "right" });
+
+    // Mover "Dirigido a quien corresponda" arriba de la tabla
+    const startYDirigido = 30;
+    doc.setFontSize(12);
+    doc.text("Dirigido a quien corresponda", 14, startYDirigido);
+
+
+    // --- Configuración de la Tabla ---
+    const columns = [
+      "ID",
+      "Nombre",
+      "Descripción",
+     // "Código",
+      "Cantidad",
+      "Mínimo",
+      "Categoría",
+    ];
+
+    const rows = recursosFiltrados.map((rec) => {
+      // Solución al [object Object] (asumimos que la estructura sigue siendo rec.categoria.nombre)
+      const nombreCategoria = rec.categoria && rec.categoria.nombre ? rec.categoria.nombre : '[No definido]';
+
+      return [
+        rec.id,
+        rec.nombre,
+        rec.descripcion,
+      //  rec.codigo,
+        rec.cantidad,
+        rec.minimo,
+        nombreCategoria,
+      ];
+    });
+
+    doc.autoTable({
+      head: [columns],
+      body: rows,
+      startY: startYDirigido + 10, // Inicia 10 unidades después del texto
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [255, 193, 7] }, // Amarillo
+    });
+
+    // Guardar el archivo PDF
+    doc.save(`reporte_stock_minimo_${categoriaNombreSeleccionada.toLowerCase().replace(/\s/g, '_')}.pdf`);
+  } catch (error) {
+    console.error("Error generando el PDF:", error);
+  }
+}
 
 
 
