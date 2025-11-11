@@ -1162,61 +1162,47 @@ function generarReporteMovimientoPDF(movimientos) {
 
 async function generarReporteStockMinimoPDF(recursos) {
   try {
-    // 🌟 Eliminada la dependencia de document.getElementById("catRepMin") 🌟
-    // El nombre de la categoría para el título se fija en "Todas las Categorías"
-    const categoriaNombreSeleccionada = "Todas las Categorías";
+    const categoriaSeleccionada =
+      document.getElementById("categoria").value;
 
-    const recursosFiltrados = recursos; // Datos ya filtrados
+    if (categoriaSeleccionada === "") {
+      alert("Por favor seleccione una categoría.");
+      return;
+    }
+
+    const recursosFiltrados = recursos.filter(
+      (rec) =>
+        rec.categoria.toUpperCase() === categoriaSeleccionada.toUpperCase() &&
+        rec.estado === true
+    );
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
 
-    // Configuración de fecha
     const hoy = new Date();
     const yyyy = hoy.getFullYear();
     const mm = String(hoy.getMonth() + 1).padStart(2, "0");
     const dd = String(hoy.getDate()).padStart(2, "0");
     const fechaHoy = `${dd}/${mm}/${yyyy}`;
 
-    // 🛑 Manejo de Cero Resultados
     if (recursosFiltrados.length === 0) {
-      alert(`No hay recursos con alerta de stock mínimo en la categoría: ${categoriaNombreSeleccionada}.`);
+      alert("No hay recursos con alerta de stock mínimo en esta categoría.");
       doc.setFontSize(12);
       doc.text(fechaHoy, 190, 20, { align: "right" });
-      doc.text(`Categoría: ${categoriaNombreSeleccionada}`, 14, 30);
+      doc.text(`Categoría: ${categoriaSeleccionada}`, 14, 30);
       doc.text("Dirigido a quien corresponda", 14, 50);
-      doc.save(`reporte_stock_minimo_${categoriaNombreSeleccionada.toLowerCase().replace(/\s/g, '_')}.pdf`);
+      doc.save(`reporte_stock_minimo_${categoriaSeleccionada.toLowerCase()}.pdf`);
       return;
     }
 
-    // 🌟 ORDENAMIENTO ALFABÉTICO POR NOMBRE 🌟
-    recursosFiltrados.sort((a, b) => {
-        // Obtenemos el nombre y aseguramos que no sea nulo antes de toLowerCase()
-        const nombreA = (a.nombre || '').toLowerCase();
-        const nombreB = (b.nombre || '').toLowerCase();
-
-        if (nombreA < nombreB) return -1;
-        if (nombreA > nombreB) return 1;
-        return 0;
-    });
-
-
-    // --- Encabezado del PDF ---
     doc.setFontSize(16);
     doc.text(
-      `Reporte de Stock Mínimo - ${categoriaNombreSeleccionada}`,
+      `Reporte de Stock Mínimo - Categoría: ${categoriaSeleccionada}`,
       14,
       20
     );
     doc.text(fechaHoy, 190, 20, { align: "right" });
 
-    // Mover "Dirigido a quien corresponda" arriba de la tabla
-    const startYDirigido = 30;
-    doc.setFontSize(12);
-    doc.text("Dirigido a quien corresponda", 14, startYDirigido);
-
-
-    // --- Configuración de la Tabla ---
     const columns = [
       "ID",
       "Nombre",
@@ -1227,35 +1213,36 @@ async function generarReporteStockMinimoPDF(recursos) {
       "Categoría",
     ];
 
-    const rows = recursosFiltrados.map((rec) => {
-      // Solución al [object Object] (asumimos que la estructura sigue siendo rec.categoria.nombre)
-      const nombreCategoria = rec.categoria && rec.categoria.nombre ? rec.categoria.nombre : '[No definido]';
-
-      return [
-        rec.id,
-        rec.nombre,
-        rec.descripcion,
-      //  rec.codigo,
-        rec.cantidad,
-        rec.minimo,
-        nombreCategoria,
-      ];
-    });
+    const rows = recursosFiltrados.map((rec) => [
+      rec.id,
+      rec.nombre,
+      rec.descripcion,
+    //  rec.codigo,
+      rec.cantidad,
+      rec.minimo,
+      rec.categoria,
+    ]);
 
     doc.autoTable({
       head: [columns],
       body: rows,
-      startY: startYDirigido + 10, // Inicia 10 unidades después del texto
+      startY: 30,
       styles: { fontSize: 8 },
       headStyles: { fillColor: [255, 193, 7] }, // Amarillo
     });
 
-    // Guardar el archivo PDF
-    doc.save(`reporte_stock_minimo_${categoriaNombreSeleccionada.toLowerCase().replace(/\s/g, '_')}.pdf`);
+    // Texto final
+    const finalY = doc.lastAutoTable.finalY + 10;
+    doc.setFontSize(12);
+    doc.text("Dirigido a quien corresponda", 14, finalY);
+
+    doc.save(`reporte_stock_minimo_${categoriaSeleccionada.toLowerCase()}.pdf`);
   } catch (error) {
     console.error("Error generando el PDF:", error);
   }
 }
+
+
 
 async function generarReporteInventarioPDF(recursos) {
   try {
@@ -1817,12 +1804,6 @@ function eliminarSolicitante(idSolicitante) {
 function cargarSolicitantesDisponibles() {
     const selectSolicitante = document.getElementById("registro-solcBi-solicitabien");
 
-    // Si ya se cargaron (más de 1 opción contando el placeholder), no recargar
-    if (selectSolicitante.options && selectSolicitante.options.length > 1) return;
-
-    // Mostrar estado de carga
-    selectSolicitante.innerHTML = '<option value="" disabled selected>Cargando solicitantes...</option>';
-
     fetch('http://localhost:8080/api/solicitantes')
         .then(response => {
             if (!response.ok) {
@@ -1830,8 +1811,7 @@ function cargarSolicitantesDisponibles() {
             }
             return response.json();
         })
-        .then(solicitantes => {
-            selectSolicitante.innerHTML = '<option value="" disabled selected>Seleccione un Solicitante</option>';
+          .then(solicitantes => {
 
             if (solicitantes.length === 0) {
                  selectSolicitante.innerHTML = '<option value="" disabled selected>No hay Solicitantes disponibles</option>';
@@ -1842,12 +1822,12 @@ function cargarSolicitantesDisponibles() {
             solicitantes.forEach(solicitante => {
                 const option = document.createElement("option");
                 // Muestra el nombre completo o un identificador
-                option.textContent = solicitante.nombre + " " + solicitante.apellido; // AJUSTAR SEGÚN LA ESTRUCTURA DE TU ENTIDAD SOLICITANTE
+                option.textContent = solicitante.nombre;// AJUSTAR SEGÚN LA ESTRUCTURA DE TU ENTIDAD SOLICITANTE
                 // El valor es el ID del Solicitante (que el Backend espera)
                 option.value = solicitante.id;
                 selectSolicitante.appendChild(option);
             });
-            console.log(`Solicitantes cargados (${solicitantes.length} encontrados).`);
+
         })
         .catch(error => {
             console.error("Fallo al cargar Solicitantes:", error);
@@ -2115,8 +2095,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Gestión de Solicitudes de Bienes--------------------------------------------------
 
-// Datos almacenados en localStorage
-let solicitudesBienes = JSON.parse(localStorage.getItem("solicitudesBienes")) || [];
 
 // Mostrar un formulario y ocultar los demás
 function showResourceForm(formId) {
@@ -2134,50 +2112,32 @@ function hideResourceForm(formId) {
 }
 // Asume que RECURSOS_API_URL está definida (ej: "http://localhost:8080/api/recursos")
 
+
 function cargarBienesDisponibles() {
-    const selectBien = document.getElementById("registro-solcBi-nombien");
+   const datalist = document.getElementById("registro-solcBi-nombien");
+   // Limpiamos las opciones previas
+   datalist.innerHTML = '';
 
-    // Si ya se cargaron (más de 1 opción contando el placeholder), no recargar
-    if (selectBien.options && selectBien.options.length > 1) return;
+   fetch("http://localhost:8080/api/recursos/activos")
+     .then(r => r.json())
+     .then(r => {
 
-    // Asumiendo que RECURSOS_API_URL está definida globalmente (ej: "http://localhost:8080/api/recursos")
+        const bienes = r.filter(r => r.tipo === "Bien");
+        console.log("Insumos obtenidos para datalist:", bienes[0].nombre);
 
-    // 1. CORRECCIÓN: Usamos 'BIEN' en mayúsculas y la URL correcta
-    const urlConFiltro = `${RECURSOS_API_URL}/activos?tipo=Bien`;
+       bienes.forEach(bien => {
+         const option = document.createElement('option');
+         // Aseguramos que el insumo tenga nombre para evitar opciones vacías
+         if (bien.nombre) {
+            option.value = bien.id;
+            option.textContent = bien.nombre;
+            datalist.appendChild(option);
+         }
+       });
 
-    // 2. CORRECCIÓN: Usamos la variable correctamente nombrada 'urlConFiltro'
-    fetch(urlConFiltro)
-        .then(response => {
-            if (!response.ok) {
-                // Si el servidor devuelve un error (4xx/5xx), lanza el error HTTP
-                throw new Error("HTTP error! status: " + response.status);
-            }
-            return response.json();
-        })
-        .then(bienes => {
-            // Limpia y establece la opción por defecto
-            selectBien.innerHTML = '<option value="" disabled selected>Seleccione un Bien</option>';
-
-            if (bienes.length === 0) {
-                 selectBien.innerHTML = '<option value="" disabled selected>No hay Bienes disponibles</option>';
-                 return;
-            }
-            // Rellena con los Bienes
-            bienes.forEach(bien => {
-                const option = document.createElement("option");
-                // Muestra el nombre y el código
-                option.textContent = bien.nombre + " (Cód: " + bien.codigo + ")";
-                // El valor es el ID del Recurso
-                option.value = bien.id;
-                selectBien.appendChild(option);
-            });
-            console.log(`Bienes cargados (${bienes.length} encontrados).`);
-        })
-        .catch(error => {
-            // Muestra un error visible en el select y en la consola
-            console.error("Fallo al cargar Bienes. Verifique el endpoint /api/recursos/activos?tipo=BIEN:", error);
-            selectBien.innerHTML = '<option value="" disabled selected>Error al cargar bienes</option>';
-        });
+       console.log(`Cargados ${insumos.length} insumos dinámicamente.`);
+     })
+     .catch(err => console.error("Error al cargar insumos:", err));
 }
 
 //-------------------- VER DETALLE (OJITO) --------------------
@@ -2207,7 +2167,6 @@ function aceptarSolicitudBien() {
 
     solicitudSeleccionadaBien.estado = "aceptada";
 
-    guardarEnLocalStorage();
     renderTablaSolicitudes();
     hideResourceForm("form-ver-solicitudBienes");
 
@@ -2353,7 +2312,6 @@ function modificarSolicitudBien() {
     solicitud.solicitante = solicitante;
     solicitud.fecha = fecha;
 
-    guardarEnLocalStorage();
     renderTablaSolicitudes();
     hideResourceForm("form-modificar-solicitudBienes");
     alert("Solicitud modificada correctamente.");
@@ -2365,7 +2323,6 @@ function eliminarSolicitud(id) {
     if (!confirmar) return;
 
     solicitudesBienes = solicitudesBienes.filter(s => s.id !== id);
-    guardarEnLocalStorage();
     renderTablaSolicitudes();
 }
 
@@ -2451,10 +2408,6 @@ function renderTablaSolicitudes() {
     });
 }
 
-// Guardar datos en localStorage
-function guardarEnLocalStorage() {
-    localStorage.setItem("solicitudesBienes", JSON.stringify(solicitudesBienes));
-}
 
 // Limpiar campos del formulario
 function limpiarFormulario(prefijo) {
@@ -2479,8 +2432,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // Gestión de Solicitudes de Insumos --------------------------------------------------
 
-// Datos almacenados en localStorage
-let solicitudesInsumos = JSON.parse(localStorage.getItem("solicitudesInsumos")) || [];
 
 // Mostrar un formulario y ocultar los demás
 function showResourceForm(formId) {
@@ -2890,6 +2841,9 @@ function cargarCategoriasDinamicamente(selectId, tipoFiltro) {
 // Inicialización: Carga las categorías al cargar la página.
 document.addEventListener('DOMContentLoaded', cargarCategoriasDinamicamente);
 document.addEventListener('DOMContentLoaded', cargarInsumosDinamicos);
+document.addEventListener('DOMContentLoaded',cargarBienesDisponibles)
+
+document.addEventListener('DOMContentLoaded',)
 
 
 
