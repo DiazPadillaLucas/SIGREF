@@ -174,9 +174,11 @@ function registrarMovimiento() {
   // Usamos Math.abs() para garantizar que la cantidad sea siempre positiva y se SUME al stock.
   const cantidad = Math.abs(parseInt(document.getElementById("cantidadMovimientoIngreso").value));
 
-  const nombreRecurso = document.getElementById("insumoMovimientoIngreso").value;
+  const idInsumo = document.getElementById("insumoMovimientoIngreso").value;
   const observaciones = document.getElementById("observacionesMovimientoIngreso").value;
   const fechaElegida = document.getElementById("fechaMovimientoIngreso").value;
+
+  console.log("Registrando ingreso de insumo:" + "Cantidad:", cantidad, "Fecha:", fechaElegida, "idInsumo:", idInsumo, "Observaciones:", observaciones);
 
   const usuarioId = JSON.parse(localStorage.getItem("usuarioLogueado")).id;
 
@@ -185,22 +187,18 @@ function registrarMovimiento() {
     .then(recursos => {
 
       // 2. Buscar y FILTRAR por Insumo (usando el filtro confirmado)
-      const recurso = recursos.find(r => r.nombre === nombreRecurso && r.tipo === "Insumo");
+      const recurso = recursos.find(r => r.id === idInsumo && r.tipo === "Insumo");
 
-      if (!recurso) {
-        alert("No se encontró el insumo seleccionado o no es un insumo válido.");
-        return;
-      }
+      console.log("Recurso encontrado para ingreso:", recurso);
 
-      // ✅ Spring acepta yyyy-MM-dd
-      const fechaFinal = fechaElegida ? fechaElegida : new Date().toISOString().split("T")[0];
+
 
       const movimiento = {
-        fecha: fechaFinal,
-        cantidad, // Esta cantidad es positiva (Ingreso)
-        observaciones,
+        fecha: fechaElegida,
+        cantidad: cantidad, // Esta cantidad es positiva (Ingreso)
+        observaciones: observaciones,
         generadoPor: { id: usuarioId },
-        recurso: { id: recurso.id }
+        recurso: { id: idInsumo }
       };
 
       console.log("Movimiento de Ingreso a registrar:", movimiento);
@@ -210,7 +208,7 @@ function registrarMovimiento() {
       // a) Crear el registro de movimiento.
       // b) SUMAR la cantidad al stock del recurso con id = recurso.id.
       return fetch(
-        "http://localhost:8080/api/movimientos/registrar?idUsuario=" + usuarioId + "&idRecurso=" + recurso.id,
+        "http://localhost:8080/api/movimientos/registrar?idUsuario=" + usuarioId + "&idRecurso=" + idInsumo,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
