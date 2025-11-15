@@ -18,8 +18,16 @@ public class SolicitudControlador {
     private SolicitudServicio solicitudServicio;
 
     @GetMapping
-    public ResponseEntity<List<Solicitud>> listar() {
-        return ResponseEntity.ok(solicitudServicio.listar());
+    public ResponseEntity<?> listar() {
+        try {
+            List<Solicitud> lista = solicitudServicio.listar();
+            return ResponseEntity.ok(lista);
+        } catch (Exception e) {
+            // Log en consola del servidor y devolver el mensaje para debug temporal
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al listar solicitudes: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+        }
     }
 
     @GetMapping("/{id}")

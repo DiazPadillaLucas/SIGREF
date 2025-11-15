@@ -28,8 +28,6 @@ public class SolicitudServicio {
     @Autowired
     private RecursoRepositorio recursoRepositorio;
 
-    @Autowired
-
     public java.util.List<Solicitud> listar() {
         return solicitudRepositorio.findAll();
     }

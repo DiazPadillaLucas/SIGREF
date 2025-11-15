@@ -4,7 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
+
 import java.util.Date; // Usaremos java.util.Date para control manual
 import java.util.Set; // Usaremos Set para la relación Muchos a Muchos
 
@@ -44,6 +47,9 @@ public class Solicitud {
     @ManyToMany
     @JoinTable(name = "solicitud_recurso", // JPA creará y gestionará esta tabla por sí mismo
             joinColumns = @JoinColumn(name = "solicitud_id"), inverseJoinColumns = @JoinColumn(name = "recurso_id"))
+    @JsonIgnore
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Set<Recurso> bienesSolicitados; // Cambiamos el nombre para reflejar el objeto final
 
 }

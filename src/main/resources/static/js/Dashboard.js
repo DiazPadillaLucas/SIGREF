@@ -8,7 +8,6 @@ document.addEventListener("DOMContentLoaded", function () {
   contarMovimientosHoy();
   listarRecursos();
   listarBienes();
-  obtenerInsumosSelect();
   mostrarFormulario();
   listarUsuarios();
   listarCategoriasBienes();
@@ -20,6 +19,13 @@ document.addEventListener("DOMContentLoaded", function () {
   cargarSolicitantesDisponibles();
   cargarInsumosDinamicos();
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    showSection(localStorage.getItem("ultimaSeccion") || "dashboard");
+    cargarInsumosDinamicos();
+    cargarCategoriasDinamicamente();
+});
+
 
 document.addEventListener("click", function (event) {
   if (event.target.matches("#cerrarSesion")) {
@@ -144,7 +150,7 @@ function cargarInsumosDinamicos() {
      .then(r => {
 
         const insumos = r.filter(r => r.tipo === "Insumo");
-        console.log("Insumos obtenidos para datalist:", insumos[0].no);
+
 
        insumos.forEach(insumo => {
          const option = document.createElement('option');
@@ -301,7 +307,6 @@ function contarAlertasDeStockMinimo() {
 }
 
 function contarMovimientosHoy() {
-    console.log("🔹 contando movimientos hoy...");
     fetch("http://localhost:8080/api/movimientos/contar/hoy")
          .then((response) => response.json())
             .then((data) => {
@@ -534,8 +539,6 @@ function listarRecursos() {
       const categoriasFiltrados = filtro === "todos"
         ? recursosInsumo
         : recursosInsumo.filter(recurso => recurso.categoria.toLowerCase() === filtro);
-
-      console.log(filtro);
 
       categoriasFiltrados.forEach((recurso) => {
         const columna = document.createElement("tr");
@@ -1358,30 +1361,6 @@ function hideResourceForm(idForm){
   document.getElementById(idForm).classList.add("hidden");
 }
 
-// Obtener insumos para listarlos en select
-function obtenerInsumosSelect(){
-  fetch("http://localhost:8080/api/recursos/activos")
-      .then((response) => response.json())
-      .then((data) => {
-        const selects = document.getElementsByClassName("insumo-selec-movimiento");
-        console.log(data);
-
-        console.log(selects);
-        data.sort((a,b) => a.nombre.localeCompare(b.nombre));
-
-        console.log("Data organizado",data);
-
-        data.forEach((insumo) => {
-          let option = document.createElement("option");
-          option.textContent = insumo.nombre;
-          for (let select of selects) {
-            select.appendChild(option.cloneNode(true));
-          }
-        });
-
-      });
-}
-
 
 // Mostrar/ocultar formularios en usuarios
 function showUserForm(action) {
@@ -1404,8 +1383,6 @@ function listarUsuarios() {
       .then((data) => {
         const tabla = document.getElementById("tabla-usuarios");
         tabla.innerHTML = ""; // limpiar antes de renderizar
-        console.log("Lista de usuarios: ", data);
-
         // 2. Aplicar el filtro:
         //    - Si filtroRol es "TODOS", devuelve todos los datos (data).
         //    - En otro caso, filtra donde el rol del usuario coincida con el valor de filtroRol.
@@ -1580,13 +1557,6 @@ let solicitanteIdEditando = null;
 
 // URL base del API para Solicitantes
 const API_URL = "http://localhost:8080/api/solicitantes";
-
-// --- Funciones de Utilidad y Gestión de Vistas ---
-
-// Función asumida para recargar la lista de datos
-function reloadPage() {
-    listarSolicitantes();
-}
 
 // === MOSTRAR FORMULARIO ===
 function showResourceForm(formId) {
@@ -1942,7 +1912,7 @@ function listarCategoriasBienes() {
       }
       tabla.innerHTML = "";
       const bienes = (Array.isArray(cats) ? cats : []).filter(c => c.tipo === "BIEN");
-      console.log("Categorías de bienes:", bienes);
+
       if (bienes.length === 0) {
         tabla.innerHTML = `<tr><td colspan="3" class="px-6 py-4 text-sm text-gray-500">No hay categorías de bienes.</td></tr>`;
         return;
@@ -2114,30 +2084,40 @@ function hideResourceForm(formId) {
 
 
 function cargarBienesDisponibles() {
-   const datalist = document.getElementById("registro-solcBi-nombien");
-   // Limpiamos las opciones previas
-   datalist.innerHTML = '';
+    const selectBien = document.getElementById("registro-solcBi-nombien");
+    console.log("SElec:0"+selectBien);
 
-   fetch("http://localhost:8080/api/recursos/activos")
-     .then(r => r.json())
-     .then(r => {
+    if (selectBien.options && selectBien.options.length > 1) return;
 
-        const bienes = r.filter(r => r.tipo === "Bien");
-        console.log("Insumos obtenidos para datalist:", bienes[0].nombre);
+    const urlConFiltro = `${RECURSOS_API_URL}/activos?tipo=Bien`;
 
-       bienes.forEach(bien => {
-         const option = document.createElement('option');
-         // Aseguramos que el insumo tenga nombre para evitar opciones vacías
-         if (bien.nombre) {
-            option.value = bien.id;
-            option.textContent = bien.nombre;
-            datalist.appendChild(option);
-         }
-       });
-
-       console.log(`Cargados ${insumos.length} insumos dinámicamente.`);
-     })
-     .catch(err => console.error("Error al cargar insumos:", err));
+    fetch(urlConFiltro)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("HTTP error! status: " + response.status);
+            }
+            return response.json();
+        })
+        .then(bienes => {
+            selectBien.innerHTML = '<option value="" disabled selected>Seleccione un Bien</option>';
+            if (bienes.length === 0) {
+                selectBien.innerHTML = '<option value="" disabled selected>No hay Bienes disponibles</option>';
+                return;
+            }
+            // Rellena con los Bienes
+            bienes.forEach(bien => {
+                const option = document.createElement("option");
+                option.textContent = bien.nombre + " (Cód: " + bien.codigo + ")";
+                option.value = bien.id;
+                selectBien.appendChild(option);
+            });
+            console.log(`Bienes cargados (${bienes.length} encontrados).`);
+        })
+        .catch(error => {
+            // Muestra un error visible en el select y en la consola
+            console.error("Fallo al cargar Bienes. Verifique el endpoint /api/recursos/activos?tipo=BIEN:", error);
+            selectBien.innerHTML = '<option value="" disabled selected>Error al cargar bienes</option>';
+        });
 }
 
 //-------------------- VER DETALLE (OJITO) --------------------
@@ -2190,17 +2170,17 @@ function crearSolicitudBien() {
         return;
     }
 // ...
-const nuevaSolicitud = {
-    nroTramite: numeroT,
-    area: area,
-    fechaSolicitud: fecha,
-    solicitante: { id: parseInt(solicitanteId) },
+    const nuevaSolicitud = {
+        nroTramite: numeroT,
+        area: area,
+        fechaSolicitud: fecha,
+        solicitante: { id: parseInt(solicitanteId) },
 
-    // CLAVE: Enviamos un array de objetos Recurso con solo el ID
-    bienesSolicitados: [
-        { id: parseInt(bienId) }
-    ]
-};
+        // CLAVE: Enviamos un array de objetos Recurso con solo el ID
+        bienesSolicitados: [
+            { id: parseInt(bienId) }
+        ]
+    };
     // 3. Integración con el SolicitudControlador (POST)
     fetch("http://localhost:8080/api/solicitudes", {
         method: "POST",
@@ -2215,12 +2195,10 @@ const nuevaSolicitud = {
         }
         return response.json();
     })
-    .then(data => {
+    .then(response => {
         alert("Solicitud registrada correctamente.");
-        // Después de crear, refresca la lista/página
-        listarSolicitudes();
         hideResourceForm("form-nueva-solicitudBienes");
-        window.location.reload();
+        reloadPage();
     })
     .catch(error => {
         console.error("Fallo al crear solicitud de Bien:", error);
@@ -2837,15 +2815,4 @@ function cargarCategoriasDinamicamente(selectId, tipoFiltro) {
             alert(`Error de conexión al cargar las categorías (${tipoFiltro}). Verifique el servidor.`);
         });
 }
-
-// Inicialización: Carga las categorías al cargar la página.
-document.addEventListener('DOMContentLoaded', cargarCategoriasDinamicamente);
-document.addEventListener('DOMContentLoaded', cargarInsumosDinamicos);
-document.addEventListener('DOMContentLoaded',cargarBienesDisponibles)
-
-document.addEventListener('DOMContentLoaded',)
-
-
-
-
 
