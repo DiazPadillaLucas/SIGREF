@@ -1,8 +1,11 @@
 package com.sistema.demo.controlador;
 
+import com.sistema.demo.dto.SolicitudDTO;
 import com.sistema.demo.entidad.Solicitud;
+import com.sistema.demo.repositorio.SolicitudRepositorio;
 import com.sistema.demo.servicio.SolicitudServicio;
 import jakarta.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,17 +20,16 @@ public class SolicitudControlador {
     @Autowired
     private SolicitudServicio solicitudServicio;
 
+    /*
+     * @GetMapping
+     * public ResponseEntity<List<Solicitud>> listar1() {
+     * return ResponseEntity.ok(solicitudServicio.listar());
+     * }
+     */
     @GetMapping
-    public ResponseEntity<?> listar() {
-        try {
-            List<Solicitud> lista = solicitudServicio.listar();
-            return ResponseEntity.ok(lista);
-        } catch (Exception e) {
-            // Log en consola del servidor y devolver el mensaje para debug temporal
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al listar solicitudes: " + e.getClass().getSimpleName() + " - " + e.getMessage());
-        }
+    public ResponseEntity<List<SolicitudDTO>> listar() {
+        List<SolicitudDTO> lista = solicitudServicio.listar();
+        return ResponseEntity.ok(lista);
     }
 
     @GetMapping("/{id}")
@@ -40,26 +42,47 @@ public class SolicitudControlador {
     }
 
     @PostMapping
-    public ResponseEntity<?> crear(@RequestBody Solicitud solicitud) {
+    // ...existing code...
+    public ResponseEntity<?> crear(@RequestBody SolicitudDTO solicitudDTO) {
         try {
-            Solicitud creada = solicitudServicio.crearSolicitud(solicitud);
+            SolicitudDTO creada = solicitudServicio.crearSolicitud(solicitudDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(creada);
         } catch (IllegalArgumentException | EntityNotFoundException e) {
-            // Errores 400 por validación de solicitante o bien
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (org.springframework.dao.DataIntegrityViolationException e) {
-            // NUEVA CAPTURA PARA EL ERROR DE DUPLICIDAD (409 Conflict)
-            // Buscamos el mensaje para ver si es el nro_tramite
             if (e.getMessage() != null && e.getMessage().contains("UK_nro_tramite")) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(
                         "Ya existe una solicitud con el número de trámite ingresado. Por favor, ingrese un valor único.");
             }
-            // Si es otro error de integridad, devolvemos un 400
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Error de integridad de datos: " + e.getMostSpecificCause().getMessage());
         }
     }
 
+    // ...existing code...
+    /*
+     * public ResponseEntity<?> crear(@RequestBody Solicitud solicitud) {
+     * try {
+     * Solicitud creada = solicitudServicio.crearSolicitud(solicitud);
+     * return ResponseEntity.status(HttpStatus.CREATED).body(creada);
+     * } catch (IllegalArgumentException | EntityNotFoundException e) {
+     * // Errores 400 por validación de solicitante o bien
+     * return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+     * } catch (org.springframework.dao.DataIntegrityViolationException e) {
+     * // NUEVA CAPTURA PARA EL ERROR DE DUPLICIDAD (409 Conflict)
+     * // Buscamos el mensaje para ver si es el nro_tramite
+     * if (e.getMessage() != null && e.getMessage().contains("UK_nro_tramite")) {
+     * return ResponseEntity.status(HttpStatus.CONFLICT).body(
+     * "Ya existe una solicitud con el número de trámite ingresado. Por favor, ingrese un valor único."
+     * );
+     * }
+     * // Si es otro error de integridad, devolvemos un 400
+     * return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+     * .body("Error de integridad de datos: " +
+     * e.getMostSpecificCause().getMessage());
+     * }
+     * }
+     */
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizar(@PathVariable Long id, @RequestBody Solicitud solicitud) {
         try {

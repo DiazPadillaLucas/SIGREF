@@ -2124,25 +2124,23 @@ function cargarBienesDisponibles() {
 
 let solicitudSeleccionadaBien = null;
 
-function verDetalleSolicitudBien(id) {
-    const solicitud = solicitudesBienes.find(s => s.id === id);
-    if (!solicitud) return;
-
-    solicitudSeleccionadaBien = solicitud;
-
+function verDetalleSolicitudBien(solicitud) {
+    
     // Llenar campos
-    document.getElementById("ver-solcBi-numt").value = solicitud.numeroT;
+    document.getElementById("ver-solcBi-numt").value = solicitud.nroTramite;
     document.getElementById("ver-solcBi-area").value = solicitud.area;
-    document.getElementById("ver-solcBi-nombien").value = solicitud.bien;
-    document.getElementById("ver-solcBi-solicitabien").value = solicitud.solicitante;
-    document.getElementById("ver-solcBi-fecha").value = solicitud.fecha;
-
+    document.getElementById("ver-solcBi-nombien").value = solicitud.bienesIds;
+    document.getElementById("ver-solcBi-solicitabien").value = solicitud.solicitanteNombre;
+    document.getElementById("ver-solcBi-fecha").value = solicitud.fechaSolicitud;
+    
     // Mostrar formulario de ver
     showResourceForm("form-ver-solicitudBienes");
+    
 }
 
 // Aceptar solicitud desde el formulario de visualización
 function aceptarSolicitudBien() {
+
     if (!solicitudSeleccionadaBien) return;
 
     solicitudSeleccionadaBien.estado = "aceptada";
@@ -2161,7 +2159,6 @@ function crearSolicitudBien() {
     const bienId = document.getElementById("registro-solcBi-nombien").value;
     // CLAVE: Captura el ID del Solicitante del nuevo <select>
     const solicitanteId = document.getElementById("registro-solcBi-solicitabien").value;
-
     const fecha = document.getElementById("registro-solcBi-fecha").value.trim();
 
     // 1. Validaciones
@@ -2169,18 +2166,21 @@ function crearSolicitudBien() {
         alert("Complete todos los campos antes de guardar.");
         return;
     }
+
+    console.log("sOLICITANTE "+solicitanteId);
 // ...
     const nuevaSolicitud = {
         nroTramite: numeroT,
+        solicitanteId: parseInt(solicitanteId),
         area: area,
+        estado: "PENDIENTE",
         fechaSolicitud: fecha,
-        solicitante: { id: parseInt(solicitanteId) },
-
         // CLAVE: Enviamos un array de objetos Recurso con solo el ID
-        bienesSolicitados: [
-            { id: parseInt(bienId) }
-        ]
+        bienesIds: [parseInt(bienId)]
     };
+    
+    console.log("ID solicitante "+JSON.stringify(nuevaSolicitud));
+    
     // 3. Integración con el SolicitudControlador (POST)
     fetch("http://localhost:8080/api/solicitudes", {
         method: "POST",
@@ -2193,7 +2193,7 @@ function crearSolicitudBien() {
                 throw new Error(`Error ${response.status}: ${errorText || 'Error al procesar la solicitud.'}`);
             });
         }
-        return response.json();
+        return response.json(); 
     })
     .then(response => {
         alert("Solicitud registrada correctamente.");
@@ -2205,50 +2205,8 @@ function crearSolicitudBien() {
         alert("Error al guardar la solicitud: " + error.message);
     });
 }
-function listarSolicitudes() {
-    const tablaSolicitudes = document.getElementById("tabla-solicitudes-bienes"); // Asegúrate de que este ID exista
-    if (!tablaSolicitudes) return;
 
-    fetch("http://localhost:8080/api/solicitudes")
-        .then(response => response.json())
-        .then(solicitudes => {
-            tablaSolicitudes.innerHTML = ''; // Limpiar tabla
 
-            solicitudes.forEach(solicitud => {
-                const columna = document.createElement("tr");
-
-                // --- Extracción del Bien (el primer recurso asociado) ---
-                let nombreBien = 'N/A';
-                if (solicitud.recursosAsociados && solicitud.recursosAsociados.size > 0) {
-                    // Como asumimos una Solicitud de Bien simple (un solo recurso), tomamos el primero
-                    const primerRecursoAsociado = solicitud.recursosAsociados.values().next().value;
-                    if (primerRecursoAsociado && primerRecursoAsociado.recurso) {
-                         nombreBien = primerRecursoAsociado.recurso.nombre;
-                    }
-                }
-                // Formato de fecha
-                const fecha = new Date(solicitud.fechaSolicitud).toLocaleDateString();
-
-                columna.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">${solicitud.nroTramite}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${solicitud.area}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">${nombreBien}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${solicitud.solicitante.nombre}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${fecha}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button onclick="mostrarFormularioEditarSolicitud(${solicitud.id})" class="text-blue-600 hover:text-blue-900 mr-3">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button onclick="eliminarSolicitud(${solicitud.id})" class="text-red-600 hover:text-red-900">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                `;
-                tablaSolicitudes.appendChild(columna);
-            });
-        })
-        .catch(error => console.error("Error al listar solicitudes:", error));
-}
 function eliminarSolicitud(id) {
     if (confirm("¿Estás seguro de eliminar la solicitud con ID " + id + "?")) {
         fetch(`http://localhost:8080/api/solicitudes/${id}`, {
@@ -2306,54 +2264,48 @@ function eliminarSolicitud(id) {
 
 // Renderizar tabla con las solicitudes
 function renderTablaSolicitudes() {
-    const tbody = document.getElementById("tabla-solicitudesBienes");
-    if (!tbody) return;
 
-    tbody.innerHTML = "";
+    fetch("http://localhost:8080/api/solicitudes")
+    .then((response) => response.json())
+    .then((solicitudes) => {
+      const tabla = document.getElementById("tabla-solicitudesBienes");
+      tabla.innerHTML = ""; // Limpia la tabla antes de agregar filas
 
-    if (solicitudesBienes.length === 0) {
-        const fila = document.createElement("tr");
-        const celda = document.createElement("td");
-        celda.colSpan = 6;
-        celda.textContent = "No hay solicitudes registradas.";
-        celda.classList.add("text-center", "py-4", "text-gray-500");
-        fila.appendChild(celda);
-        tbody.appendChild(fila);
-        return;
-    }
 
-    solicitudesBienes.forEach(s => {
-        const fila = document.createElement("tr");
 
-        const colNum = document.createElement("td");
-        colNum.textContent = s.numeroT;
-        colNum.classList.add("px-6", "py-3", "text-sm", "text-gray-700");
+      solicitudes.forEach((s) => {
+        const columna = document.createElement("tr");
 
-        const colArea = document.createElement("td");
-        colArea.textContent = s.area;
-        colArea.classList.add("px-6", "py-3", "text-sm", "text-gray-700");
+        // --------------------------------------------------------------
+        // CAMBIO 1: ID - Ahora será la primera columna visible
+        // --------------------------------------------------------------
 
-        const colBien = document.createElement("td");
-        colBien.textContent = s.bien;
-        colBien.classList.add("px-6", "py-3", "text-sm", "text-gray-700");
 
-        const colSolicitante = document.createElement("td");
-        colSolicitante.textContent = s.solicitante;
-        colSolicitante.classList.add("px-6", "py-3", "text-sm", "text-gray-700");
+        const numTramite = document.createElement("td");
+        numTramite.textContent = s.nroTramite;
+        numTramite.classList.add("px-6", "py-3", "text-sm", "text-gray-700");
 
-        const colFecha = document.createElement("td");
-        colFecha.textContent = s.fecha;
-        colFecha.classList.add("px-6", "py-3", "text-sm", "text-gray-700");
+        const area = document.createElement("td");
+        area.textContent = s.area;
+        area.classList.add("px-6", "py-3", "text-sm", "text-gray-700");
 
-        const colAcciones = document.createElement("td");
-        colAcciones.classList.add("px-6", "py-3", "text-sm", "flex", "space-x-4");
+        const solicitante = document.createElement("td");
+        solicitante.textContent = s.solicitanteNombre;
+        solicitante.classList.add("px-6", "py-3", "text-sm", "text-gray-700");
+
+        const fecha = document.createElement("td");
+        fecha.textContent = s.fechaSolicitud;
+        fecha.classList.add("px-6", "py-3", "text-sm", "text-gray-700");
+
+        const acciones = document.createElement("td");
+        acciones.classList.add("px-6", "py-3", "text-sm", "flex", "space-x-4");
 
         // Botón Ver (ojito)
         const btnVer = document.createElement("button");
         btnVer.innerHTML = `<i class="fas fa-eye text-gray-700 hover:text-black text-lg"></i>`;
         btnVer.title = "Ver detalles";
         btnVer.onclick = function() {
-        verDetalleSolicitudBien(s.id);
+        verDetalleSolicitudBien(s);
                 };
 
         // Botón Editar (ícono)
@@ -2372,17 +2324,28 @@ function renderTablaSolicitudes() {
             eliminarSolicitud(s.id);
         };
 
-        colAcciones.appendChild(btnEditar);
-        colAcciones.appendChild(btnEliminar);
 
-        fila.appendChild(colNum);
-        fila.appendChild(colArea);
-        fila.appendChild(colBien);
-        fila.appendChild(colSolicitante);
-        fila.appendChild(colFecha);
-        fila.appendChild(colAcciones);
+        // se debe hacer una busquedad para devolver los nombres de los bienes asociados
+        const bien = document.createElement("td");
+        bien.textContent = s.bienesIds;
+        bien.classList.add("px-6", "py-3", "text-sm", "text-gray-700");
 
-        tbody.appendChild(fila);
+
+
+
+        acciones.appendChild(btnEditar);
+        acciones.appendChild(btnEliminar);
+        acciones.appendChild(btnVer);
+
+        columna.appendChild(numTramite);
+        columna.appendChild(area);
+        columna.appendChild(bien);
+        columna.appendChild(solicitante);
+        columna.appendChild(fecha);
+        columna.appendChild(acciones);
+
+        tabla.appendChild(columna);
+      });
     });
 }
 

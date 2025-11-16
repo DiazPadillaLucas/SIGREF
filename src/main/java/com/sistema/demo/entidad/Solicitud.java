@@ -28,6 +28,9 @@ public class Solicitud {
     // Relación Muchos a Uno con Solicitante (campo 'solicitante' de la FK)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "solicitante_id", nullable = false)
+    @JsonIgnore
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Solicitante solicitante; // Representa el "nombre del solicitante" (a través del objeto)
 
     private String area;
